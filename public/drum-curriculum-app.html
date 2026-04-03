@@ -160,6 +160,24 @@
         .tacet-card { opacity: .6; border: 1px dashed rgba(196,125,255,0.2); }
         .tacet-label { font-size: .82rem; color: var(--stage5); font-style: italic; margin-top: 8px; }
 
+        /* ── Groove Transport ── */
+        .groove-transport {
+            display: flex; align-items: center; gap: 6px;
+            margin-top: 12px; padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .transport-btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--card-bg); border: 1px solid rgba(77,184,168,0.2);
+            color: var(--muted-text); font-size: .82rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all .2s; padding: 0; line-height: 1;
+        }
+        .transport-btn:hover { background: var(--teal-dim); border-color: var(--teal); color: var(--light-text); }
+        .transport-btn.active { background: var(--teal); color: #000; border-color: var(--teal); }
+        .transport-bpm { font-size: .76rem; color: var(--muted-text); margin-left: auto; font-weight: 600; }
+        .drum-cell.playhead { background: var(--playing) !important; color: #fff !important; box-shadow: 0 0 8px rgba(255,107,107,0.5); }
+
         /* ── Fill Viz ── */
         .fill-card { background: var(--panel-bg); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; }
         .fill-card .fill-label { font-size: .85rem; font-weight: 600; color: var(--teal); margin-bottom: 4px; }
@@ -1106,10 +1124,23 @@ let gbPlaying = false;
 let gbInterval = null;
 let gbStep = 0;
 let audioCtx = null;
+let noiseBuffer = null;
+let activeGrooveId = null; // only one groove plays at a time
+const groovePlayback = {}; // keyed by grooveId
 
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
+}
+
+function getNoiseBuffer(ctx) {
+  if (noiseBuffer) return noiseBuffer;
+  const sr = ctx.sampleRate;
+  const buf = ctx.createBuffer(1, sr * 2, sr);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  noiseBuffer = buf;
+  return buf;
 }
 
 // ══════════════════════════════════════════════
@@ -1124,6 +1155,7 @@ document.querySelectorAll('.nav-link').forEach(btn => {
 document.getElementById('detailBack').addEventListener('click', () => switchView('dashboard'));
 
 function switchView(view) {
+  stopAllGroovePlayback();
   currentView = view;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
@@ -1230,7 +1262,7 @@ function renderDetail() {
       <div class="section-block">
         <h3>Full Song Drum Parts</h3>
         <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:14px;">Every section of the song with its drum pattern. Learn each one, then chain them together.</p>
-        ${s.groove.map(g => renderGrooveCard(g)).join('')}
+        ${s.groove.map((g, gi) => renderGrooveCard(g, `s${s.id}-g${gi}`, s.tempoRangeBPM.min)).join('')}
       </div>
       ${s.fills.length ? `<div class="section-block"><h3>Fills</h3>${s.fills.map(f => renderFillCard(f)).join('')}</div>` : ''}
       <div class="section-block">
@@ -1365,9 +1397,32 @@ function renderDetail() {
       el.querySelector(`.tab-panel[data-tab="${tab.dataset.tab}"]`).classList.add('active');
     });
   });
+
+  // Initialize groove playback state and wire transport controls
+  s.groove.forEach((g, gi) => {
+    if (g.tacet) return;
+    const gid = `s${s.id}-g${gi}`;
+    const grid = parseAsciiToGrid(g.asciiNotation);
+    if (!grid) return;
+    initGrooveTransport(gid, grid, s.tempoRangeBPM.min);
+  });
+
+  el.querySelectorAll('.groove-transport').forEach(transport => {
+    const gid = transport.dataset.gid;
+    transport.querySelectorAll('.transport-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        if (action === 'play') startGroovePlayback(gid);
+        else if (action === 'pause') pauseGroovePlayback(gid);
+        else if (action === 'stop') stopGroovePlayback(gid);
+        else if (action === 'rewind') rewindGroove(gid);
+        else if (action === 'forward') forwardGroove(gid);
+      });
+    });
+  });
 }
 
-function renderGrooveCard(g) {
+function renderGrooveCard(g, grooveId, bpm) {
   if (g.tacet) {
     return `<div class="groove-card tacet-card">
       ${g.section ? `<div class="groove-section-tag">${g.section}</div>` : ''}
@@ -1377,13 +1432,25 @@ function renderGrooveCard(g) {
     </div>`;
   }
   const grid = parseAsciiToGrid(g.asciiNotation);
+  const hasGrid = grid && grooveId;
+  const transportHtml = hasGrid ? `
+    <div class="groove-transport" data-gid="${grooveId}">
+      <button class="transport-btn" data-action="rewind" title="Rewind">&#9664;&#9664;</button>
+      <button class="transport-btn" data-action="play" title="Play">&#9654;</button>
+      <button class="transport-btn" data-action="pause" title="Pause" style="display:none">&#10074;&#10074;</button>
+      <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
+      <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
+      <span class="transport-bpm">${bpm || '?'} BPM</span>
+    </div>
+  ` : '';
   return `
     <div class="groove-card">
       ${g.section ? `<div class="groove-section-tag">${g.section}</div>` : ''}
       <div class="groove-label">${g.label}</div>
       <div class="groove-desc">${g.description}</div>
       ${g.meter ? `<div class="groove-meter">${g.meter}</div>` : ''}
-      ${grid ? renderDrumGrid(grid) : `<div class="ascii-block">${g.asciiNotation}</div>`}
+      ${grid ? renderDrumGrid(grid, grooveId) : `<div class="ascii-block">${g.asciiNotation}</div>`}
+      ${transportHtml}
     </div>
   `;
 }
@@ -1424,9 +1491,10 @@ function parseAsciiToGrid(ascii) {
   return { beats, rows };
 }
 
-function renderDrumGrid(grid) {
+function renderDrumGrid(grid, gridId) {
   const numCells = grid.rows[0]?.cells.length || 8;
-  let html = '<div class="grid-container"><div class="drum-grid">';
+  const idAttr = gridId ? ` id="gg-${gridId}"` : '';
+  let html = `<div class="grid-container"><div class="drum-grid"${idAttr}>`;
 
   // Beat markers
   if (grid.beats.length) {
@@ -1438,15 +1506,15 @@ function renderDrumGrid(grid) {
     html += '</div>';
   }
 
-  grid.rows.forEach(row => {
+  grid.rows.forEach((row, ri) => {
     html += '<div class="drum-grid-row">';
     html += `<div class="drum-grid-label">${row.label}</div>`;
     html += '<div class="drum-grid-cells">';
-    row.cells.forEach(cell => {
+    row.cells.forEach((cell, ci) => {
       const isOn = cell !== '-';
       const isGhost = cell.toLowerCase() === 'g';
       const cls = isGhost ? 'ghost' : (isOn ? 'on' : 'off');
-      html += `<div class="drum-cell ${cls}">${isOn ? cell : ''}</div>`;
+      html += `<div class="drum-cell ${cls}" data-ri="${ri}" data-ci="${ci}">${isOn ? cell : ''}</div>`;
     });
     html += '</div></div>';
   });
@@ -1495,8 +1563,10 @@ const GM_DRUMS = {
 };
 const DRUM_SOUNDS = {
   36: { freq: 55, dur: 0.4, gain: 0.8, type: 'sine' },
+  37: { freq: 800, dur: 0.04, gain: 0.5, type: 'triangle' },
   38: { freq: 180, dur: 0.12, gain: 0.6, type: 'triangle' },
   42: { freq: 8000, dur: 0.06, gain: 0.3, type: 'square' },
+  46: { freq: 8000, dur: 0.25, gain: 0.3, type: 'square' },
   51: { freq: 5000, dur: 0.15, gain: 0.25, type: 'triangle' },
   49: { freq: 3000, dur: 0.3, gain: 0.4, type: 'square' },
   43: { freq: 90, dur: 0.25, gain: 0.6, type: 'sine' },
@@ -1590,23 +1660,178 @@ function renderSequencer(drumNames, numSteps, beats) {
   });
 }
 
-function playDrumHit(midiNote) {
+function playDrumHit(midiNote, velocity) {
   const ctx = getAudioCtx();
-  const sound = DRUM_SOUNDS[midiNote] || DRUM_SOUNDS[42];
   const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = sound.type;
-  osc.frequency.setValueAtTime(sound.freq, now);
-  if (midiNote === 36 || midiNote === 43 || midiNote === 47 || midiNote === 50) {
-    osc.frequency.exponentialRampToValueAtTime(1, now + sound.dur);
+  const vol = (velocity || 100) / 127;
+
+  if (midiNote === 36) {
+    // KICK — sine body sweep + noise click
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+    g.gain.setValueAtTime(0.9 * vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.4);
+    // click transient
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(ctx);
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 1000;
+    ng.gain.setValueAtTime(0.4 * vol, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.05);
+
+  } else if (midiNote === 38) {
+    // SNARE — triangle body + bandpass noise rattle
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.06);
+    g.gain.setValueAtTime(0.5 * vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.15);
+    // noise rattle
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(ctx);
+    const ng = ctx.createGain();
+    const bpf = ctx.createBiquadFilter();
+    bpf.type = 'bandpass'; bpf.frequency.value = 3500; bpf.Q.value = 1.2;
+    ng.gain.setValueAtTime(0.45 * vol, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    ns.connect(bpf); bpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.2);
+
+  } else if (midiNote === 37) {
+    // RIMCLICK — short high triangle
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(820, now);
+    g.gain.setValueAtTime(0.45 * vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.06);
+
+  } else if (midiNote === 42) {
+    // CLOSED HI-HAT — highpass noise, short
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(ctx);
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 7000;
+    ng.gain.setValueAtTime(0.28 * vol, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.08);
+
+  } else if (midiNote === 46) {
+    // OPEN HI-HAT — highpass noise, longer decay
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(ctx);
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 6000;
+    ng.gain.setValueAtTime(0.32 * vol, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.35);
+
+  } else if (midiNote === 51) {
+    // RIDE — bandpass noise + metallic osc
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(ctx);
+    const ng = ctx.createGain();
+    const bpf = ctx.createBiquadFilter();
+    bpf.type = 'bandpass'; bpf.frequency.value = 5500; bpf.Q.value = 2;
+    ng.gain.setValueAtTime(0.22 * vol, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    ns.connect(bpf); bpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.4);
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'square'; osc.frequency.value = 5200;
+    g.gain.setValueAtTime(0.06 * vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.35);
+
+  } else if (midiNote === 49 || midiNote === 55) {
+    // CRASH / SPLASH — wideband noise
+    const dur = midiNote === 49 ? 0.7 : 0.3;
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(ctx);
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 3000;
+    ng.gain.setValueAtTime(0.35 * vol, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + dur + 0.05);
+
+  } else if (midiNote === 43 || midiNote === 47 || midiNote === 50) {
+    // TOMS — sine body sweep + noise attack
+    const freqs = { 43: [110, 65], 47: [140, 85], 50: [170, 105] };
+    const [hi, lo] = freqs[midiNote];
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(hi, now);
+    osc.frequency.exponentialRampToValueAtTime(lo, now + 0.15);
+    g.gain.setValueAtTime(0.55 * vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.28);
+    // attack noise
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(ctx);
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.15 * vol, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+    ns.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.06);
+
+  } else {
+    // Fallback — simple osc
+    const sound = DRUM_SOUNDS[midiNote] || DRUM_SOUNDS[42];
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = sound.type;
+    osc.frequency.setValueAtTime(sound.freq, now);
+    g.gain.setValueAtTime(sound.gain * vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + sound.dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + sound.dur + 0.05);
   }
-  gain.gain.setValueAtTime(sound.gain, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + sound.dur);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(now);
-  osc.stop(now + sound.dur + 0.05);
+}
+
+// Resolve ASCII cell character + row label to MIDI note and velocity
+function resolveHitInfo(rowLabel, cellChar) {
+  if (cellChar === '-') return null;
+  const label = rowLabel.trim();
+  // Ghost note on snare
+  if (cellChar.toLowerCase() === 'g') return { midiNote: 38, velocity: 45 };
+  // Rimclick (C on Snare row)
+  if (cellChar === 'C' && /snare/i.test(label)) return { midiNote: 37, velocity: 90 };
+  // Open hat
+  if (cellChar === 'o' && /hh|hat/i.test(label)) return { midiNote: 46, velocity: 90 };
+  // Crash on its own row or accent
+  if (cellChar === 'C' && /crash/i.test(label)) return { midiNote: 49, velocity: 100 };
+  if (cellChar === 'C' && !/snare/i.test(label)) return { midiNote: 49, velocity: 100 };
+  // Standard mapping from row label
+  const map = {
+    'kick': 36, 'snare': 38, 'hh': 42, 'ride': 51,
+    'crash': 49, 'ft': 43, 'mt': 47, 'ht': 50, 'splash': 55, 'tom': 47
+  };
+  const midiNote = map[label.toLowerCase()] || GM_DRUMS[label] || 42;
+  return { midiNote, velocity: 100 };
 }
 
 function startGBPlayback() {
@@ -1658,6 +1883,123 @@ function clearGB() {
     gbPattern[drum] = gbPattern[drum].map(() => 0);
   });
   document.querySelectorAll('.seq-cell').forEach(c => { c.classList.remove('on'); c.classList.add('off'); });
+}
+
+// ══════════════════════════════════════════════
+//  GROOVE CARD PLAYBACK
+// ══════════════════════════════════════════════
+function stopAllGroovePlayback() {
+  Object.keys(groovePlayback).forEach(id => stopGroovePlayback(id));
+}
+
+function startGroovePlayback(grooveId) {
+  const ctx = getAudioCtx();
+  if (ctx.state === 'suspended') ctx.resume();
+  // Stop any other playing groove
+  if (activeGrooveId && activeGrooveId !== grooveId) stopGroovePlayback(activeGrooveId);
+
+  const state = groovePlayback[grooveId];
+  if (!state) return;
+
+  if (state.paused) {
+    state.paused = false;
+    state.playing = true;
+  } else if (!state.playing) {
+    state.playing = true;
+    state.step = 0;
+  } else {
+    return; // already playing
+  }
+  activeGrooveId = grooveId;
+  updateTransportUI(grooveId);
+  grooveTick(grooveId);
+}
+
+function pauseGroovePlayback(grooveId) {
+  const state = groovePlayback[grooveId];
+  if (!state || !state.playing) return;
+  state.playing = false;
+  state.paused = true;
+  clearTimeout(state.intervalId);
+  updateTransportUI(grooveId);
+}
+
+function stopGroovePlayback(grooveId) {
+  const state = groovePlayback[grooveId];
+  if (!state) return;
+  state.playing = false;
+  state.paused = false;
+  clearTimeout(state.intervalId);
+  state.step = 0;
+  if (activeGrooveId === grooveId) activeGrooveId = null;
+  // Clear playhead highlights
+  const gridEl = document.getElementById('gg-' + grooveId);
+  if (gridEl) gridEl.querySelectorAll('.drum-cell.playhead').forEach(c => c.classList.remove('playhead'));
+  updateTransportUI(grooveId);
+}
+
+function rewindGroove(grooveId) {
+  const state = groovePlayback[grooveId];
+  if (!state) return;
+  const stepsBack = state.stepsPerBeat || 4;
+  state.step = Math.max(0, state.step - stepsBack);
+}
+
+function forwardGroove(grooveId) {
+  const state = groovePlayback[grooveId];
+  if (!state) return;
+  const stepsFwd = state.stepsPerBeat || 4;
+  state.step = (state.step + stepsFwd) % state.numSteps;
+}
+
+function grooveTick(grooveId) {
+  const state = groovePlayback[grooveId];
+  if (!state || !state.playing) return;
+
+  const gridEl = document.getElementById('gg-' + grooveId);
+  if (!gridEl) { stopGroovePlayback(grooveId); return; }
+
+  // Clear previous playhead
+  gridEl.querySelectorAll('.drum-cell.playhead').forEach(c => c.classList.remove('playhead'));
+
+  // Highlight current column and play sounds
+  state.grid.rows.forEach((row, ri) => {
+    const cell = gridEl.querySelector(`[data-ri="${ri}"][data-ci="${state.step}"]`);
+    if (cell) cell.classList.add('playhead');
+    const ch = row.cells[state.step];
+    if (ch && ch !== '-') {
+      const hit = resolveHitInfo(row.label, ch);
+      if (hit) playDrumHit(hit.midiNote, hit.velocity);
+    }
+  });
+
+  state.step = (state.step + 1) % state.numSteps;
+  state.intervalId = setTimeout(() => grooveTick(grooveId), state.stepDurMs);
+}
+
+function updateTransportUI(grooveId) {
+  const transport = document.querySelector(`.groove-transport[data-gid="${grooveId}"]`);
+  if (!transport) return;
+  const state = groovePlayback[grooveId];
+  const playBtn = transport.querySelector('[data-action="play"]');
+  const pauseBtn = transport.querySelector('[data-action="pause"]');
+  if (state && state.playing) {
+    playBtn.style.display = 'none';
+    pauseBtn.style.display = 'flex';
+  } else {
+    playBtn.style.display = 'flex';
+    pauseBtn.style.display = 'none';
+  }
+}
+
+function initGrooveTransport(grooveId, grid, bpm) {
+  const numSteps = grid.rows[0]?.cells.length || 8;
+  const stepsPerBeat = numSteps <= 8 ? 2 : 4;
+  const stepDurMs = 60000 / bpm / stepsPerBeat;
+  groovePlayback[grooveId] = {
+    playing: false, paused: false, step: 0,
+    intervalId: null, grid, numSteps, stepsPerBeat, stepDurMs
+  };
 }
 
 // ══════════════════════════════════════════════
