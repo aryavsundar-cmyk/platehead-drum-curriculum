@@ -547,7 +547,11 @@ const songs = [
       {section:"Chorus",label:"Chorus — Open Hat Lift",description:"Open hats on the &, crash on beat 1. Slight energy lift without overplaying.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nHH   : x o x o x o x o\nCrash: C - - - - - - -"},
       {section:"Outro",label:"Outro — Fade to Kick",description:"Strip back to kick only. Let the guitars and Moog carry the ending.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - - - - - - -\nHH   : - - - - - - - -"}
     ],
-    fills:[{label:"Chorus Pickup",description:"Simple snare roll into crash",asciiNotation:"Count: 3 & 4 &\nSnare: S S S S\nCrash: - - - C"}],
+    fills:[
+      {label:"Chorus Pickup",description:"Simple snare roll into crash. Use on last beat of verse heading into chorus.",asciiNotation:"Count: 3 & 4 &\nSnare: S S S S\nCrash: - - - C"},
+      {label:"Verse Re-entry",description:"Kick-hat pickup. Minimal — just re-establish time after chorus decay.",asciiNotation:"Count: 4 &\nKick : K -\nHH   : - x"},
+      {label:"Outro Transition",description:"Descending snare-to-kick. Signals the strip-down to outro.",asciiNotation:"Count: 3 & 4 &\nSnare: S S - -\nKick : - - K K"}
+    ],
     practiceBpmLadder:[60,64,68,72,76],
     milestones:["Play verse groove for 2 min without tempo drift","Execute hat open/close cleanly on chorus","Complete full arrangement memory run"],
     roadmap:"Start with kick-only timekeeping, add hats after 1 week, add snare after 2 weeks.",
@@ -576,7 +580,12 @@ const songs = [
       {section:"Bridge",label:"Bridge — Half-Time Drop",description:"Half-time feel. Snare on 3 only. Breathing room before final chorus.",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- ---- --K- ----\nSnare: ---- ---- S--- ----\nHH   : x-x- x-x- x-x- x-x-"},
       {section:"Outro",label:"Outro — Verse Fade",description:"Return to verse groove. Let it decay naturally.",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- --K- K--- --K-\nSnare: ---- S--- ---- S---\nHH   : xxxx xxxx xxxx xxxx"}
     ],
-    fills:[{label:"Chorus Transition",description:"Tom cascade into crash",asciiNotation:"Count: 4 e & a\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"}],
+    fills:[
+      {label:"Chorus Transition",description:"Tom cascade into crash. Classic descending fill on beat 4.",asciiNotation:"Count: 4 e & a\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"},
+      {label:"Snare Drag",description:"Quick snare doubles into beat 1. Keeps the 16th-note energy alive.",asciiNotation:"Count: 4 e & a\nSnare: S S S S\nKick : - - - K"},
+      {label:"Hat Lift Fill",description:"Open hat on the & of 4 rings into crash on 1. Smooth energy shift.",asciiNotation:"Count: 3 & 4 &\nHH   : x x x o\nKick : K - - -\nCrash: - - - C"},
+      {label:"Linear Kick-Snare",description:"Alternating hands and feet. No two voices at once.",asciiNotation:"Count: 4 e & a\nKick : K - K -\nSnare: - S - S"}
+    ],
     practiceBpmLadder:[90,100,108,112,120],
     milestones:["16th hats steady for 1 minute","Offbeat kicks without losing hat flow","Full song arrangement from memory"],
     roadmap:"Week 1: hats only. Week 2: add backbeat. Week 3: add kicks. Week 4: full song.",
@@ -604,7 +613,11 @@ const songs = [
       {section:"Chorus",label:"Chorus — Full Backbeat",description:"Drop ghosts, full snare hits. Crash swells on bar 1 and 5. More energy.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x\nCrash: C - - - - - - -"},
       {section:"Outro",label:"Outro — Ghost Decay",description:"Return to ghost groove. Gradually reduce velocity. Fade to silence.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - g S g - g S g\nHH   : x x x x x x x x"}
     ],
-    fills:[],
+    fills:[
+      {label:"Ghost Roll Swell",description:"Ghost notes crescendo into crash. Use between verse and chorus.",asciiNotation:"Count: 3 & 4 &\nSnare: g g S S\nCrash: - - - C"},
+      {label:"Kick Push",description:"Double kick into beat 1. Minimal movement, maximum effect.",asciiNotation:"Count: 4 &\nKick : K K\nSnare: - -"},
+      {label:"Ghost Cascade",description:"Rolling ghost notes across the bar. Maintain pp dynamic throughout.",asciiNotation:"Count: 3 e & a 4 e & a\nSnare: g g g g g g S -\nKick : - - - - - - - K"}
+    ],
     practiceBpmLadder:[60,66,72,76,80],
     milestones:["Ghost notes audible but quiet","Consistent ghost/accent ratio","Full arrangement with dynamics"],
     roadmap:"Focus on ghost note exercises first. Add to song context after 2 weeks.",
@@ -633,7 +646,11 @@ const songs = [
       {section:"Breakdown",label:"Breakdown — Half-Time Heavy",description:"Floor tom anchors beat 1. Snare on 3. Controlled power.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nFT   : T - - - - - - -\nHH   : x x x x x x x x"},
       {section:"Outro",label:"Outro — Verse Reprise",description:"Return to verse groove. Prove you can switch back cleanly after breakdown.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}
     ],
-    fills:[{label:"Breakdown Entry",description:"Floor tom roll into half-time",asciiNotation:"Count: 3 & 4 &\nFT   : T T T T\nCrash: - - - C"}],
+    fills:[
+      {label:"Breakdown Entry",description:"Floor tom roll into half-time. Accents announce the section change.",asciiNotation:"Count: 3 & 4 &\nFT   : T T T T\nCrash: - - - C"},
+      {label:"Snare Build",description:"Snare 16ths building into chorus crash. Keep even stick height at speed.",asciiNotation:"Count: 4 e & a\nSnare: S S S S\nCrash: - - - C\nKick : - - - K"},
+      {label:"Kick-Snare Gallop",description:"Alternating kick-snare at speed. Tests coordination under tempo pressure.",asciiNotation:"Count: 3 & 4 &\nKick : K - K -\nSnare: - S - S\nCrash: - - - C"}
+    ],
     practiceBpmLadder:[120,128,134,140,146,152],
     milestones:["Sustain verse groove 2 minutes","Clean half-time drop","No double-kick cheating"],
     roadmap:"Build kick endurance at 120, increase 5 BPM per week.",
@@ -662,7 +679,11 @@ const songs = [
       {section:"Bridge",label:"Bridge — Stripped Down",description:"Kick and snare only. No cymbals. Creates tension before final chorus.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nHH   : - - - - - - - -"},
       {section:"Outro",label:"Outro — Verse Fade",description:"Return to verse pocket groove. Fade out naturally.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K K - -\nSnare: - - S - - - S -\nHH   : x o x x x o x x"}
     ],
-    fills:[{label:"Short Fill A",description:"Quick snare-tom into chorus",asciiNotation:"Count: 4 & \nSnare: S -\nHT   : - T"}],
+    fills:[
+      {label:"Short Fill A",description:"Quick snare-tom into chorus. Compact — don't overplay.",asciiNotation:"Count: 4 &\nSnare: S -\nHT   : - T"},
+      {label:"Open Hat Accent",description:"Open hat rings into crash on beat 1. Natural energy swell for chorus.",asciiNotation:"Count: 3 & 4 &\nHH   : x x o -\nCrash: - - - C\nKick : - - - K"},
+      {label:"Tom Cascade",description:"Descending toms into kick. Use sparingly — once per arrangement.",asciiNotation:"Count: 4 e & a\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nKick : - - - K"}
+    ],
     practiceBpmLadder:[96,100,104,108,116],
     milestones:["Open hats clean and rhythmic","Fills under 1 beat","Verse groove locked for 32 bars"],
     roadmap:"Learn groove without open hats first. Add open hats week 2. Add fills week 3.",
@@ -691,7 +712,11 @@ const songs = [
       {section:"Bridge",label:"Bridge — Half-Time Strip",description:"Half-time feel. Snare on 3. Kick on 1 only. Breathing room.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - - -\nSnare: - - - - S - - -\nHH   : x x x x x x x x"},
       {section:"Outro",label:"Outro — Verse Return",description:"Back to full disco pulse. Fade over 8 bars.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}
     ],
-    fills:[],
+    fills:[
+      {label:"Disco Crash Lift",description:"Open hat on & of 4 into crash. Classic disco transition.",asciiNotation:"Count: 3 & 4 &\nKick : K - K -\nHH   : x x x o\nCrash: - - - C"},
+      {label:"Snare Flam Fill",description:"Quick snare doubles on beat 4. Keep the disco pulse alive through the fill.",asciiNotation:"Count: 4 e & a\nSnare: S S S S\nKick : K - K -"},
+      {label:"Tom Accent",description:"Single tom hit punctuates the transition. Less is more.",asciiNotation:"Count: 4 &\nHT   : T -\nKick : - K\nCrash: - C"}
+    ],
     practiceBpmLadder:[108,112,118,122,126],
     milestones:["Steady kick for 3 minutes","No flamming between kick and hat","Endurance without tension"],
     roadmap:"Focus on kick consistency. This is an endurance track.",
@@ -720,7 +745,11 @@ const songs = [
       {section:"Decay",label:"Decay — Strip Back to Toms",description:"Remove snare first, then hats, then kick. Reverse the build.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - - -\nFT   : T - T - - - T -\nMT   : - - - - T - - -\nHH   : x - x - - - - -"},
       {section:"Outro",label:"Outro — Ostinato Fade",description:"Toms only again. Decreasing velocity. Fade to silence.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nFT   : T - T - - - T -\nMT   : - - - - T - - -"}
     ],
-    fills:[],
+    fills:[
+      {label:"Tom Roll Build",description:"Toms accelerate into crash. Signals the peak section entrance.",asciiNotation:"Count: 3 e & a 4 e & a\nHT   : - - - - T - - -\nMT   : - - T - - T - -\nFT   : T T - - - - T -\nCrash: - - - - - - - C"},
+      {label:"Snare Push",description:"Snare enters over tom pattern. Adds urgency before the peak.",asciiNotation:"Count: 3 & 4 &\nSnare: S - S S\nFT   : T - - -\nCrash: - - - C"},
+      {label:"Decay Pullback",description:"Single crash into silence. Dramatic section break — let it ring.",asciiNotation:"Count: 1 &\nCrash: C -\nKick : K -"}
+    ],
     practiceBpmLadder:[80,86,92,96,100],
     milestones:["Tom pattern steady for 16 bars","Build without rushing","Controlled return to sparse"],
     roadmap:"Master the tom ostinato first. Build the arrangement over weeks.",
@@ -749,7 +778,12 @@ const songs = [
       {section:"Chorus 4/4",label:"Chorus — 4/4 Release",description:"Straight 4/4 feel. Crash on beat 1. Should feel like exhaling after 7/8.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nHH   : x x x x x x x x\nCrash: C - - - - - - -"},
       {section:"Outro 7/8",label:"Outro — Return to 7/8",description:"Back to the 7/8 groove. Proves you can switch both directions.",meter:"7/8",asciiNotation:"Count: 1 & 2 & 3 & 4\nKick : K - - - K - -\nSnare: - - S - - - S\nHH   : x x x x x x x"}
     ],
-    fills:[{label:"Transition Fill",description:"7/8 to 4/4 bridge",asciiNotation:"Count: 1 & 2 & 3 & 4\nSnare: - - S - S S S"}],
+    fills:[
+      {label:"7/8 to 4/4 Bridge",description:"Extra 8th note fills the gap when switching meters. Snare walk-up.",asciiNotation:"Count: 1 & 2 & 3 & 4\nSnare: - - S - S S S"},
+      {label:"4/4 to 7/8 Pullback",description:"Truncated fill. Stop on beat 4 — the missing beat sells the meter change.",asciiNotation:"Count: 1 & 2 & 3\nSnare: S - S S -\nKick : - K - - K"},
+      {label:"Crash Reset",description:"Single crash marks the meter boundary. Simplest transition — use when unsure.",asciiNotation:"Count: 4 &\nCrash: C -\nKick : K -"},
+      {label:"Tom Meter Fill",description:"Toms outline the odd meter. Physically feels like the beat shifting.",asciiNotation:"Count: 1 & 2 & 3 & 4\nHT   : T - - - - - -\nMT   : - - T - - - -\nFT   : - - - - T T -\nCrash: - - - - - - C"}
+    ],
     practiceBpmLadder:[92,100,104,108,116],
     milestones:["7/8 groove feels natural","Transition is seamless","Audience can't tell the meter changed"],
     roadmap:"Count 7/8 as 4+3. Master each meter separately before transitions.",
@@ -778,7 +812,11 @@ const songs = [
       {section:"Chorus",label:"Chorus — Half-Time Drop",description:"Sudden half-time. Snare on 3. Massive contrast with verse drive.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nHH   : x x x x x x x x"},
       {section:"Outro",label:"Outro — Ride Return",description:"Back to ride groove. Proves the half-time was intentional, not a stumble.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - - -\nSnare: - - S - - - S -\nRide : R - R - R - R -"}
     ],
-    fills:[{label:"Tom Variation",description:"Quick tom accent between phrases",asciiNotation:"Count: 4 &\nHT   : T -\nFT   : - T"}],
+    fills:[
+      {label:"Tom Variation",description:"Quick tom accent between phrases. Two hits, no more.",asciiNotation:"Count: 4 &\nHT   : T -\nFT   : - T"},
+      {label:"Ride to Crash Swap",description:"Last ride hit becomes crash. Smooth section transition.",asciiNotation:"Count: 3 & 4 &\nRide : R R R -\nCrash: - - - C\nKick : K - - K"},
+      {label:"Snare-Tom Walkdown",description:"Linear snare-to-toms fill. One voice at a time.",asciiNotation:"Count: 4 e & a\nSnare: S - - -\nHT   : - T - -\nMT   : - - T -\nFT   : - - - T"}
+    ],
     practiceBpmLadder:[92,96,100,104,112],
     milestones:["Ride bell consistent for 16 bars","Clean half-time transition","Tom fills don't interrupt groove"],
     roadmap:"Master ride groove first. Add half-time after. Fills last.",
@@ -809,7 +847,12 @@ const songs = [
       {section:"Final Chorus",label:"Final Chorus — Full Energy",description:"Verse B groove with crashes. Maximum intensity for the finale.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x\nCrash: C - - - - - - -"},
       {section:"End",label:"End — Crash Tail",description:"Final crash and kick. Let the cymbal ring out. 2 bars of silence.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - - -\nSnare: - - - - - - - -\nCrash: C - - - - - - -"}
     ],
-    fills:[{label:"Chorus Crash Entry",description:"Simple crash on beat 1 of chorus",asciiNotation:"Count: 1\nCrash: C\nKick : K"}],
+    fills:[
+      {label:"Chorus Crash Entry",description:"Simple crash on beat 1 of chorus. Clean and powerful at speed.",asciiNotation:"Count: 1\nCrash: C\nKick : K"},
+      {label:"Breakdown Snare Roll",description:"Snare 8ths into breakdown. Tension builder at speed — don't rush.",asciiNotation:"Count: 3 & 4 &\nSnare: S S S S\nHH   : x x x x\nCrash: - - - C"},
+      {label:"Quick Tom Punch",description:"Two tom hits between sections. At 160+ BPM, this is all you need.",asciiNotation:"Count: 4 &\nFT   : T T\nCrash: - C"},
+      {label:"Verse Return",description:"Kick pickup back into verse. Proves you can switch grooves under tempo pressure.",asciiNotation:"Count: 4 &\nKick : K K\nHH   : x x"}
+    ],
     practiceBpmLadder:[120,132,140,148,156,164,168],
     milestones:["Verse groove for 2 minutes at 156","Clean breakdown drop","Full arrangement without stopping"],
     roadmap:"Start at 120 BPM. Increase 5 BPM weekly. Breakdown separate practice.",
@@ -839,7 +882,11 @@ const songs = [
       {section:"Build",label:"Build — Hat Ramp",description:"Hats build from 8ths to 16ths over 8 bars. Add syncopated kick on & of 3.",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- K--- K-K- K---\nSnare: ---- S--- ---- S---\nHH   : xxxx xxxx xxxx xxxx"},
       {section:"Outro",label:"Outro — Fade",description:"Return to verse groove. Gradually reduce hat velocity. Fade out.",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- K--- K--- K---\nSnare: ---- S--- ---- S---\nHH   : x-x- x-x- x-x- x-x-"}
     ],
-    fills:[],
+    fills:[
+      {label:"Syncopated Snare Burst",description:"Quick snare 16ths over the four-on-the-floor. Keep kick steady through the fill.",asciiNotation:"Count: 4 e & a\nKick : K - K -\nSnare: S S S S\nCrash: - - - C"},
+      {label:"Hat Open Swell",description:"Open hat crescendo into crash. The dance-floor energy shift.",asciiNotation:"Count: 3 & 4 &\nHH   : o o o o\nKick : K - K -\nCrash: - - - C"},
+      {label:"Kick Drop Fill",description:"Remove kick for 2 beats, then slam back in. Creates tension without adding notes.",asciiNotation:"Count: 3 & 4 &\nKick : - - - K\nSnare: S - S -\nCrash: - - - C"}
+    ],
     practiceBpmLadder:[110,116,120,124,128],
     milestones:["Kick steady for 3 minutes","Add syncopated kick on & of 3 without losing pulse","Full arrangement"],
     roadmap:"Master four-on-the-floor at 110. Add hats. Then introduce syncopation.",
@@ -868,7 +915,11 @@ const songs = [
       {section:"Solo",label:"Solo — Tom Fills Behind Guitar",description:"Loose tom fills under the solo. Keep ride going, add floor tom accents.",meter:"4/4 swung",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - - -\nFT   : - - - - - - T -\nRide : R - R - R - R -"},
       {section:"Outro",label:"Outro — Verse Decay",description:"Back to sludge pocket. Gradually drop ride volume. End on crash.",meter:"4/4 swung",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nRide : R - R - R - R -"}
     ],
-    fills:[],
+    fills:[
+      {label:"Swung Tom Cascade",description:"Descending toms with swing feel. Let the triplet feel carry through.",asciiNotation:"Count: 4 e & a\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"},
+      {label:"Lazy Snare Drag",description:"Ghost into accent. Swung feel — the ghost is slightly early.",asciiNotation:"Count: 3 & 4 &\nSnare: g - S -\nKick : - K - K"},
+      {label:"Floor Tom Stomp",description:"Heavy floor tom doubles. Sludge energy — play it like it weighs a ton.",asciiNotation:"Count: 3 & 4 &\nFT   : T T T T\nCrash: - - - C\nKick : - - - K"}
+    ],
     practiceBpmLadder:[76,80,84,90,96],
     milestones:["Swing feel consistent for 16 bars","Dragged kick before 3 once stable","Full song"],
     roadmap:"Lock the swing. Add drag after swing is stable.",
@@ -896,7 +947,11 @@ const songs = [
       {section:"Chorus",label:"Chorus — Cymbal Swells",description:"Add slow cymbal swells. Kick stays. Cross-stick stays. Swells on bar 1 and 5.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - C - - - C -\nCrash: C - - - - - - -"},
       {section:"Outro",label:"Outro — Return to Silence",description:"Strip to cross-stick only. Then nothing. Let the Moog carry the ending.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : - - - - - - - -\nSnare: - - C - - - - -\nHH   : - - - - - - - -"}
     ],
-    fills:[],
+    fills:[
+      {label:"Cymbal Swell Entry",description:"Single crash into silence. The fill IS the space after it.",asciiNotation:"Count: 1\nCrash: C\nKick : K"},
+      {label:"Cross-stick Pickup",description:"Double cross-stick leads into the next section. Minimal but functional.",asciiNotation:"Count: 4 &\nSnare: C C"},
+      {label:"Kick Breath",description:"Two kick notes with space. Signals verse movement without breaking the trance.",asciiNotation:"Count: 3 & 4 &\nKick : K - - K\nSnare: - - - -"}
+    ],
     practiceBpmLadder:[56,60,64,68,70],
     milestones:["Make silence feel intentional","Cross-stick consistent","Follow Moog for section cues"],
     roadmap:"Practice with a click at extremely low BPM. Resist adding notes.",
@@ -925,7 +980,12 @@ const songs = [
       {section:"Chorus",label:"Chorus — Full Energy",description:"Verse groove with crash on 1. Open hats for intensity lift.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - - -\nSnare: - - S - - - S -\nHH   : x x x o x x x o\nCrash: C - - - - - - -"},
       {section:"Outro",label:"Outro — Riff Reprise",description:"Back to intro feel. Kick and snare locked to riff. No hats. End heavy.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - - -\nSnare: - - S - - - S -\nHH   : - - - - - - - -"}
     ],
-    fills:[],
+    fills:[
+      {label:"Riff Lock Fill",description:"Snare doubles locked to the guitar riff accent. Stay in the pocket.",asciiNotation:"Count: 3 & 4 &\nSnare: S S S -\nKick : - - K K\nCrash: - - - C"},
+      {label:"Floor Tom Anchor",description:"Floor tom accents mark the transition. Heavy and deliberate.",asciiNotation:"Count: 4 e & a\nFT   : T - T -\nKick : - K - K\nCrash: - - - C"},
+      {label:"Bridge Drop",description:"Single crash into half-time. Let silence do the work.",asciiNotation:"Count: 1 &\nCrash: C -\nKick : K -"},
+      {label:"Kick Gallop Pickup",description:"Two quick kicks announce the riff return. Tight and punchy.",asciiNotation:"Count: 4 &\nKick : K K\nSnare: - S"}
+    ],
     practiceBpmLadder:[88,94,98,104,112],
     milestones:["Locked with guitar chug","Bridge transition clean","Double kick only as 2-note pickup"],
     roadmap:"Learn riff on guitar or listen until internalized. Then play along.",
@@ -954,7 +1014,11 @@ const songs = [
       {section:"Decay",label:"Decay — Strip Back",description:"Remove crash first, then snare, then hats. Reverse the build arc.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - - - - -\nFT   : - - T - - - T -"},
       {section:"Outro",label:"Outro — Sparse Ending",description:"Floor tom only again. Fade to nothing. Mirror the intro.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : - - - - - - - -\nSnare: - - - - - - - -\nFT   : T - - - - - T -"}
     ],
-    fills:[],
+    fills:[
+      {label:"Crescendo Tom Roll",description:"Ascending toms push into the build climax. Increase velocity with each hit.",asciiNotation:"Count: 3 e & a 4 e & a\nFT   : T - - - - - - -\nMT   : - - T - - - - -\nHT   : - - - - T - - -\nSnare: - - - - - - S -\nCrash: - - - - - - - C"},
+      {label:"Crash Stack",description:"Multiple crashes mark the peak. Heavy and sustained.",asciiNotation:"Count: 1 &\nCrash: C C\nKick : K K"},
+      {label:"Decay Signal",description:"Floor tom into silence. Signals the strip-back. Let it ring.",asciiNotation:"Count: 3 & 4 &\nFT   : T - T -\nKick : - - - -\nSnare: - - - -"}
+    ],
     practiceBpmLadder:[64,68,72,78,84],
     milestones:["16-bar crescendo at steady tempo","Cymbal entries timed to builds","Full arrangement arc"],
     roadmap:"Practice crescendo with metronome. Automate MIDI velocities as guide.",
@@ -983,7 +1047,12 @@ const songs = [
       {section:"Bridge",label:"Bridge — Breakdown",description:"Half-time drop. Floor tom on 1, snare on 3. Catch your breath.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nFT   : T - - - - - - -\nHH   : x x x x x x x x"},
       {section:"Final Chorus",label:"Final Chorus — Full Energy",description:"Back to punk drive with crashes. The final push. Don't get sloppy.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x\nCrash: C - - - - - - -"}
     ],
-    fills:[],
+    fills:[
+      {label:"Punk Snare Blast",description:"4 snare 8ths into crash. Classic punk fill — speed IS the challenge.",asciiNotation:"Count: 3 & 4 &\nSnare: S S S S\nCrash: - - - C"},
+      {label:"Floor Tom Slam",description:"Two floor tom hits. Heavy contrast to the hat-snare drive.",asciiNotation:"Count: 4 &\nFT   : T T\nCrash: - C\nKick : - K"},
+      {label:"Breakdown Entry",description:"Single crash + floor tom announces the half-time drop. No fill — just the hit.",asciiNotation:"Count: 1\nCrash: C\nFT   : T\nKick : K"},
+      {label:"Kick Doubles Pickup",description:"Two quick kicks back into the verse. At 160 BPM, this takes practice.",asciiNotation:"Count: 4 &\nKick : K K\nHH   : - x"}
+    ],
     practiceBpmLadder:[120,132,140,148,154,162],
     milestones:["30-second bursts at 160","Full song at 148","Crash chorus without fatigue"],
     roadmap:"Practice in 30-second bursts. Avoid sloppy high-tempo habits.",
@@ -1012,7 +1081,11 @@ const songs = [
       {section:"Verse 2",label:"Verse 2 — Deeper Focus",description:"Same groove as Verse 1. The challenge is maintaining it without drifting.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - - -\nSnare: - - - - S - - -\nHH   : x x x x x x x x"},
       {section:"Outro",label:"Outro — Fade to Nothing",description:"Remove kick. Then snare. Hats alone. Then silence.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : - - - - - - - -\nSnare: - - - - - - - -\nHH   : x x x x x x x x"}
     ],
-    fills:[],
+    fills:[
+      {label:"Cymbal Wash",description:"Single crash into sustained ring. The transition IS the ring-out.",asciiNotation:"Count: 1\nCrash: C\nKick : K"},
+      {label:"Hat Breath",description:"Open hat swells between sections. Close it on the downbeat of the new section.",asciiNotation:"Count: 3 & 4 &\nHH   : x x x o\nKick : - - - -"},
+      {label:"Snare Ghost Pickup",description:"Single ghost note re-enters the groove. Barely audible — that's the point.",asciiNotation:"Count: 4 &\nSnare: g -\nKick : - K"}
+    ],
     practiceBpmLadder:[60,64,66,70,74],
     milestones:["Play groove for 5 minutes without rushing","Maintain relaxed posture","Feel the song, not just play it"],
     roadmap:"Use this between heavier modules. Focus on breathing and relaxation.",
@@ -1041,7 +1114,12 @@ const songs = [
       {section:"Bridge",label:"Bridge — Tom-Led Linear",description:"Replace hats with toms in the linear sequence. More melodic.",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- ---- K--- ----\nSnare: ---- S--- ---- S---\nHT   : --T- ---- ---- ----\nFT   : ---- ---- --T- ----"},
       {section:"Outro",label:"Outro — Return to Core",description:"Back to verse linear pattern. Prove the coordination held through the song.",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- K--- ---- ----\nSnare: ---- S--- ---- S---\nHH   : --H- --H- H-H- ----"}
     ],
-    fills:[],
+    fills:[
+      {label:"Linear Tom Run",description:"Hands and feet alternate — no two voices together. Pure linear fill.",asciiNotation:"Count: 4 e & a\nKick : K - - -\nHT   : - T - -\nSnare: - - S -\nFT   : - - - T"},
+      {label:"Splash Accent",description:"Splash cymbal punctuates the transition. Quick and bright.",asciiNotation:"Count: 4 &\nSplash: - C\nKick  : K -"},
+      {label:"Linear Snare-Kick",description:"Strict alternation — snare, kick, snare, kick. Tests independence at speed.",asciiNotation:"Count: 4 e & a\nSnare: S - S -\nKick : - K - K"},
+      {label:"Tom-to-Crash Walk",description:"Full linear run across the toms ending in crash. The showcase fill.",asciiNotation:"Count: 3 e & a 4 e & a\nHT   : T - - - - - - -\nMT   : - T - - - - - -\nFT   : - - T - - - - -\nSnare: - - - S - - - -\nKick : - - - - K - K -\nCrash: - - - - - - - C"}
+    ],
     practiceBpmLadder:[80,88,92,96,104,108],
     milestones:["Pattern clean at 88 BPM","Splash/hat orchestration added","Full song performance"],
     roadmap:"Learn pattern hands-only first. Add kick. Then orchestrate hats vs splash.",
@@ -1070,7 +1148,12 @@ const songs = [
       {section:"Cinematic",label:"Cinematic — Emotional Peak",description:"Tom fills between phrases. Crash accents. The climax of the song.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - K -\nSnare: - - S - - - S -\nFT   : T - - - - - - -\nHH   : x x x x x x x x\nCrash: C - - - - - - -"},
       {section:"Outro",label:"Outro — 6/8 Return",description:"Fade back to 6/8 theme. Decreasing dynamics. End where you started.",meter:"6/8",asciiNotation:"Count: 1 2 3 4 5 6\nKick : K - - - - -\nSnare: - - - S - -\nHH   : x x x x x x"}
     ],
-    fills:[{label:"Cinematic Tom Fill",description:"Descending toms into crash",asciiNotation:"Count: 3 & 4 &\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"}],
+    fills:[
+      {label:"Cinematic Tom Fill",description:"Descending toms into crash. Classic cinematic moment.",asciiNotation:"Count: 3 & 4 &\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"},
+      {label:"6/8 to 4/4 Bridge",description:"Tom triplet resolves into straight 4/4 crash. The meter shift fill.",asciiNotation:"Count: 1 & a 2 &\nFT   : T - T - -\nSnare: - T - - S\nCrash: - - - - C"},
+      {label:"Mallets to Sticks",description:"Soft crash swells into full hit. Marks the dynamic shift from ambient to driven.",asciiNotation:"Count: 3 & 4 &\nCrash: C - - C\nKick : K - - K"},
+      {label:"Ghost Fade In",description:"Ghost notes emerge from silence, building into a full accent.",asciiNotation:"Count: 3 & 4 &\nSnare: g g g S\nKick : - - - K"}
+    ],
     practiceBpmLadder:[60,64,68,72,76,80],
     milestones:["6/8 feels natural","Meter change seamless","Cinematic ending nailed"],
     roadmap:"Master 6/8 first. Then 4/4 section. Finally, transitions and fills.",
@@ -1099,7 +1182,13 @@ const songs = [
       {section:"Atmospheric Break",label:"Atmospheric Break — Sparse",description:"Strip back. Cross-stick and kick only. Channel Spectral Lines' restraint.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - - -\nSnare: - - C - - - C -\nHH   : - - - - - - - -"},
       {section:"Final Heavy Reprise",label:"Final Heavy — 112 BPM Peak",description:"Maximum intensity. Every beat kicks. Crash on 1. The consolidation of everything learned.",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x\nCrash: C - - - - - - -"}
     ],
-    fills:[{label:"Section Transition",description:"Simple crash entry between sections. No complex fills — use no more than 3 fill types.",asciiNotation:"Count: 4 &\nCrash: - C\nKick : - K"}],
+    fills:[
+      {label:"Section Transition",description:"Simple crash entry between sections. The suite's connective tissue.",asciiNotation:"Count: 4 &\nCrash: - C\nKick : - K"},
+      {label:"Movement Break",description:"Descending toms signal the end of a suite movement. Dramatic and deliberate.",asciiNotation:"Count: 3 & 4 &\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"},
+      {label:"Tempo Shift Fill",description:"Snare doubles bridge the tempo change between movements.",asciiNotation:"Count: 3 & 4 &\nSnare: S S S S\nKick : K - K -\nCrash: - - - C"},
+      {label:"Ghost Entry",description:"Ghost-note pickup into the next section. Subtle and musical.",asciiNotation:"Count: 4 e & a\nSnare: g g g S\nKick : - - - K"},
+      {label:"Suite Closer",description:"Final crash + kick. The last sound of the curriculum. Make it count.",asciiNotation:"Count: 1\nCrash: C\nKick : K"}
+    ],
     practiceBpmLadder:[64,72,80,88,96,104,112],
     milestones:["Complete all section transitions without stopping","Maintain tempo integrity through 3 distinct feels","Use no more than 3 fill types to avoid overplaying"],
     roadmap:"Learn each section independently. Chain them. Then perform the full suite.",
@@ -1264,7 +1353,7 @@ function renderDetail() {
         <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:14px;">Every section of the song with its drum pattern. Learn each one, then chain them together.</p>
         ${s.groove.map((g, gi) => renderGrooveCard(g, `s${s.id}-g${gi}`, s.tempoRangeBPM.min)).join('')}
       </div>
-      ${s.fills.length ? `<div class="section-block"><h3>Fills</h3>${s.fills.map(f => renderFillCard(f)).join('')}</div>` : ''}
+      ${s.fills.length ? `<div class="section-block"><h3>Fills &amp; Transitions</h3><p style="color:var(--muted-text);font-size:.82rem;margin-bottom:14px;">Fills to connect sections. Practice each at slow BPM, then at tempo.</p>${s.fills.map((f, fi) => renderFillCard(f, `s${s.id}-f${fi}`, s.tempoRangeBPM.min)).join('')}</div>` : ''}
       <div class="section-block">
         <h3>Dynamics Notes</h3>
         <div class="dynamics-box">${s.dynamicsNotes}</div>
@@ -1406,6 +1495,13 @@ function renderDetail() {
     if (!grid) return;
     initGrooveTransport(gid, grid, s.tempoRangeBPM.min);
   });
+  // Initialize fill playback
+  s.fills.forEach((f, fi) => {
+    const fid = `s${s.id}-f${fi}`;
+    const grid = parseAsciiToGrid(f.asciiNotation);
+    if (!grid) return;
+    initGrooveTransport(fid, grid, s.tempoRangeBPM.min);
+  });
 
   el.querySelectorAll('.groove-transport').forEach(transport => {
     const gid = transport.dataset.gid;
@@ -1455,12 +1551,26 @@ function renderGrooveCard(g, grooveId, bpm) {
   `;
 }
 
-function renderFillCard(f) {
+function renderFillCard(f, fillId, bpm) {
+  const grid = parseAsciiToGrid(f.asciiNotation);
+  const hasGrid = grid && fillId;
+  const transportHtml = hasGrid ? `
+    <div class="groove-transport" data-gid="${fillId}">
+      <button class="transport-btn" data-action="rewind" title="Rewind">&#9664;&#9664;</button>
+      <button class="transport-btn" data-action="play" title="Play">&#9654;</button>
+      <button class="transport-btn" data-action="pause" title="Pause" style="display:none">&#10074;&#10074;</button>
+      <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
+      <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
+      <span class="transport-bpm">${bpm || '?'} BPM</span>
+    </div>
+  ` : '';
   return `
-    <div class="fill-card">
-      <div class="fill-label">${f.label}</div>
-      <div class="fill-desc">${f.description}</div>
-      <div class="ascii-block">${f.asciiNotation}</div>
+    <div class="groove-card">
+      <div class="groove-section-tag" style="color:var(--tan);">FILL</div>
+      <div class="groove-label">${f.label}</div>
+      <div class="groove-desc">${f.description}</div>
+      ${grid ? renderDrumGrid(grid, fillId) : `<div class="ascii-block">${f.asciiNotation}</div>`}
+      ${transportHtml}
     </div>
   `;
 }
