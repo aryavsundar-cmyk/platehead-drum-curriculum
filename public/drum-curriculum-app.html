@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platehead Drum Curriculum</title>
+    <style>
+        :root {
+            --dark-bg: #111820;
+            --card-bg: #1a2332;
+            --card-bg-hover: #1f2b3d;
+            --panel-bg: #2a3a4a;
+            --teal: #4db8a8;
+            --teal-dim: rgba(77, 184, 168, 0.15);
+            --tan: #d4a574;
+            --tan-dim: rgba(212, 165, 116, 0.15);
+            --light-text: #f1f5f9;
+            --muted-text: #8899aa;
+            --on-color: #4db8a8;
+            --off-color: #2a3444;
+            --playing: #ff6b6b;
+            --stage1: #4db8a8;
+            --stage2: #5bafda;
+            --stage3: #d4a574;
+            --stage4: #e07a5f;
+            --stage5: #c47dff;
+            --diff1: #4db8a8;
+            --diff2: #7acc7a;
+            --diff3: #d4a574;
+            --diff4: #e07a5f;
+            --diff5: #e05577;
+            --radius: 8px;
+            --radius-sm: 5px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: var(--light-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Top Nav ── */
+        .top-nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(17,24,32,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(77,184,168,0.12);
+            display: flex; align-items: center; gap: 16px;
+            padding: 12px 24px;
+        }
+        .top-nav .logo { font-size: 1.35rem; font-weight: 700; color: var(--tan); letter-spacing: 2px; white-space: nowrap; }
+        .top-nav .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+        .nav-link {
+            padding: 7px 14px; border-radius: 20px; font-size: .82rem; font-weight: 600;
+            border: none; cursor: pointer; background: transparent; color: var(--muted-text);
+            transition: all .2s;
+        }
+        .nav-link:hover { color: var(--light-text); background: var(--teal-dim); }
+        .nav-link.active { background: var(--teal); color: #000; }
+
+        /* ── Layout ── */
+        .app { max-width: 1320px; margin: 0 auto; padding: 24px; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ── Dashboard ── */
+        .hero { text-align: center; padding: 48px 0 36px; }
+        .hero h1 { font-size: 2.6rem; color: var(--tan); letter-spacing: 3px; margin-bottom: 8px; }
+        .hero p { color: var(--muted-text); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+
+        .stage-filters { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+        .stage-btn {
+            padding: 8px 18px; border-radius: 20px; font-size: .82rem; font-weight: 600;
+            border: 1px solid var(--panel-bg); cursor: pointer; background: var(--card-bg);
+            color: var(--muted-text); transition: all .2s;
+        }
+        .stage-btn:hover, .stage-btn.active { color: #000; }
+        .stage-btn[data-stage="0"].active { background: var(--teal); border-color: var(--teal); }
+        .stage-btn[data-stage="1"].active { background: var(--stage1); border-color: var(--stage1); }
+        .stage-btn[data-stage="2"].active { background: var(--stage2); border-color: var(--stage2); }
+        .stage-btn[data-stage="3"].active { background: var(--stage3); border-color: var(--stage3); }
+        .stage-btn[data-stage="4"].active { background: var(--stage4); border-color: var(--stage4); }
+        .stage-btn[data-stage="5"].active { background: var(--stage5); border-color: var(--stage5); }
+
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .song-card {
+            background: var(--card-bg); border-radius: var(--radius); padding: 20px;
+            border: 1px solid rgba(77,184,168,0.08); cursor: pointer; transition: all .25s;
+            position: relative; overflow: hidden;
+        }
+        .song-card:hover { background: var(--card-bg-hover); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.3); border-color: rgba(77,184,168,0.2); }
+        .song-card .card-num { position: absolute; top: 14px; right: 16px; font-size: 2rem; font-weight: 800; color: rgba(255,255,255,0.05); }
+        .song-card h3 { font-size: 1.1rem; color: var(--light-text); margin-bottom: 6px; }
+        .song-card .card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        .pill {
+            padding: 3px 10px; border-radius: 12px; font-size: .72rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .pill-stage { background: var(--teal-dim); color: var(--teal); }
+        .pill-diff { background: var(--tan-dim); color: var(--tan); }
+        .pill-tempo { background: rgba(255,255,255,0.06); color: var(--muted-text); }
+        .song-card .card-focus { font-size: .82rem; color: var(--muted-text); line-height: 1.45; }
+
+        /* ── Song Detail ── */
+        .detail-back { display: inline-flex; align-items: center; gap: 6px; color: var(--teal); font-size: .88rem; cursor: pointer; margin-bottom: 20px; border: none; background: none; font-weight: 600; }
+        .detail-back:hover { text-decoration: underline; }
+        .detail-header { margin-bottom: 28px; }
+        .detail-header h1 { font-size: 2rem; color: var(--tan); margin-bottom: 8px; }
+        .detail-header .detail-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .detail-header .detail-desc { color: var(--muted-text); font-size: .92rem; line-height: 1.5; }
+
+        .detail-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid rgba(77,184,168,0.1); padding-bottom: 0; flex-wrap: wrap; }
+        .detail-tab {
+            padding: 10px 18px; font-size: .84rem; font-weight: 600; cursor: pointer;
+            border: none; background: none; color: var(--muted-text); border-bottom: 2px solid transparent;
+            transition: all .2s;
+        }
+        .detail-tab:hover { color: var(--light-text); }
+        .detail-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Sections ── */
+        .section-block { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; border: 1px solid rgba(77,184,168,0.06); }
+        .section-block h3 { font-size: 1rem; color: var(--tan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .section-block h3 .icon { font-size: 1.1rem; }
+
+        /* ── Groove Viz ── */
+        .groove-card { background: var(--panel-bg); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 14px; }
+        .groove-card .groove-label { font-size: .88rem; font-weight: 600; color: var(--teal); margin-bottom: 4px; }
+        .groove-card .groove-desc { font-size: .82rem; color: var(--muted-text); margin-bottom: 10px; }
+        .groove-card .groove-meter { font-size: .75rem; color: var(--tan); margin-bottom: 8px; }
+
+        .grid-container { overflow-x: auto; }
+        .drum-grid { display: flex; flex-direction: column; gap: 2px; min-width: 400px; }
+        .drum-grid-row { display: flex; align-items: center; gap: 0; }
+        .drum-grid-label { width: 56px; font-size: .72rem; color: var(--muted-text); text-align: right; padding-right: 8px; flex-shrink: 0; font-weight: 600; }
+        .drum-grid-cells { display: flex; gap: 3px; flex: 1; }
+        .drum-cell {
+            width: 32px; height: 24px; border-radius: 3px; font-size: .7rem;
+            display: flex; align-items: center; justify-content: center; font-weight: 700;
+            transition: all .15s; cursor: default; flex-shrink: 0;
+        }
+        .drum-cell.on { background: var(--on-color); color: #000; box-shadow: 0 0 6px rgba(77,184,168,0.4); }
+        .drum-cell.off { background: var(--off-color); color: transparent; }
+        .drum-cell.accent { background: var(--tan); color: #000; box-shadow: 0 0 6px rgba(212,165,116,0.4); }
+        .drum-cell.ghost { background: rgba(77,184,168,0.35); color: rgba(0,0,0,0.5); }
+        .beat-markers { display: flex; gap: 3px; margin-left: 56px; margin-bottom: 4px; }
+        .beat-marker-cell { width: 32px; text-align: center; font-size: .65rem; color: var(--muted-text); flex-shrink: 0; }
+        .beat-marker-cell.downbeat { color: var(--tan); font-weight: 700; }
+
+        /* ── Fill Viz ── */
+        .fill-card { background: var(--panel-bg); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; }
+        .fill-card .fill-label { font-size: .85rem; font-weight: 600; color: var(--teal); margin-bottom: 4px; }
+        .fill-card .fill-desc { font-size: .82rem; color: var(--muted-text); margin-bottom: 8px; }
+        .ascii-block { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; font-size: .78rem; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: var(--radius-sm); color: var(--teal); white-space: pre; overflow-x: auto; line-height: 1.5; }
+
+        /* ── Instrument Cards ── */
+        .instrument-card { background: var(--panel-bg); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; border-left: 3px solid var(--teal); }
+        .instrument-card.guitar { border-left-color: var(--tan); }
+        .instrument-card.bass { border-left-color: var(--stage2); }
+        .instrument-card.moog { border-left-color: var(--stage5); }
+        .instrument-card h4 { font-size: .9rem; margin-bottom: 8px; }
+        .instrument-card .inst-field { font-size: .82rem; color: var(--muted-text); margin-bottom: 4px; }
+        .instrument-card .inst-field strong { color: var(--light-text); }
+
+        /* ── Practice ── */
+        .bpm-ladder { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .bpm-step {
+            padding: 8px 16px; border-radius: var(--radius-sm); background: var(--off-color);
+            font-size: .85rem; font-weight: 600; color: var(--muted-text); cursor: pointer;
+            border: 1px solid transparent; transition: all .2s;
+        }
+        .bpm-step:hover { border-color: var(--teal); color: var(--light-text); }
+        .bpm-step.current { background: var(--teal); color: #000; }
+
+        .milestone-list, .mistake-list { list-style: none; }
+        .milestone-list li, .mistake-list li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: .88rem; color: var(--muted-text); display: flex; align-items: flex-start; gap: 8px; }
+        .milestone-list li::before { content: '\2713'; color: var(--teal); font-weight: 700; flex-shrink: 0; }
+        .mistake-list li::before { content: '\26A0'; flex-shrink: 0; }
+
+        .dynamics-box { background: var(--teal-dim); border-left: 3px solid var(--teal); padding: 14px 16px; border-radius: var(--radius-sm); font-size: .88rem; color: var(--muted-text); line-height: 1.5; }
+
+        /* ── Logic Notes ── */
+        .logic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .logic-item { background: var(--panel-bg); padding: 14px; border-radius: var(--radius-sm); }
+        .logic-item h4 { font-size: .82rem; color: var(--tan); margin-bottom: 6px; }
+        .logic-item p { font-size: .82rem; color: var(--muted-text); line-height: 1.45; }
+
+        /* ── Arrangement Timeline ── */
+        .timeline { display: flex; flex-direction: column; gap: 8px; }
+        .timeline-row { display: flex; gap: 12px; align-items: flex-start; }
+        .timeline-track { min-width: 70px; font-size: .78rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; text-align: center; }
+        .timeline-track.Drums { background: var(--teal-dim); color: var(--teal); }
+        .timeline-track.Guitars { background: var(--tan-dim); color: var(--tan); }
+        .timeline-track.Bass { background: rgba(91,175,218,0.15); color: var(--stage2); }
+        .timeline-track.Moog { background: rgba(196,125,255,0.15); color: var(--stage5); }
+        .timeline-summary { font-size: .85rem; color: var(--muted-text); line-height: 1.45; }
+
+        /* ── Sections visual ── */
+        .sections-timeline { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+        .section-chip { padding: 8px 14px; border-radius: var(--radius-sm); background: var(--panel-bg); font-size: .8rem; }
+        .section-chip .sec-name { font-weight: 700; color: var(--light-text); }
+        .section-chip .sec-bars { color: var(--teal); margin-left: 4px; }
+        .section-chip .sec-desc { display: block; color: var(--muted-text); font-size: .75rem; margin-top: 2px; }
+
+        /* ── Song Ladder View ── */
+        .ladder-stage { margin-bottom: 32px; }
+        .ladder-stage-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .ladder-stage-num { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; color: #000; }
+        .ladder-stage-label { font-size: 1.2rem; font-weight: 700; }
+        .ladder-songs { display: flex; gap: 10px; flex-wrap: wrap; }
+        .ladder-song {
+            background: var(--card-bg); padding: 14px 18px; border-radius: var(--radius); cursor: pointer;
+            border: 1px solid rgba(77,184,168,0.08); transition: all .2s; min-width: 200px; flex: 1; max-width: 300px;
+        }
+        .ladder-song:hover { border-color: rgba(77,184,168,0.25); transform: translateY(-2px); }
+        .ladder-song h4 { font-size: .92rem; margin-bottom: 4px; }
+        .ladder-song .ladder-focus { font-size: .78rem; color: var(--muted-text); }
+
+        .diff-dots { display: inline-flex; gap: 3px; }
+        .diff-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--off-color); }
+        .diff-dot.filled { background: var(--tan); }
+
+        /* ── Master Class ── */
+        .mc-section { margin-bottom: 24px; }
+        .mc-section h2 { font-size: 1.3rem; color: var(--tan); margin-bottom: 14px; }
+        .mc-section h3 { font-size: 1rem; color: var(--teal); margin-bottom: 10px; }
+        .bar-plan { display: flex; flex-direction: column; gap: 6px; }
+        .bar-row { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; background: var(--card-bg); border-radius: var(--radius-sm); }
+        .bar-range { min-width: 80px; font-weight: 700; font-size: .88rem; color: var(--teal); }
+        .bar-instruction { font-size: .85rem; color: var(--muted-text); }
+        .coaching-list { list-style: none; }
+        .coaching-list li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: .88rem; color: var(--muted-text); }
+        .coaching-list li::before { content: '\25B8 '; color: var(--teal); }
+
+        .region-layout { display: flex; gap: 6px; flex-wrap: wrap; }
+        .region-chip { padding: 10px 14px; background: var(--panel-bg); border-radius: var(--radius-sm); font-size: .82rem; min-width: 140px; }
+        .region-chip .region-label { font-weight: 700; color: var(--tan); }
+        .region-chip .region-desc { display: block; color: var(--muted-text); font-size: .78rem; margin-top: 2px; }
+
+        /* ── Groove Builder ── */
+        .gb-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+        .gb-controls select, .gb-controls input {
+            padding: 10px 14px; background: var(--card-bg); border: 1px solid rgba(77,184,168,0.2);
+            color: var(--light-text); border-radius: var(--radius-sm); font-size: .88rem;
+        }
+        .gb-controls select:focus, .gb-controls input:focus { outline: none; box-shadow: 0 0 0 2px rgba(77,184,168,0.3); }
+
+        .sequencer-container { background: var(--card-bg); border-radius: var(--radius); padding: 24px; border: 1px solid rgba(77,184,168,0.08); }
+        .seq-row { display: flex; align-items: center; margin-bottom: 6px; }
+        .seq-label { width: 90px; font-size: .8rem; color: var(--muted-text); text-align: right; padding-right: 12px; font-weight: 600; flex-shrink: 0; }
+        .seq-cells { display: flex; gap: 4px; flex: 1; }
+        .seq-cell {
+            flex: 1; aspect-ratio: 1.2; max-width: 48px; border-radius: 4px; cursor: pointer;
+            border: none; transition: all .15s; position: relative;
+        }
+        .seq-cell.off { background: var(--off-color); }
+        .seq-cell.on { background: var(--on-color); box-shadow: 0 0 8px rgba(77,184,168,0.4); }
+        .seq-cell:hover { transform: scale(1.08); z-index: 10; }
+        .seq-cell.seq-playing { background: var(--playing) !important; box-shadow: 0 0 12px rgba(255,107,107,0.6); }
+
+        .seq-beat-markers { display: flex; gap: 4px; margin-left: 90px; margin-bottom: 6px; padding-left: 12px; }
+        .seq-beat-num { flex: 1; max-width: 48px; text-align: center; font-size: .7rem; color: var(--muted-text); }
+        .seq-beat-num.downbeat { color: var(--tan); font-weight: 700; }
+
+        .gb-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+        .btn {
+            padding: 10px 20px; border: none; border-radius: var(--radius-sm); font-size: .88rem;
+            font-weight: 600; cursor: pointer; transition: all .2s;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-teal { background: var(--teal); color: #000; }
+        .btn-teal:hover { box-shadow: 0 4px 12px rgba(77,184,168,0.35); }
+        .btn-outline { background: transparent; color: var(--teal); border: 1px solid var(--teal); }
+        .btn-outline:hover { background: var(--teal-dim); }
+        .btn-red { background: var(--playing); color: #fff; }
+        .btn-red:hover { box-shadow: 0 4px 12px rgba(255,107,107,0.35); }
+        .btn-green { background: #2d8659; color: var(--light-text); }
+        .btn-green:hover { box-shadow: 0 4px 12px rgba(45,134,89,0.35); }
+
+        /* ── Tags ── */
+        .tag-list { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tag { padding: 4px 10px; border-radius: 12px; font-size: .72rem; background: rgba(255,255,255,0.05); color: var(--muted-text); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .song-grid { grid-template-columns: 1fr; }
+            .logic-grid { grid-template-columns: 1fr; }
+            .top-nav { flex-direction: column; gap: 8px; }
+            .drum-cell { width: 24px; height: 20px; font-size: .6rem; }
+            .beat-markers { margin-left: 44px; }
+            .drum-grid-label { width: 44px; font-size: .65rem; }
+            .seq-label { width: 70px; font-size: .72rem; }
+            .seq-beat-markers { margin-left: 70px; }
+        }
+
+        /* ── Workflow Banner ── */
+        .workflow-banner {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 24px; flex-wrap: wrap;
+        }
+        .workflow-step {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--card-bg); border: 1px solid rgba(77,184,168,0.12);
+            padding: 10px 18px; border-radius: 24px;
+        }
+        .ws-num {
+            width: 24px; height: 24px; border-radius: 50%; background: var(--teal);
+            color: #000; font-weight: 800; font-size: .78rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ws-label { font-size: .82rem; color: var(--light-text); font-weight: 600; }
+        .workflow-arrow { color: var(--muted-text); font-size: 1.2rem; }
+
+        /* ── Phase Badge ── */
+        .phase-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 16px; font-size: .78rem; font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .phase-badge.drums { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(77,184,168,0.2); }
+        .phase-badge.layer { background: var(--tan-dim); color: var(--tan); border: 1px solid rgba(212,165,116,0.2); }
+        .phase-badge.logic { background: rgba(196,125,255,0.12); color: var(--stage5); border: 1px solid rgba(196,125,255,0.2); }
+
+        /* ── Layer Unlock ── */
+        .layer-unlock { background: var(--card-bg); border: 1px dashed rgba(212,165,116,0.3); border-radius: var(--radius); padding: 20px; margin-top: 20px; }
+        .layer-unlock h3 { color: var(--tan); font-size: 1rem; margin-bottom: 6px; }
+        .layer-unlock .layer-note { font-size: .82rem; color: var(--muted-text); margin-bottom: 14px; line-height: 1.5; }
+        .layer-prereq { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: var(--teal-dim); border-radius: 12px; font-size: .76rem; color: var(--teal); font-weight: 600; margin-bottom: 12px; }
+
+        /* ── Logic Workflow View ── */
+        .logic-workflow-card {
+            background: var(--card-bg); border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+            border: 1px solid rgba(196,125,255,0.1);
+        }
+        .logic-workflow-card h3 { color: var(--stage5); font-size: 1.05rem; margin-bottom: 10px; }
+        .logic-workflow-card p { color: var(--muted-text); font-size: .88rem; line-height: 1.55; }
+        .logic-step-list { list-style: none; counter-reset: logic-step; }
+        .logic-step-list li {
+            counter-increment: logic-step; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: .88rem; color: var(--muted-text); display: flex; align-items: flex-start; gap: 12px;
+        }
+        .logic-step-list li::before {
+            content: counter(logic-step); width: 28px; height: 28px; border-radius: 50%;
+            background: rgba(196,125,255,0.15); color: var(--stage5); font-weight: 800; font-size: .78rem;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        /* ── Scroll ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--panel-bg); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="logo">PLATEHEAD</div>
+    <div class="nav-links">
+        <button class="nav-link active" data-view="dashboard">Curriculum</button>
+        <button class="nav-link" data-view="ladder">Song Ladder</button>
+        <button class="nav-link" data-view="grooveBuilder">Groove Builder</button>
+        <button class="nav-link" data-view="masterclass">Master Class</button>
+        <button class="nav-link" data-view="workflow">Logic Pro Workflow</button>
+    </div>
+</nav>
+
+<div class="app">
+    <!-- ═══ DASHBOARD ═══ -->
+    <div id="view-dashboard" class="view active">
+        <div class="hero">
+            <h1>DRUM CURRICULUM</h1>
+            <p>20-song album-driven curriculum inspired by Abe Cunningham's groove language. Learn drums first through song structures — then layer guitars, bass, and synths in Logic Pro.</p>
+            <div class="workflow-banner">
+                <div class="workflow-step"><span class="ws-num">1</span><span class="ws-label">Learn the Groove</span></div>
+                <div class="workflow-arrow">&rarr;</div>
+                <div class="workflow-step"><span class="ws-num">2</span><span class="ws-label">Record Drums in Logic</span></div>
+                <div class="workflow-arrow">&rarr;</div>
+                <div class="workflow-step"><span class="ws-num">3</span><span class="ws-label">Layer Instruments</span></div>
+                <div class="workflow-arrow">&rarr;</div>
+                <div class="workflow-step"><span class="ws-num">4</span><span class="ws-label">Mix &amp; Refine</span></div>
+            </div>
+        </div>
+        <div class="stage-filters" id="stageFilters"></div>
+        <div class="song-grid" id="songGrid"></div>
+    </div>
+
+    <!-- ═══ SONG DETAIL ═══ -->
+    <div id="view-detail" class="view">
+        <button class="detail-back" id="detailBack">&larr; Back to Curriculum</button>
+        <div id="detailContent"></div>
+    </div>
+
+    <!-- ═══ SONG LADDER ═══ -->
+    <div id="view-ladder" class="view">
+        <div class="hero">
+            <h1>SONG LADDER</h1>
+            <p>The full progression arc from foundations to the capstone suite.</p>
+        </div>
+        <div id="ladderContent"></div>
+    </div>
+
+    <!-- ═══ GROOVE BUILDER ═══ -->
+    <div id="view-grooveBuilder" class="view">
+        <div class="hero">
+            <h1>GROOVE BUILDER</h1>
+            <p>Select a song groove, tweak it, preview, and export as MIDI.</p>
+        </div>
+        <div class="gb-controls">
+            <select id="gbSongSelect"></select>
+            <select id="gbGrooveSelect"></select>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="font-size:.85rem;color:var(--muted-text);">BPM</label>
+                <input type="number" id="gbTempo" value="120" min="40" max="300" style="width:70px;">
+            </div>
+        </div>
+        <div id="gbSequencer"></div>
+        <div class="gb-actions">
+            <button class="btn btn-red" id="gbPlay">Play</button>
+            <button class="btn btn-outline" id="gbStop" style="display:none;">Stop</button>
+            <button class="btn btn-outline" id="gbClear">Clear</button>
+            <button class="btn btn-green" id="gbExport">Export MIDI</button>
+        </div>
+    </div>
+
+    <!-- ═══ MASTER CLASS ═══ -->
+    <div id="view-masterclass" class="view">
+        <div id="masterclassContent"></div>
+    </div>
+
+    <!-- ═══ LOGIC PRO WORKFLOW ═══ -->
+    <div id="view-workflow" class="view">
+        <div class="hero">
+            <h1>LOGIC PRO WORKFLOW</h1>
+            <p>Every song is tracked in Logic Pro. Drums go down first via Superior Drummer, then layer instruments one at a time.</p>
+        </div>
+
+        <div class="logic-workflow-card">
+            <h3>Phase 1: Drum Tracking</h3>
+            <p>Record drums via MIDI into Superior Drummer. This is the foundation for every song module.</p>
+            <ul class="logic-step-list">
+                <li>Create a new Logic project per song (use the song slug as the project name)</li>
+                <li>Set up a Software Instrument track routed to Superior Drummer</li>
+                <li>Set the project tempo to the song's starting BPM from the practice ladder</li>
+                <li>Record the core groove as a 2-4 bar MIDI region, then loop it</li>
+                <li>Apply the song's quantize strategy (see each song's Logic notes)</li>
+                <li>Apply humanize settings to preserve feel after quantization</li>
+                <li>Build the arrangement by duplicating and varying regions per song section</li>
+                <li>Export a rough drum mix as a reference bounce</li>
+            </ul>
+        </div>
+
+        <div class="logic-workflow-card">
+            <h3>Phase 2: Layer Guitars</h3>
+            <p>Once the drums feel locked, add guitar parts. Each song specifies roles, chord ideas, and effect notes.</p>
+            <ul class="logic-step-list">
+                <li>Add an Audio track for guitar (or Software Instrument for amp sims)</li>
+                <li>Reference the song's guitar role — rhythm, texture, lead, etc.</li>
+                <li>Record to the drum arrangement — let the drums guide your phrasing</li>
+                <li>Apply effects per the song's guitar effect notes</li>
+            </ul>
+        </div>
+
+        <div class="logic-workflow-card">
+            <h3>Phase 3: Layer Bass</h3>
+            <p>Bass locks to the kick drum. Most songs specify how bass should relate to the drum pattern.</p>
+            <ul class="logic-step-list">
+                <li>Add a Bass audio or instrument track</li>
+                <li>Follow the song's bass pattern idea — most lock directly to kick</li>
+                <li>Verify kick/bass alignment in the piano roll or waveform view</li>
+                <li>Apply the song's bass effect notes</li>
+            </ul>
+        </div>
+
+        <div class="logic-workflow-card">
+            <h3>Phase 4: Layer Moog / Synth</h3>
+            <p>Synth parts fill atmosphere and often lead section changes. Add these last.</p>
+            <ul class="logic-step-list">
+                <li>Add a Software Instrument track (ES2, Alchemy, or external synth)</li>
+                <li>Follow the song's Moog motif idea and modulation notes</li>
+                <li>Automate parameters (filter, volume) per the song's notes</li>
+                <li>Check that synth parts don't compete with drums for space</li>
+            </ul>
+        </div>
+
+        <div class="logic-workflow-card">
+            <h3>Superior Drummer Tips (Global)</h3>
+            <ul class="logic-step-list">
+                <li>Map closed hats and open hats to separate MIDI notes for clear articulation</li>
+                <li>Keep snare velocity zones distinct: 35-45 for ghosts, 70-80 for light notes, 105-120 for backbeats</li>
+                <li>Start with tight modern rock kits, lower room mics for clarity at speed</li>
+                <li>Use the MIDI mapping tips in each song's Logic tab for kit-specific guidance</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  SONG DATA
+// ══════════════════════════════════════════════
+const songs = [
+  {
+    id:1, slug:"tide-of-static", title:"Tide of Static",
+    influences:["Deftones","Shoegaze","Slowcore"], stage:1, difficulty:1,
+    tempoRangeBPM:{min:68,max:76}, primaryMeter:"4/4", feel:"Slow ambient backbeat",
+    tonalCenter:"D minor", tuningNotes:"Drop D, guitars detuned half step",
+    sections:[{name:"Intro",bars:8,description:"Sparse kick + rimclick"},{name:"Verse",bars:16,description:"Steady 8th hats, kick on 1 & 3"},{name:"Chorus",bars:8,description:"Open hat on beat, crash accents"},{name:"Outro",bars:8,description:"Fade to kick only"}],
+    arrangementTimeline:[{track:"Drums",summary:"Restraint-first: build from kick-only to full kit over 40 bars"},{track:"Guitars",summary:"Clean swells, delay-heavy arpeggios"},{track:"Bass",summary:"Root notes following kick pattern"},{track:"Moog",summary:"Pad drone throughout, filter sweep in chorus"}],
+    drumGoals:["Maintain steady tempo at low BPM","Control hat volume","Seamless rimclick to snare transition"],
+    limbFocus:["Right hand (hats)","Right foot (kick)"],
+    kitFocus:["Hi-hat","Kick","Rimclick/Snare"],
+    groove:[{label:"Verse Groove",description:"Basic slow backbeat with hat control",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}],
+    fills:[{label:"Chorus Pickup",description:"Simple snare roll into crash",asciiNotation:"Count: 3 & 4 &\nSnare: S S S S\nCrash: - - - C"}],
+    practiceBpmLadder:[60,64,68,72,76],
+    milestones:["Play verse groove for 2 min without tempo drift","Execute hat open/close cleanly on chorus","Complete full arrangement memory run"],
+    roadmap:"Start with kick-only timekeeping, add hats after 1 week, add snare after 2 weeks.",
+    commonMistakes:["Rushing at low tempo","Hats too loud relative to kick","Losing time during sparse intro"],
+    dynamicsNotes:"Everything piano to mezzo-piano. The loudest moment is the chorus crash, and even that should feel restrained.",
+    logicNotes:{midiRecordingTips:"Record kick separately first at 68 BPM, then overdub hats",quantizeStrategy:"Quantize kick to 1/8, leave hats unquantized for feel",humanizeStrategy:"Add +/- 5 ticks to hat velocities",superiorDrummerMapTips:"Use a dry jazz kit, room mics very low"},
+    guitars:[{role:"Lead texture",chordIdeas:"Dm arpeggios with delay",effectNotes:"Long reverb, tape delay"}],
+    bass:{role:"Root support",patternIdea:"Whole notes following kick",effectNotes:"Clean DI with subtle chorus"},
+    moog:{role:"Atmospheric pad",motifIdea:"D minor drone with slow filter sweep",modulationNotes:"Cutoff automation over 8-bar phrases"},
+    tags:["slow","ambient","beginner","restraint","ghost-notes"]
+  },
+  {
+    id:2, slug:"glass-cities", title:"Glass Cities",
+    influences:["Deftones","New Wave","Dance-rock"], stage:1, difficulty:2,
+    tempoRangeBPM:{min:112,max:120}, primaryMeter:"4/4", feel:"16th hat dance groove",
+    tonalCenter:"A minor", tuningNotes:"Standard tuning",
+    sections:[{name:"Intro",bars:4,description:"Hats and kick only"},{name:"Verse",bars:16,description:"Full groove, offbeat kicks"},{name:"Chorus",bars:8,description:"Open hats, ride switch"},{name:"Bridge",bars:8,description:"Half-time feel"},{name:"Outro",bars:8,description:"Return to verse, fade"}],
+    arrangementTimeline:[{track:"Drums",summary:"Driving 16th hats throughout, offbeat kicks define the verse"},{track:"Guitars",summary:"Jangly clean chords, chorus gets distorted"},{track:"Bass",summary:"Syncopated 8th-note line"},{track:"Moog",summary:"Arpeggiated sequence in chorus"}],
+    drumGoals:["Steady 16th-note hat pattern","Offbeat kick placement","Smooth hat-to-ride transition"],
+    limbFocus:["Right hand (16th hats)","Right foot (offbeat kicks)","Left hand (backbeat)"],
+    kitFocus:["Hi-hat","Kick","Snare","Ride"],
+    groove:[{label:"Verse Groove",description:"16th hats with offbeat kick",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- --K- K--- --K-\nSnare: ---- S--- ---- S---\nHH   : xxxx xxxx xxxx xxxx"}],
+    fills:[{label:"Chorus Transition",description:"Tom cascade into crash",asciiNotation:"Count: 4 e & a\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"}],
+    practiceBpmLadder:[90,100,108,112,120],
+    milestones:["16th hats steady for 1 minute","Offbeat kicks without losing hat flow","Full song arrangement from memory"],
+    roadmap:"Week 1: hats only. Week 2: add backbeat. Week 3: add kicks. Week 4: full song.",
+    commonMistakes:["16th hats become uneven","Offbeat kick disrupts hat timing","Rushing during chorus"],
+    dynamicsNotes:"Hats should be consistent and moderate. Snare backbeat cuts through. Kicks felt, not heard.",
+    logicNotes:{midiRecordingTips:"Record hats first as a click track, overdub kick/snare",quantizeStrategy:"Quantize hats to 1/16, kick to 1/8",humanizeStrategy:"Slight velocity variation on hats for groove",superiorDrummerMapTips:"Bright pop-rock kit, hats articulation variety"},
+    guitars:[{role:"Rhythm jangle",chordIdeas:"Am, F, C, G arpeggios",effectNotes:"Clean with chorus, distortion in chorus"}],
+    bass:{role:"Syncopated drive",patternIdea:"8th notes with offbeat emphasis",effectNotes:"Slight overdrive"},
+    moog:{role:"Arpeggio layer",motifIdea:"16th-note A minor arpeggio",modulationNotes:"Tempo-synced filter"},
+    tags:["dance","16th-hats","offbeat","stage-1"]
+  },
+  {
+    id:3, slug:"ashen-bloom", title:"Ashen Bloom",
+    influences:["Shoegaze","Slowdive","Deftones"], stage:1, difficulty:2,
+    tempoRangeBPM:{min:72,max:80}, primaryMeter:"4/4", feel:"Ghost-note shoegaze",
+    tonalCenter:"E minor", tuningNotes:"Standard, guitars heavily effected",
+    sections:[{name:"Intro",bars:8,description:"Cymbal swells only"},{name:"Verse",bars:16,description:"Ghost notes + kick"},{name:"Chorus",bars:8,description:"Full backbeat, crash swells"},{name:"Outro",bars:8,description:"Return to ghost groove, decay"}],
+    arrangementTimeline:[{track:"Drums",summary:"Ghost notes define the verse texture"},{track:"Guitars",summary:"Massive reverb walls"},{track:"Bass",summary:"Sustained root notes"},{track:"Moog",summary:"Evolving pad with vibrato"}],
+    drumGoals:["Ghost note control","Dynamic range between ghost and accent","Cymbal swell timing"],
+    limbFocus:["Left hand (ghosts)","Right hand (hats)","Right foot (kick)"],
+    kitFocus:["Snare (ghost)","Hi-hat","Kick","Crash"],
+    groove:[{label:"Verse Ghost Groove",description:"Ghost notes with light kick",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - g S g - g S g\nHH   : x x x x x x x x"}],
+    fills:[],
+    practiceBpmLadder:[60,66,72,76,80],
+    milestones:["Ghost notes audible but quiet","Consistent ghost/accent ratio","Full arrangement with dynamics"],
+    roadmap:"Focus on ghost note exercises first. Add to song context after 2 weeks.",
+    commonMistakes:["Ghost notes too loud","Losing groove feel when adding ghosts","Cymbal swells too abrupt"],
+    dynamicsNotes:"Ghost notes at pp, backbeats at mf. The contrast IS the groove.",
+    logicNotes:{midiRecordingTips:"Record ghosts at velocity 35-45, backbeats at 100-110",quantizeStrategy:"Light quantize, preserve ghost timing",humanizeStrategy:"Already human, minimal processing",superiorDrummerMapTips:"Use sensitive snare with ghost note response"},
+    guitars:[{role:"Texture wall",chordIdeas:"Em sustained with shimmer reverb",effectNotes:"Reverb, delay, modulation stack"}],
+    bass:{role:"Foundation drone",patternIdea:"Sustained E root",effectNotes:"Clean with hall reverb"},
+    moog:{role:"Evolving atmosphere",motifIdea:"Slow E minor pad",modulationNotes:"LFO on filter cutoff"},
+    tags:["ghost-notes","shoegaze","dynamics","slow"]
+  },
+  {
+    id:4, slug:"black-circuit-sky", title:"Black Circuit Sky",
+    influences:["Deftones","Thrash restraint","Post-metal"], stage:2, difficulty:3,
+    tempoRangeBPM:{min:138,max:152}, primaryMeter:"4/4", feel:"Heavy single-kick stamina",
+    tonalCenter:"C# minor", tuningNotes:"Drop C#",
+    sections:[{name:"Intro",bars:4,description:"Kick buildup"},{name:"Verse",bars:16,description:"Driving 8th hats, single kick"},{name:"Chorus",bars:8,description:"Crash-led, open hats"},{name:"Breakdown",bars:8,description:"Half-time heavy"},{name:"Outro",bars:8,description:"Verse reprise"}],
+    arrangementTimeline:[{track:"Drums",summary:"Stamina-focused single kick, no double bass"},{track:"Guitars",summary:"Palm-muted chug riffs"},{track:"Bass",summary:"Lock with kick, heavy tone"},{track:"Moog",summary:"Atmospheric bridge texture"}],
+    drumGoals:["Single-kick stamina at 140+ BPM","Crash placement discipline","Half-time transition control"],
+    limbFocus:["Right foot (kick endurance)","Right hand (hats)","Left hand (snare)"],
+    kitFocus:["Kick","Hi-hat","Snare","Crash"],
+    groove:[{label:"Verse Drive",description:"Fast 8th hats with single kick",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}],
+    fills:[{label:"Breakdown Entry",description:"Floor tom roll into half-time",asciiNotation:"Count: 3 & 4 &\nFT   : T T T T\nCrash: - - - C"}],
+    practiceBpmLadder:[120,128,134,140,146,152],
+    milestones:["Sustain verse groove 2 minutes","Clean half-time drop","No double-kick cheating"],
+    roadmap:"Build kick endurance at 120, increase 5 BPM per week.",
+    commonMistakes:["Resorting to double kick","Rushing during stamina fatigue","Losing snare backbeat clarity"],
+    dynamicsNotes:"Verse is consistently loud. Breakdown drops to mf with emphasis on beats 1 and 3.",
+    logicNotes:{midiRecordingTips:"Record at target tempo, no slowing down",quantizeStrategy:"Hard quantize kick to 1/8",humanizeStrategy:"Keep tight, minimal humanize",superiorDrummerMapTips:"Heavy rock kit, tight kick, moderate room"},
+    guitars:[{role:"Chug rhythm",chordIdeas:"Palm-muted C# power chords",effectNotes:"High gain, tight low end"}],
+    bass:{role:"Kick lock",patternIdea:"Follow kick exactly",effectNotes:"Distorted, compressed"},
+    moog:{role:"Bridge atmosphere",motifIdea:"Dark pad in breakdown only",modulationNotes:"Slow filter rise"},
+    tags:["heavy","stamina","single-kick","stage-2"]
+  },
+  {
+    id:5, slug:"neon-bones", title:"Neon Bones",
+    influences:["Alt-rock","Foo Fighters","Deftones"], stage:2, difficulty:2,
+    tempoRangeBPM:{min:108,max:116}, primaryMeter:"4/4", feel:"Alt-rock pocket with open hats",
+    tonalCenter:"G major", tuningNotes:"Standard",
+    sections:[{name:"Intro",bars:4,description:"Ride bell pattern"},{name:"Verse",bars:16,description:"Pocket groove, open hat accents"},{name:"Chorus",bars:8,description:"Full crash, energy lift"},{name:"Bridge",bars:8,description:"Stripped to kick + snare"},{name:"Outro",bars:8,description:"Verse groove fade"}],
+    arrangementTimeline:[{track:"Drums",summary:"Open hat accents define the verse character"},{track:"Guitars",summary:"Clean verse, distorted chorus"},{track:"Bass",summary:"Melodic line in verse"},{track:"Moog",summary:"Subtle pad in bridge"}],
+    drumGoals:["Open hat accent control","Short fill vocabulary","Pocket consistency"],
+    limbFocus:["Left foot (hat open/close)","Right hand (hats/ride)","Right foot (kick)"],
+    kitFocus:["Hi-hat (open/close)","Kick","Snare","Ride bell"],
+    groove:[{label:"Verse Pocket",description:"Alt-rock groove with open hat on &",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K K - -\nSnare: - - S - - - S -\nHH   : x o x x x o x x"}],
+    fills:[{label:"Short Fill A",description:"Quick snare-tom into chorus",asciiNotation:"Count: 4 & \nSnare: S -\nHT   : - T"}],
+    practiceBpmLadder:[96,100,104,108,116],
+    milestones:["Open hats clean and rhythmic","Fills under 1 beat","Verse groove locked for 32 bars"],
+    roadmap:"Learn groove without open hats first. Add open hats week 2. Add fills week 3.",
+    commonMistakes:["Open hat rings too long","Fills disrupt tempo","Losing pocket when adding open hats"],
+    dynamicsNotes:"Verse is mf, chorus is f. Open hats should pop but not overpower.",
+    logicNotes:{midiRecordingTips:"Map open and closed hat to separate MIDI notes",quantizeStrategy:"1/8 quantize, preserve open hat timing",humanizeStrategy:"Slight velocity variation on hats",superiorDrummerMapTips:"Map hat articulations: closed, half-open, open"},
+    guitars:[{role:"Rhythm drive",chordIdeas:"G, Em, C, D progression",effectNotes:"Clean verse, overdrive chorus"}],
+    bass:{role:"Melodic support",patternIdea:"Walking 8th notes in verse",effectNotes:"Clean with slight compression"},
+    moog:{role:"Bridge texture",motifIdea:"G major pad swell",modulationNotes:"Slow phaser"},
+    tags:["alt-rock","open-hats","pocket","fills"]
+  },
+  {
+    id:6, slug:"midnight-static", title:"Midnight Static",
+    influences:["New Wave","Depeche Mode","Post-punk"], stage:2, difficulty:2,
+    tempoRangeBPM:{min:118,max:126}, primaryMeter:"4/4", feel:"New-wave disco pulse",
+    tonalCenter:"B minor", tuningNotes:"Standard",
+    sections:[{name:"Intro",bars:4,description:"Kick + hats only"},{name:"Verse",bars:16,description:"Four-on-the-floor with hat pulse"},{name:"Chorus",bars:8,description:"Add crash and tom accents"},{name:"Bridge",bars:8,description:"Stripped half-time"},{name:"Outro",bars:8,description:"Verse return, fade"}],
+    arrangementTimeline:[{track:"Drums",summary:"Disco-influenced kick drives the track"},{track:"Guitars",summary:"Clean arpeggios with flanger"},{track:"Bass",summary:"Octave bass line"},{track:"Moog",summary:"Lead synth melody"}],
+    drumGoals:["Four-on-the-floor endurance","Consistent hat timing","Smooth disco feel"],
+    limbFocus:["Right foot (steady kick)","Right hand (hats)","Left hand (snare)"],
+    kitFocus:["Kick","Hi-hat","Snare"],
+    groove:[{label:"Disco Pulse",description:"Four-on-the-floor with 8th hats",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}],
+    fills:[],
+    practiceBpmLadder:[108,112,118,122,126],
+    milestones:["Steady kick for 3 minutes","No flamming between kick and hat","Endurance without tension"],
+    roadmap:"Focus on kick consistency. This is an endurance track.",
+    commonMistakes:["Kick becomes uneven","Tension builds in ankle","Hat timing drifts with fatigue"],
+    dynamicsNotes:"Even dynamics throughout. Consistency is the goal, not volume variation.",
+    logicNotes:{midiRecordingTips:"Record kick as a loop, overdub hats",quantizeStrategy:"Hard quantize kick to 1/4",humanizeStrategy:"Very light, keep mechanical feel",superiorDrummerMapTips:"Electronic-leaning kit, tight and punchy"},
+    guitars:[{role:"Arpeggiated texture",chordIdeas:"Bm, G, A arpeggios",effectNotes:"Flanger, clean tone"}],
+    bass:{role:"Driving octave line",patternIdea:"Octave B pattern",effectNotes:"Slight chorus"},
+    moog:{role:"Lead melody",motifIdea:"B minor melodic sequence",modulationNotes:"PWM oscillator"},
+    tags:["new-wave","disco","endurance","four-on-the-floor"]
+  },
+  {
+    id:7, slug:"echo-harbors", title:"Echo Harbors",
+    influences:["Post-rock","Mogwai","Explosions in the Sky"], stage:2, difficulty:3,
+    tempoRangeBPM:{min:92,max:100}, primaryMeter:"4/4", feel:"Tom ostinato, long-form build",
+    tonalCenter:"F# minor", tuningNotes:"Standard",
+    sections:[{name:"Intro",bars:8,description:"Floor tom ostinato"},{name:"Build A",bars:16,description:"Add hats and kick"},{name:"Peak",bars:8,description:"Full kit explosion"},{name:"Decay",bars:16,description:"Strip back to toms"},{name:"Outro",bars:8,description:"Tom ostinato fade"}],
+    arrangementTimeline:[{track:"Drums",summary:"Tom-led structure, builds and decays over 56 bars"},{track:"Guitars",summary:"Tremolo-picked clean lines building to walls"},{track:"Bass",summary:"Root pedal tones"},{track:"Moog",summary:"Swelling pad, peaks with drums"}],
+    drumGoals:["Tom ostinato consistency","Long-form dynamic arc","Controlled peak intensity"],
+    limbFocus:["Both hands (tom patterns)","Right foot (kick in builds)"],
+    kitFocus:["Floor tom","Mid tom","Hi-hat","Kick","Crash"],
+    groove:[{label:"Tom Ostinato",description:"Repeating floor tom pattern",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nFT   : T - T - - - T -\nMT   : - - - - T - - -"}],
+    fills:[],
+    practiceBpmLadder:[80,86,92,96,100],
+    milestones:["Tom pattern steady for 16 bars","Build without rushing","Controlled return to sparse"],
+    roadmap:"Master the tom ostinato first. Build the arrangement over weeks.",
+    commonMistakes:["Rushing during builds","Toms uneven in volume","Peak section too chaotic"],
+    dynamicsNotes:"Start pp, build to ff at peak, return to pp. The arc is everything.",
+    logicNotes:{midiRecordingTips:"Record tom ostinato as a 2-bar loop",quantizeStrategy:"Light quantize to preserve organic feel",humanizeStrategy:"Slight velocity ramp up during builds",superiorDrummerMapTips:"Map floor and mid tom clearly, use natural room"},
+    guitars:[{role:"Tremolo texture",chordIdeas:"F#m sustained tremolo lines",effectNotes:"Tremolo, reverb, delay"}],
+    bass:{role:"Root pedal",patternIdea:"Sustained F# whole notes",effectNotes:"Clean, deep"},
+    moog:{role:"Swelling pad",motifIdea:"F# minor pad with slow attack",modulationNotes:"Volume swell automation"},
+    tags:["post-rock","toms","long-form","dynamics"]
+  },
+  {
+    id:8, slug:"wireframe-sleep", title:"Wireframe Sleep",
+    influences:["Tool","Radiohead","Math-rock light"], stage:3, difficulty:3,
+    tempoRangeBPM:{min:108,max:116}, primaryMeter:"7/8 → 4/4", feel:"Meter transition practice",
+    tonalCenter:"D minor", tuningNotes:"Drop D",
+    sections:[{name:"Intro 7/8",bars:8,description:"7/8 groove establishment"},{name:"Verse 7/8",bars:16,description:"Full 7/8 groove"},{name:"Transition",bars:4,description:"7/8 to 4/4 shift"},{name:"Chorus 4/4",bars:8,description:"Straight 4/4 release"},{name:"Outro 7/8",bars:8,description:"Return to 7/8"}],
+    arrangementTimeline:[{track:"Drums",summary:"7/8 groove with natural transition to 4/4 chorus"},{track:"Guitars",summary:"Angular riff in 7/8, open chords in 4/4"},{track:"Bass",summary:"Follows drum accents"},{track:"Moog",summary:"Arpeggio in 7/8, pad in 4/4"}],
+    drumGoals:["Comfortable 7/8 feel","Clean meter transitions","Natural-sounding odd meter"],
+    limbFocus:["All four limbs","Internal pulse awareness"],
+    kitFocus:["Hi-hat","Kick","Snare","Ride"],
+    groove:[{label:"7/8 Groove",description:"Seven-beat cycle with natural feel",meter:"7/8",asciiNotation:"Count: 1 & 2 & 3 & 4\nKick : K - - - K - -\nSnare: - - S - - - S\nHH   : x x x x x x x"},{label:"4/4 Release",description:"Straight feel for chorus",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}],
+    fills:[{label:"Transition Fill",description:"7/8 to 4/4 bridge",asciiNotation:"Count: 1 & 2 & 3 & 4\nSnare: - - S - S S S"}],
+    practiceBpmLadder:[92,100,104,108,116],
+    milestones:["7/8 groove feels natural","Transition is seamless","Audience can't tell the meter changed"],
+    roadmap:"Count 7/8 as 4+3. Master each meter separately before transitions.",
+    commonMistakes:["7/8 feels rushed or lurching","Transition stumble","4/4 feels too stiff after 7/8"],
+    dynamicsNotes:"Keep dynamics even through the transition. The meter change should be felt, not forced.",
+    logicNotes:{midiRecordingTips:"Record 7/8 and 4/4 sections separately",quantizeStrategy:"Quantize to respective meters",humanizeStrategy:"Light humanize, keep transitions tight",superiorDrummerMapTips:"Standard rock kit, clear articulation"},
+    guitars:[{role:"Angular riff",chordIdeas:"Dm riff accenting the 7/8 pattern",effectNotes:"Light gain, tight"}],
+    bass:{role:"Accent follower",patternIdea:"Follow kick accents in 7/8",effectNotes:"Clean, punchy"},
+    moog:{role:"Textural shift",motifIdea:"Arpeggio in 7/8, sustained pad in 4/4",modulationNotes:"Patch change at transition"},
+    tags:["odd-meter","7/8","transitions","stage-3"]
+  },
+  {
+    id:9, slug:"frozen-lanterns", title:"Frozen Lanterns",
+    influences:["Deftones","Post-hardcore","Ambient rock"], stage:3, difficulty:3,
+    tempoRangeBPM:{min:104,max:112}, primaryMeter:"4/4", feel:"Ride drive with tom variation",
+    tonalCenter:"Ab minor", tuningNotes:"Drop Ab",
+    sections:[{name:"Intro",bars:4,description:"Ride bell groove"},{name:"Verse",bars:16,description:"Ride-driven groove with tom fills"},{name:"Pre-chorus",bars:4,description:"Build with crashes"},{name:"Chorus",bars:8,description:"Half-time drop"},{name:"Outro",bars:8,description:"Return to ride groove"}],
+    arrangementTimeline:[{track:"Drums",summary:"Ride bell provides drive, half-time chorus creates contrast"},{track:"Guitars",summary:"Heavy riff verse, atmospheric chorus"},{track:"Bass",summary:"Driving 8th notes"},{track:"Moog",summary:"Chorus atmosphere"}],
+    drumGoals:["Ride bell control","Tom variation vocabulary","Half-time drop execution"],
+    limbFocus:["Right hand (ride)","Left hand (snare/toms)","Right foot (kick)"],
+    kitFocus:["Ride","Kick","Snare","Floor tom","Mid tom"],
+    groove:[{label:"Ride Drive",description:"Bell-driven verse groove",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - - -\nSnare: - - S - - - S -\nRide : R - R - R - R -"},{label:"Half-Time Drop",description:"Chorus half-time feel",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nHH   : x x x x x x x x"}],
+    fills:[{label:"Tom Variation",description:"Quick tom accent between phrases",asciiNotation:"Count: 4 &\nHT   : T -\nFT   : - T"}],
+    practiceBpmLadder:[92,96,100,104,112],
+    milestones:["Ride bell consistent for 16 bars","Clean half-time transition","Tom fills don't interrupt groove"],
+    roadmap:"Master ride groove first. Add half-time after. Fills last.",
+    commonMistakes:["Ride bell inconsistent in volume","Half-time feels disconnected","Too many tom fills"],
+    dynamicsNotes:"Ride verse is f, half-time chorus drops to mf. Contrast is key.",
+    logicNotes:{midiRecordingTips:"Record ride pattern as loop, overdub fills",quantizeStrategy:"Quantize ride to 1/8",humanizeStrategy:"Velocity variation on ride for musicality",superiorDrummerMapTips:"Ride with clear bell articulation"},
+    guitars:[{role:"Heavy riff",chordIdeas:"Ab power chord riff",effectNotes:"High gain, tight"}],
+    bass:{role:"Driving line",patternIdea:"8th notes following guitar riff",effectNotes:"Overdrive"},
+    moog:{role:"Chorus pad",motifIdea:"Ab minor wash in chorus",modulationNotes:"Large reverb, slow attack"},
+    tags:["ride","half-time","toms","contrast"]
+  },
+  {
+    id:10, slug:"city-of-haze", title:"City of Haze",
+    influences:["Punk","Post-hardcore","Deftones"], stage:3, difficulty:4,
+    tempoRangeBPM:{min:156,max:168}, primaryMeter:"4/4", feel:"Fast rock stamina, breakdown control",
+    tonalCenter:"E minor", tuningNotes:"Drop D",
+    sections:[{name:"Intro",bars:4,description:"Pickup fill into crash"},{name:"Verse",bars:16,description:"Fast 8th hat groove"},{name:"Chorus",bars:8,description:"Crash-led, same groove"},{name:"Verse 2",bars:16,description:"Verse with fill variation"},{name:"Breakdown",bars:8,description:"Half-time, snare on 3"},{name:"Final Chorus",bars:8,description:"Full energy return"},{name:"End",bars:2,description:"Crash tail"}],
+    arrangementTimeline:[{track:"Drums",summary:"Stamina test: fast 8th hats, controlled breakdown"},{track:"Guitars",summary:"Power chord verse, melodic chorus"},{track:"Bass",summary:"Locked with kick throughout"},{track:"Moog",summary:"Minimal, breakdown texture only"}],
+    drumGoals:["Fast 8th-hat endurance","Compact motion at speed","Half-time breakdown control"],
+    limbFocus:["Right hand (hat endurance)","Right foot (kick patterns)","Left hand (snare consistency)"],
+    kitFocus:["Hi-hat","Kick","Snare","Crash","Floor tom"],
+    groove:[
+      {label:"Verse A (Safe)",description:"Basic fast groove, kicks on 1 and 3",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"},
+      {label:"Verse B (Album)",description:"Added kicks for drive",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"},
+      {label:"Breakdown",description:"Half-time, snare on 3, floor tom on 1",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nFT   : T - - - - - - -\nHH   : x x x x x x x x"}
+    ],
+    fills:[{label:"Chorus Crash Entry",description:"Simple crash on beat 1 of chorus",asciiNotation:"Count: 1\nCrash: C\nKick : K"}],
+    practiceBpmLadder:[120,132,140,148,156,164,168],
+    milestones:["Verse groove for 2 minutes at 156","Clean breakdown drop","Full arrangement without stopping"],
+    roadmap:"Start at 120 BPM. Increase 5 BPM weekly. Breakdown separate practice.",
+    commonMistakes:["Tensing up at speed","Breakdown too abrupt","Losing backbeat clarity"],
+    dynamicsNotes:"Verse and chorus are consistently f. Breakdown drops to mf with authority. Floor tom on beat 1 anchors it.",
+    logicNotes:{midiRecordingTips:"Record at target tempo, no half-speed cheating",quantizeStrategy:"Hard quantize for tightness at this tempo",humanizeStrategy:"Minimal — tightness matters here",superiorDrummerMapTips:"Tight modern rock kit, low room, clear hat"},
+    guitars:[{role:"Power chord drive",chordIdeas:"Em, C, G, D power chords",effectNotes:"High gain, tight, palm muted verse"}],
+    bass:{role:"Kick lock",patternIdea:"Follows kick pattern exactly",effectNotes:"Heavy distortion, compressed"},
+    moog:{role:"Breakdown texture",motifIdea:"Dark drone in breakdown only",modulationNotes:"Filter sweep during breakdown"},
+    tags:["fast","stamina","breakdown","half-time","master-class"]
+  },
+  // Songs 11-20: scaffold modules
+  {
+    id:11, slug:"fractured-neon", title:"Fractured Neon",
+    influences:["Deadmau5","Radiohead","Electronic rock"], stage:3, difficulty:3,
+    tempoRangeBPM:{min:122,max:128}, primaryMeter:"4/4", feel:"Four-on-the-floor + rock sync hybrid",
+    tonalCenter:"F minor", tuningNotes:"Standard",
+    sections:[{name:"Intro",bars:8,description:"Synth intro, kick enters"},{name:"Verse",bars:16,description:"Four-on-the-floor groove"},{name:"Drop",bars:8,description:"Synth-led, kick + snare"},{name:"Build",bars:8,description:"Hat and kick buildup"},{name:"Outro",bars:8,description:"Fade out"}],
+    arrangementTimeline:[{track:"Drums",summary:"Dance-rock hybrid, four-on-the-floor with hat groove"},{track:"Guitars",summary:"Offbeat stabs integrating with kick"},{track:"Bass",summary:"Synth bass following kick"},{track:"Moog",summary:"Lead synth, controls drop"}],
+    drumGoals:["Quarter-kick endurance","Offbeat syncopation","Dance/rock integration"],
+    limbFocus:["Right foot (steady kick)","Right hand (hats)","Left hand (snare)"],
+    kitFocus:["Kick","Hi-hat","Snare"],
+    groove:[{label:"Core Groove",description:"Four-on-the-floor with 8th hats",meter:"4/4",asciiNotation:"Count: 1e&a 2e&a 3e&a 4e&a\nKick : K--- K--- K--- K---\nSnare: ---- S--- ---- S---\nHH   : x-x- x-x- x-x- x-x-"}],
+    fills:[],
+    practiceBpmLadder:[110,116,120,124,128],
+    milestones:["Kick steady for 3 minutes","Add syncopated kick on & of 3 without losing pulse","Full arrangement"],
+    roadmap:"Master four-on-the-floor at 110. Add hats. Then introduce syncopation.",
+    commonMistakes:["Kick becomes uneven","Syncopation disrupts the dance feel","Hats drift"],
+    dynamicsNotes:"Even, mechanical feel. Let the synths handle dynamics.",
+    logicNotes:{midiRecordingTips:"Hard-quantize quarter kicks, lighter on hats",quantizeStrategy:"Hard quantize kick to 1/4, hats to 1/8",humanizeStrategy:"Keep kick mechanical, slight hat variation",superiorDrummerMapTips:"Electronic or hybrid kit"},
+    guitars:[{role:"Offbeat stabs",chordIdeas:"Fm staccato chords on offbeats",effectNotes:"Clean with filter"}],
+    bass:{role:"Synth bass",patternIdea:"Follow kick quarter notes",effectNotes:"Synth bass sound"},
+    moog:{role:"Lead synth",motifIdea:"F minor lead sequence in drop",modulationNotes:"Filter automation on drop"},
+    tags:["electronic","four-on-the-floor","dance","scaffold"]
+  },
+  {
+    id:12, slug:"red-sand-engine", title:"Red Sand Engine",
+    influences:["Sludge","Blues rock","Mastodon-adjacent"], stage:3, difficulty:3,
+    tempoRangeBPM:{min:84,max:96}, primaryMeter:"4/4 swung", feel:"Swung sludge-blues pocket",
+    tonalCenter:"A minor", tuningNotes:"Drop A or standard",
+    sections:[{name:"Intro",bars:4,description:"Ride bell, slow and heavy"},{name:"Verse",bars:16,description:"Swung groove with ride"},{name:"Chorus",bars:8,description:"Crash-driven, same feel"},{name:"Solo",bars:8,description:"Tom fills behind guitar solo"},{name:"Outro",bars:8,description:"Verse decay"}],
+    arrangementTimeline:[{track:"Drums",summary:"Heavy laid-back pocket, ride bell time"},{track:"Guitars",summary:"Sludge riffs, blues soloing"},{track:"Bass",summary:"Locks to kick, leaves space after beat 2"},{track:"Moog",summary:"Organ-like pad for depth"}],
+    drumGoals:["Swung feel control","Ride bell consistency","Snare authority in heavy context"],
+    limbFocus:["Right hand (ride bell)","Right foot (kick)","Left hand (snare)"],
+    kitFocus:["Ride (bell)","Kick","Snare"],
+    groove:[{label:"Sludge Pocket",description:"Swung groove with ride bell",meter:"4/4 swung",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nRide : R - R - R - R -"}],
+    fills:[],
+    practiceBpmLadder:[76,80,84,90,96],
+    milestones:["Swing feel consistent for 16 bars","Dragged kick before 3 once stable","Full song"],
+    roadmap:"Lock the swing. Add drag after swing is stable.",
+    commonMistakes:["Swing inconsistent","Dragged kick too early","Ride bell too aggressive"],
+    dynamicsNotes:"Heavy but controlled. Snare should crack, everything else supports.",
+    logicNotes:{midiRecordingTips:"Use swing quantize template",quantizeStrategy:"Swing quantize at 60-65%",humanizeStrategy:"Keep the laid-back feel natural",superiorDrummerMapTips:"Warm, open kit with ride bell emphasis"},
+    guitars:[{role:"Sludge riff",chordIdeas:"Am pentatonic riff, slow bends",effectNotes:"High gain, scooped mids"}],
+    bass:{role:"Lock with kick",patternIdea:"Follow kick, rest after beat 2",effectNotes:"Heavy, round tone"},
+    moog:{role:"Organ pad",motifIdea:"A minor sustained organ sound",modulationNotes:"Rotary speaker effect"},
+    tags:["sludge","blues","swing","ride-bell","scaffold"]
+  },
+  {
+    id:13, slug:"spectral-lines", title:"Spectral Lines",
+    influences:["Pink Floyd","Ambient rock"], stage:3, difficulty:2,
+    tempoRangeBPM:{min:60,max:70}, primaryMeter:"4/4", feel:"Sparse ambient timekeeping",
+    tonalCenter:"B minor", tuningNotes:"Standard",
+    sections:[{name:"Intro",bars:8,description:"Silence then rimclick"},{name:"Verse",bars:16,description:"Sparse kick + cross-stick"},{name:"Chorus",bars:8,description:"Add cymbal swells"},{name:"Outro",bars:8,description:"Return to silence"}],
+    arrangementTimeline:[{track:"Drums",summary:"Sparse: silence is an instrument"},{track:"Guitars",summary:"Clean, heavily delayed"},{track:"Bass",summary:"Pedal tones, very sparse"},{track:"Moog",summary:"Pad leads section changes, not drums"}],
+    drumGoals:["Intentional silence","Rim-click control","Cymbal swell timing"],
+    limbFocus:["Left hand (cross-stick)","Right foot (kick)"],
+    kitFocus:["Cross-stick","Kick","Crash (swells)"],
+    groove:[{label:"Sparse Time",description:"Minimal kick and cross-stick",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - C - - - C -\nHH   : - - - - - - - -"}],
+    fills:[],
+    practiceBpmLadder:[56,60,64,68,70],
+    milestones:["Make silence feel intentional","Cross-stick consistent","Follow Moog for section cues"],
+    roadmap:"Practice with a click at extremely low BPM. Resist adding notes.",
+    commonMistakes:["Overplaying","Cross-stick inconsistent","Losing time in silence"],
+    dynamicsNotes:"pp throughout. This is a meditation in restraint.",
+    logicNotes:{midiRecordingTips:"Record very few notes, focus on timing precision",quantizeStrategy:"Minimal quantize",humanizeStrategy:"Leave natural, these few notes should breathe",superiorDrummerMapTips:"Jazz brush kit or sensitive cross-stick mapping"},
+    guitars:[{role:"Delayed clean",chordIdeas:"Bm arpeggios with long delay",effectNotes:"Dotted 8th delay, large reverb"}],
+    bass:{role:"Pedal tones",patternIdea:"B whole notes, very sparse",effectNotes:"Clean, deep"},
+    moog:{role:"Section leader",motifIdea:"B minor pad, changes cue sections",modulationNotes:"Slow volume automation"},
+    tags:["ambient","sparse","restraint","cross-stick","scaffold"]
+  },
+  {
+    id:14, slug:"mercury-teeth", title:"Mercury Teeth",
+    influences:["Mastodon","Tool"], stage:4, difficulty:4,
+    tempoRangeBPM:{min:98,max:112}, primaryMeter:"4/4", feel:"Mid-tempo heavy riff support",
+    tonalCenter:"C minor", tuningNotes:"Drop C",
+    sections:[{name:"Intro",bars:4,description:"Heavy riff entrance"},{name:"Verse",bars:16,description:"Chug-synced groove"},{name:"Bridge",bars:8,description:"Half-time, tom accents"},{name:"Chorus",bars:8,description:"Full energy"},{name:"Outro",bars:8,description:"Riff reprise"}],
+    arrangementTimeline:[{track:"Drums",summary:"Sync with chug riffs, half-time bridge provides contrast"},{track:"Guitars",summary:"Heavy chug riffs, melodic bridge"},{track:"Bass",summary:"Follows guitar riff"},{track:"Moog",summary:"Bridge atmosphere"}],
+    drumGoals:["Riff sync accuracy","Half-time bridge execution","Tom accent vocabulary"],
+    limbFocus:["All limbs","Tom coordination"],
+    kitFocus:["Kick","Snare","Hi-hat","Floor tom","Mid tom"],
+    groove:[{label:"Chug Sync",description:"Locked with guitar chug pattern",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - - -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"},{label:"Bridge Half-Time",description:"Snare on 3, floor tom accents",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nFT   : - - T - - - - -\nHH   : x x x x x x x x"}],
+    fills:[],
+    practiceBpmLadder:[88,94,98,104,112],
+    milestones:["Locked with guitar chug","Bridge transition clean","Double kick only as 2-note pickup"],
+    roadmap:"Learn riff on guitar or listen until internalized. Then play along.",
+    commonMistakes:["Overusing double kick","Tom accents in wrong places","Losing sync with guitar"],
+    dynamicsNotes:"Verse is f, bridge drops to mf. Tom accents should pop.",
+    logicNotes:{midiRecordingTips:"Record with guitar reference track",quantizeStrategy:"Tight quantize for chug sync",humanizeStrategy:"Keep tight, slight variation on toms",superiorDrummerMapTips:"Heavy metal kit, defined tom tones"},
+    guitars:[{role:"Chug riff",chordIdeas:"Cm power chord chug pattern",effectNotes:"High gain, tight, drop tuning"}],
+    bass:{role:"Riff follower",patternIdea:"Follows guitar riff exactly",effectNotes:"Distorted"},
+    moog:{role:"Bridge atmosphere",motifIdea:"C minor dark pad in bridge",modulationNotes:"Slow filter modulation"},
+    tags:["heavy","chug","half-time","toms","stage-4","scaffold"]
+  },
+  {
+    id:15, slug:"horizon-collapse", title:"Horizon Collapse",
+    influences:["Russian Circles","Post-metal"], stage:4, difficulty:3,
+    tempoRangeBPM:{min:72,max:84}, primaryMeter:"4/4", feel:"Post-metal build architecture",
+    tonalCenter:"D minor", tuningNotes:"Drop D",
+    sections:[{name:"Intro",bars:8,description:"Quiet tom pattern"},{name:"Build A",bars:16,description:"Gradual dynamic increase"},{name:"Peak",bars:8,description:"Full volume, crash-heavy"},{name:"Decay",bars:8,description:"Strip back"},{name:"Outro",bars:8,description:"Sparse ending"}],
+    arrangementTimeline:[{track:"Drums",summary:"Crescendo architecture over 16+ bars"},{track:"Guitars",summary:"Layered, building from clean to distorted"},{track:"Bass",summary:"Follows guitar build"},{track:"Moog",summary:"Drone foundation"}],
+    drumGoals:["Crescendo over 16 bars without speeding up","Cymbal restraint","Tom phrasing"],
+    limbFocus:["Both hands (toms)","Right foot (kick)","Dynamic control"],
+    kitFocus:["Floor tom","Kick","Crash","Ride"],
+    groove:[{label:"Build Groove",description:"Tom-led with kick support",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nFT   : - - T - - - T -"}],
+    fills:[],
+    practiceBpmLadder:[64,68,72,78,84],
+    milestones:["16-bar crescendo at steady tempo","Cymbal entries timed to builds","Full arrangement arc"],
+    roadmap:"Practice crescendo with metronome. Automate MIDI velocities as guide.",
+    commonMistakes:["Speeding up during crescendo","Crashing too early","Tom volume uncontrolled"],
+    dynamicsNotes:"pp to ff over the full build. Each bar slightly louder than the last. Automate MIDI velocities.",
+    logicNotes:{midiRecordingTips:"Automate MIDI velocities upward over builds",quantizeStrategy:"Light quantize, organic feel",humanizeStrategy:"Velocity ramp is the humanization",superiorDrummerMapTips:"Natural kit, room mics that respond to velocity"},
+    guitars:[{role:"Layered build",chordIdeas:"Dm clean arpeggios to distorted power chords",effectNotes:"Clean → overdrive → full gain"}],
+    bass:{role:"Building foundation",patternIdea:"Follows guitar dynamic arc",effectNotes:"Clean to distorted"},
+    moog:{role:"Drone",motifIdea:"D drone throughout",modulationNotes:"Subtle filter movement"},
+    tags:["post-metal","build","crescendo","architecture","scaffold"]
+  },
+  {
+    id:16, slug:"broken-neon-saints", title:"Broken Neon Saints",
+    influences:["AFI","Thrice","Melodic hardcore"], stage:4, difficulty:4,
+    tempoRangeBPM:{min:146,max:162}, primaryMeter:"4/4", feel:"Fast punk/hardcore control",
+    tonalCenter:"G minor", tuningNotes:"Drop D",
+    sections:[{name:"Intro",bars:4,description:"Fast hat count-in"},{name:"Verse",bars:16,description:"Fast punk groove"},{name:"Chorus",bars:8,description:"Crash endurance"},{name:"Bridge",bars:8,description:"Breakdown"},{name:"Final Chorus",bars:8,description:"Full energy"}],
+    arrangementTimeline:[{track:"Drums",summary:"Stamina sibling to City of Haze, slightly more melodic"},{track:"Guitars",summary:"Melodic hardcore riffs"},{track:"Bass",summary:"Driving 8th notes"},{track:"Moog",summary:"Bridge texture"}],
+    drumGoals:["Fast hat endurance","Crash chorus stamina","Clean at high tempo"],
+    limbFocus:["Right hand (hat speed)","Right foot (kick)","Left hand (snare)"],
+    kitFocus:["Hi-hat","Kick","Snare","Crash"],
+    groove:[{label:"Punk Drive",description:"Fast 8th hats with punk kick",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}],
+    fills:[],
+    practiceBpmLadder:[120,132,140,148,154,162],
+    milestones:["30-second bursts at 160","Full song at 148","Crash chorus without fatigue"],
+    roadmap:"Practice in 30-second bursts. Avoid sloppy high-tempo habits.",
+    commonMistakes:["Getting sloppy at tempo","Crash hand fatigue","Losing beat clarity"],
+    dynamicsNotes:"Consistent f throughout. This is about stamina, not dynamics.",
+    logicNotes:{midiRecordingTips:"Record at tempo, short takes",quantizeStrategy:"Hard quantize at this speed",humanizeStrategy:"Minimal, keep tight",superiorDrummerMapTips:"Punk kit, bright and cutting"},
+    guitars:[{role:"Melodic hardcore",chordIdeas:"Gm melodic riffs",effectNotes:"High gain, scooped"}],
+    bass:{role:"Driving 8ths",patternIdea:"Constant 8th notes",effectNotes:"Distorted, aggressive"},
+    moog:{role:"Bridge texture",motifIdea:"Dark pad in bridge",modulationNotes:"Filter sweep"},
+    tags:["punk","fast","stamina","hardcore","scaffold"]
+  },
+  {
+    id:17, slug:"signal-drift", title:"Signal Drift",
+    influences:["Ambient post-rock","Sigur Ros","Shoegaze"], stage:4, difficulty:2,
+    tempoRangeBPM:{min:66,max:74}, primaryMeter:"4/4", feel:"Ambient repetition, dynamic patience",
+    tonalCenter:"E major", tuningNotes:"Standard, open voicings",
+    sections:[{name:"Intro",bars:8,description:"Hats only"},{name:"Verse",bars:16,description:"Minimal groove"},{name:"Chorus",bars:8,description:"Slight lift, crash swell"},{name:"Verse 2",bars:16,description:"Same groove, deeper focus"},{name:"Outro",bars:8,description:"Fade to nothing"}],
+    arrangementTimeline:[{track:"Drums",summary:"Reset song: repetition and relaxation"},{track:"Guitars",summary:"Shimmering clean, ambient"},{track:"Bass",summary:"Long sustain notes"},{track:"Moog",summary:"Evolving pad"}],
+    drumGoals:["Patience and repetition","Relaxed posture","Time consistency at low BPM"],
+    limbFocus:["Right hand (hats)","Right foot (kick)"],
+    kitFocus:["Hi-hat","Kick","Snare"],
+    groove:[{label:"Reset Groove",description:"Ultra-minimal, patience exercise",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - - -\nSnare: - - - - S - - -\nHH   : x x x x x x x x"}],
+    fills:[],
+    practiceBpmLadder:[60,64,66,70,74],
+    milestones:["Play groove for 5 minutes without rushing","Maintain relaxed posture","Feel the song, not just play it"],
+    roadmap:"Use this between heavier modules. Focus on breathing and relaxation.",
+    commonMistakes:["Rushing","Adding unnecessary notes","Tension in shoulders"],
+    dynamicsNotes:"pp to p. This is a rest stop. Let the other instruments lead.",
+    logicNotes:{midiRecordingTips:"Record in one take, no edits",quantizeStrategy:"No quantize, keep human",humanizeStrategy:"Already human, leave it",superiorDrummerMapTips:"Soft kit, brushes optional"},
+    guitars:[{role:"Ambient shimmer",chordIdeas:"E major open voicings with reverb",effectNotes:"Shimmer reverb, volume swells"}],
+    bass:{role:"Long sustain",patternIdea:"Whole notes, E root",effectNotes:"Clean, reverb"},
+    moog:{role:"Evolving pad",motifIdea:"E major pad with slow movement",modulationNotes:"Very slow LFO"},
+    tags:["ambient","reset","patience","relaxation","scaffold"]
+  },
+  {
+    id:18, slug:"chrome-narrows", title:"Chrome Narrows",
+    influences:["Tool","Deftones groove language"], stage:5, difficulty:4,
+    tempoRangeBPM:{min:96,max:108}, primaryMeter:"4/4", feel:"Linear groove coordination",
+    tonalCenter:"D minor", tuningNotes:"Drop D",
+    sections:[{name:"Intro",bars:4,description:"Linear groove entrance"},{name:"Verse",bars:16,description:"Core linear pattern"},{name:"Chorus",bars:8,description:"Open hat/splash variation"},{name:"Bridge",bars:8,description:"Tom-led linear section"},{name:"Outro",bars:8,description:"Return to verse pattern"}],
+    arrangementTimeline:[{track:"Drums",summary:"Abe-adjacent: space, sequencing, groove over flash"},{track:"Guitars",summary:"Groove riff following drum accents"},{track:"Bass",summary:"Interlocking with kick"},{track:"Moog",summary:"Textural bridge support"}],
+    drumGoals:["Linear coordination","Kick-snare-hat separation","Groove over speed"],
+    limbFocus:["All limbs independently","Linear thinking"],
+    kitFocus:["Kick","Snare","Hi-hat","Splash"],
+    groove:[{label:"Linear Core",description:"No simultaneous hits, pure sequence",meter:"4/4",asciiNotation:"1e&a 2e&a 3e&a 4e&a\nK-H-S-H K-H-H-S"}],
+    fills:[],
+    practiceBpmLadder:[80,88,92,96,104,108],
+    milestones:["Pattern clean at 88 BPM","Splash/hat orchestration added","Full song performance"],
+    roadmap:"Learn pattern hands-only first. Add kick. Then orchestrate hats vs splash.",
+    commonMistakes:["Simultaneous hits creep in","Losing the linear feel","Rushing the sequence"],
+    dynamicsNotes:"Even, groove-focused. Each hit should be clear and distinct.",
+    logicNotes:{midiRecordingTips:"Record very slowly first, increase tempo",quantizeStrategy:"Quantize to 1/16 after recording",humanizeStrategy:"Light velocity variation",superiorDrummerMapTips:"Clear articulation between hat and splash"},
+    guitars:[{role:"Groove riff",chordIdeas:"Dm riff following drum accents",effectNotes:"Mid gain, groovy"}],
+    bass:{role:"Interlocking",patternIdea:"Fills the spaces between kick hits",effectNotes:"Clean, punchy"},
+    moog:{role:"Bridge texture",motifIdea:"D minor atmospheric texture",modulationNotes:"Slow modulation"},
+    tags:["linear","coordination","Abe-adjacent","stage-5","scaffold"]
+  },
+  {
+    id:19, slug:"afterimages-of-heat", title:"Afterimages of Heat",
+    influences:["Deftones","Sigur Ros","Pink Floyd"], stage:5, difficulty:4,
+    tempoRangeBPM:{min:68,max:80}, primaryMeter:"6/8 → 4/4", feel:"Meter feel change, cinematic",
+    tonalCenter:"F# minor", tuningNotes:"Standard",
+    sections:[{name:"Theme (6/8)",bars:12,description:"6/8 groove establishment"},{name:"Build",bars:8,description:"Crescendo in 6/8"},{name:"Heavy (4/4)",bars:8,description:"Switch to 4/4 snare on 3"},{name:"Cinematic",bars:8,description:"Tom fills, emotional peak"},{name:"Outro",bars:8,description:"Fade, 6/8 return"}],
+    arrangementTimeline:[{track:"Drums",summary:"Emotional pacing: 6/8 to 4/4, cinematic tom fills"},{track:"Guitars",summary:"Clean 6/8 arpeggios, heavy 4/4 riffs"},{track:"Bass",summary:"Follows meter change"},{track:"Moog",summary:"Cinematic strings-like pad"}],
+    drumGoals:["6/8 feel mastery","Meter change execution","Cinematic tom fills"],
+    limbFocus:["All limbs","6/8 pulse internalization"],
+    kitFocus:["Hi-hat","Kick","Snare","Floor tom","Mid tom"],
+    groove:[{label:"6/8 Theme",description:"Waltz-like feel",meter:"6/8",asciiNotation:"Count: 1 2 3 4 5 6\nKick : K - - - - -\nSnare: - - - S - -\nHH   : x x x x x x"},{label:"4/4 Heavy",description:"Half-time with snare on 3",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nHH   : x x x x x x x x"}],
+    fills:[{label:"Cinematic Tom Fill",description:"Descending toms into crash",asciiNotation:"Count: 3 & 4 &\nHT   : T - - -\nMT   : - T - -\nFT   : - - T -\nCrash: - - - C"}],
+    practiceBpmLadder:[60,64,68,72,76,80],
+    milestones:["6/8 feels natural","Meter change seamless","Cinematic ending nailed"],
+    roadmap:"Master 6/8 first. Then 4/4 section. Finally, transitions and fills.",
+    commonMistakes:["6/8 feels like 3/4","Meter transition stumble","Overplaying the emotional sections"],
+    dynamicsNotes:"6/8 is p to mf. 4/4 heavy is f. Cinematic peak is ff. Emotional pacing, not complexity.",
+    logicNotes:{midiRecordingTips:"Record 6/8 and 4/4 separately, join in arrangement",quantizeStrategy:"6/8: quantize to 1/8 triplet. 4/4: standard",humanizeStrategy:"Velocity arcs for cinematic feel",superiorDrummerMapTips:"Warm kit, big toms, responsive room mics"},
+    guitars:[{role:"Evolving",chordIdeas:"F#m arpeggios in 6/8, power chords in 4/4",effectNotes:"Clean to heavy"}],
+    bass:{role:"Meter follower",patternIdea:"Adapts to 6/8 then 4/4",effectNotes:"Clean to distorted"},
+    moog:{role:"Cinematic pad",motifIdea:"F# minor orchestral pad",modulationNotes:"Swelling strings sound"},
+    tags:["6/8","meter-change","cinematic","emotional","stage-5","scaffold"]
+  },
+  {
+    id:20, slug:"iron-halos-suite", title:"Iron Halos Suite",
+    influences:["Sludge","Dream metal","Post-rock","Alt metal"], stage:5, difficulty:5,
+    tempoRangeBPM:{min:72,max:112}, primaryMeter:"Multiple", feel:"Consolidation: everything learned",
+    tonalCenter:"Various", tuningNotes:"Drop C#",
+    sections:[{name:"Intro Drone",bars:8,description:"Atmospheric drone, no drums"},{name:"Slow Riff Groove",bars:16,description:"72 BPM sludge groove"},{name:"Faster Bridge",bars:8,description:"96 BPM transition"},{name:"Atmospheric Break",bars:8,description:"Sparse ambient section"},{name:"Final Heavy Reprise",bars:12,description:"112 BPM peak intensity"}],
+    arrangementTimeline:[{track:"Drums",summary:"Capstone: endurance, memory, arrangement awareness across 3 tempos"},{track:"Guitars",summary:"All styles represented: clean, heavy, atmospheric"},{track:"Bass",summary:"Follows each section's energy"},{track:"Moog",summary:"Glue between sections"}],
+    drumGoals:["Complete all transitions without stopping","Maintain tempo through 3 feels","No more than 3 fill types"],
+    limbFocus:["All limbs","Arrangement memory","Endurance"],
+    kitFocus:["Full kit"],
+    groove:[{label:"Slow Sludge",description:"72 BPM heavy groove",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nRide : R - R - R - R -"},{label:"Mid Bridge",description:"96 BPM driving",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - - -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"},{label:"Fast Reprise",description:"112 BPM full intensity",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"}],
+    fills:[{label:"Section Transition",description:"Simple crash entry, no complex fills",asciiNotation:"Count: 4 &\nCrash: - C\nKick : - K"}],
+    practiceBpmLadder:[64,72,80,88,96,104,112],
+    milestones:["Complete all section transitions without stopping","Maintain tempo integrity through 3 distinct feels","Use no more than 3 fill types to avoid overplaying"],
+    roadmap:"Learn each section independently. Chain them. Then perform the full suite.",
+    commonMistakes:["Rushing tempo changes","Too many fill types","Fatigue in final section","Losing arrangement memory"],
+    dynamicsNotes:"Each section has its own dynamic world. The suite tests your ability to shift gears.",
+    logicNotes:{midiRecordingTips:"Record each section as separate regions, arrange after",quantizeStrategy:"Section-appropriate quantize",humanizeStrategy:"Match section character",superiorDrummerMapTips:"Full kit with room mic automation per section"},
+    guitars:[{role:"Multi-style",chordIdeas:"Clean arpeggios → heavy riffs → atmospheric → full power",effectNotes:"Pedalboard full range"}],
+    bass:{role:"Section-adaptive",patternIdea:"Matches each section's energy and style",effectNotes:"Varies per section"},
+    moog:{role:"Section glue",motifIdea:"Transitional drones between sections",modulationNotes:"Patch changes per section"},
+    tags:["capstone","suite","multi-tempo","consolidation","stage-5","scaffold"]
+  }
+];
+
+// ══════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════
+let currentView = 'dashboard';
+let activeStage = 0; // 0 = all
+let selectedSong = null;
+let gbPattern = {}; // groove builder pattern state
+let gbPlaying = false;
+let gbInterval = null;
+let gbStep = 0;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+document.querySelectorAll('.nav-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    switchView(btn.dataset.view);
+  });
+});
+
+document.getElementById('detailBack').addEventListener('click', () => switchView('dashboard'));
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  if (view === 'detail') {
+    document.getElementById('view-detail').classList.add('active');
+  } else {
+    document.getElementById(`view-${view}`).classList.add('active');
+    document.querySelector(`.nav-link[data-view="${view}"]`)?.classList.add('active');
+  }
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard() {
+  const filtersEl = document.getElementById('stageFilters');
+  filtersEl.innerHTML = '';
+  const stages = [{s:0,label:'All'},{s:1,label:'Stage 1'},{s:2,label:'Stage 2'},{s:3,label:'Stage 3'},{s:4,label:'Stage 4'},{s:5,label:'Stage 5'}];
+  stages.forEach(({s,label}) => {
+    const btn = document.createElement('button');
+    btn.className = `stage-btn${activeStage===s?' active':''}`;
+    btn.dataset.stage = s;
+    btn.textContent = label;
+    btn.onclick = () => { activeStage = s; renderDashboard(); };
+    filtersEl.appendChild(btn);
+  });
+
+  const gridEl = document.getElementById('songGrid');
+  gridEl.innerHTML = '';
+  const filtered = activeStage === 0 ? songs : songs.filter(s => s.stage === activeStage);
+  filtered.forEach(song => {
+    const card = document.createElement('div');
+    card.className = 'song-card';
+    card.onclick = () => openSongDetail(song.id);
+    card.innerHTML = `
+      <div class="card-num">${String(song.id).padStart(2,'0')}</div>
+      <h3>${song.title}</h3>
+      <div class="card-meta">
+        <span class="pill pill-stage">Stage ${song.stage}</span>
+        <span class="pill pill-diff">Diff ${song.difficulty}/5</span>
+        <span class="pill pill-tempo">${song.tempoRangeBPM.min}-${song.tempoRangeBPM.max} BPM</span>
+        <span class="pill pill-tempo">${song.primaryMeter}</span>
+      </div>
+      <div class="card-focus">${song.feel}</div>
+      <div style="margin-top:8px;font-size:.76rem;color:var(--teal);">${song.kitFocus.slice(0,3).join(' / ')}</div>
+      <div style="margin-top:6px;font-size:.72rem;color:var(--muted-text);opacity:.7;">${song.drumGoals[0]}</div>
+    `;
+    gridEl.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  SONG DETAIL
+// ══════════════════════════════════════════════
+function openSongDetail(id) {
+  selectedSong = songs.find(s => s.id === id);
+  if (!selectedSong) return;
+  renderDetail();
+  switchView('detail');
+}
+
+function renderDetail() {
+  const s = selectedSong;
+  const el = document.getElementById('detailContent');
+  const stageColors = ['','var(--stage1)','var(--stage2)','var(--stage3)','var(--stage4)','var(--stage5)'];
+
+  el.innerHTML = `
+    <div class="detail-header">
+      <h1>${s.title}</h1>
+      <div class="detail-meta">
+        <span class="pill pill-stage">Stage ${s.stage}</span>
+        <span class="pill pill-diff">Difficulty ${s.difficulty}/5</span>
+        <span class="pill pill-tempo">${s.tempoRangeBPM.min}-${s.tempoRangeBPM.max} BPM</span>
+        <span class="pill pill-tempo">${s.primaryMeter}</span>
+        <span class="pill pill-tempo">${s.tonalCenter}</span>
+      </div>
+      <div class="detail-desc">${s.feel} &mdash; Influences: ${s.influences.join(', ')}</div>
+      <div class="tag-list" style="margin-top:10px;">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+
+    <div class="detail-tabs" id="detailTabs">
+      <button class="detail-tab active" data-tab="drums">Drums First</button>
+      <button class="detail-tab" data-tab="practice">Practice Plan</button>
+      <button class="detail-tab" data-tab="arrangement">Song Structure</button>
+      <button class="detail-tab" data-tab="tracking">Track in Logic</button>
+      <button class="detail-tab" data-tab="layering">Layer Instruments</button>
+    </div>
+
+    <!-- DRUMS FIRST TAB -->
+    <div class="tab-panel active" data-tab="drums">
+      <div class="phase-badge drums">PHASE 1 — Learn the Drum Part</div>
+      <div class="section-block">
+        <h3>Drum Goals</h3>
+        <ul class="milestone-list">${s.drumGoals.map(g=>`<li>${g}</li>`).join('')}</ul>
+      </div>
+      <div class="section-block">
+        <h3>Limb &amp; Kit Focus</h3>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div><strong style="color:var(--teal);font-size:.82rem;">Limbs:</strong> <span style="color:var(--muted-text);font-size:.85rem;">${s.limbFocus.join(', ')}</span></div>
+          <div><strong style="color:var(--tan);font-size:.82rem;">Kit:</strong> <span style="color:var(--muted-text);font-size:.85rem;">${s.kitFocus.join(', ')}</span></div>
+        </div>
+      </div>
+      <div class="section-block">
+        <h3>Core Grooves</h3>
+        ${s.groove.map(g => renderGrooveCard(g)).join('')}
+      </div>
+      ${s.fills.length ? `<div class="section-block"><h3>Fills</h3>${s.fills.map(f => renderFillCard(f)).join('')}</div>` : ''}
+      <div class="section-block">
+        <h3>Dynamics Notes</h3>
+        <div class="dynamics-box">${s.dynamicsNotes}</div>
+      </div>
+    </div>
+
+    <!-- PRACTICE PLAN TAB -->
+    <div class="tab-panel" data-tab="practice">
+      <div class="phase-badge drums">PHASE 1 — Build Technique &amp; Stamina</div>
+      <div class="section-block">
+        <h3>BPM Ladder</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Start slow. Move up only when the current tempo feels locked and relaxed.</p>
+        <div class="bpm-ladder">${s.practiceBpmLadder.map((bpm,i) => `<div class="bpm-step${i===0?' current':''}" onclick="this.parentElement.querySelectorAll('.bpm-step').forEach(b=>b.classList.remove('current'));this.classList.add('current');">${bpm}</div>`).join('')}</div>
+      </div>
+      <div class="section-block">
+        <h3>Milestones</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:8px;">Hit all of these before moving to Logic tracking.</p>
+        <ul class="milestone-list">${s.milestones.map(m=>`<li>${m}</li>`).join('')}</ul>
+      </div>
+      <div class="section-block">
+        <h3>Roadmap</h3>
+        <p style="color:var(--muted-text);font-size:.88rem;line-height:1.5;">${s.roadmap}</p>
+      </div>
+      <div class="section-block">
+        <h3>Common Mistakes to Avoid</h3>
+        <ul class="mistake-list">${s.commonMistakes.map(m=>`<li>${m}</li>`).join('')}</ul>
+      </div>
+    </div>
+
+    <!-- SONG STRUCTURE TAB -->
+    <div class="tab-panel" data-tab="arrangement">
+      <div class="section-block">
+        <h3>Song Sections</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Learn the drum part for each section. These become your Logic regions.</p>
+        <div class="sections-timeline">
+          ${s.sections.map(sec => `<div class="section-chip"><span class="sec-name">${sec.name}</span><span class="sec-bars">${sec.bars} bars</span><span class="sec-desc">${sec.description}</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="section-block">
+        <h3>Full Arrangement — How Each Part Fits</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Drums drive the structure. Other parts respond to what the drums establish.</p>
+        <div class="timeline">
+          ${s.arrangementTimeline.map(t => `<div class="timeline-row"><div class="timeline-track ${t.track}">${t.track}</div><div class="timeline-summary">${t.summary}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- TRACK IN LOGIC TAB -->
+    <div class="tab-panel" data-tab="tracking">
+      <div class="phase-badge logic">PHASE 2 — Record Drums in Logic Pro</div>
+      <p style="color:var(--muted-text);font-size:.85rem;margin-bottom:16px;line-height:1.5;">Once you've hit the practice milestones, open Logic and lay down the drum foundation. All other instruments build on top of this.</p>
+      <div class="section-block">
+        <h3>MIDI Recording</h3>
+        <p style="color:var(--muted-text);font-size:.88rem;line-height:1.5;">${s.logicNotes.midiRecordingTips}</p>
+      </div>
+      <div class="section-block">
+        <h3>Quantize Strategy</h3>
+        <p style="color:var(--muted-text);font-size:.88rem;line-height:1.5;">${s.logicNotes.quantizeStrategy}</p>
+      </div>
+      <div class="section-block">
+        <h3>Humanize Strategy</h3>
+        <p style="color:var(--muted-text);font-size:.88rem;line-height:1.5;">${s.logicNotes.humanizeStrategy}</p>
+      </div>
+      <div class="section-block">
+        <h3>Superior Drummer Mapping</h3>
+        <p style="color:var(--muted-text);font-size:.88rem;line-height:1.5;">${s.logicNotes.superiorDrummerMapTips}</p>
+      </div>
+      <div class="section-block">
+        <h3>Region Plan</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Build your Logic arrangement from these sections. Perfect each groove as a loop, then chain them.</p>
+        <div class="sections-timeline">
+          ${s.sections.map((sec,i) => `<div class="section-chip"><span class="sec-name">Region ${String.fromCharCode(65+i)}</span><span class="sec-bars">${sec.bars} bars</span><span class="sec-desc">${sec.name}: ${sec.description}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYER INSTRUMENTS TAB -->
+    <div class="tab-panel" data-tab="layering">
+      <div class="phase-badge layer">PHASE 3 — Layer Instruments Over Drums</div>
+      <div class="layer-unlock">
+        <h3>Prerequisites Before Layering</h3>
+        <div class="layer-note">Complete the drum part first. Record it in Logic. Get a solid drum mix bounce. Then come back here to layer guitars, bass, and synth on top.</div>
+        <div class="layer-prereq">Practice milestones achieved</div>
+        <div class="layer-prereq">Drum MIDI recorded in Logic</div>
+        <div class="layer-prereq">Drum mix sounds right in Superior Drummer</div>
+      </div>
+
+      <h3 style="color:var(--tan);margin:20px 0 12px;font-size:1rem;">Guitar — Layer Next</h3>
+      ${s.guitars.map((g,i) => `
+        <div class="instrument-card guitar">
+          <h4>Guitar ${s.guitars.length > 1 ? i+1 : ''}</h4>
+          <div class="inst-field"><strong>Role:</strong> ${g.role}</div>
+          <div class="inst-field"><strong>Chord Ideas:</strong> ${g.chordIdeas}</div>
+          <div class="inst-field"><strong>Effects:</strong> ${g.effectNotes}</div>
+          <div class="inst-field" style="margin-top:8px;"><strong>How it relates to drums:</strong> <span style="color:var(--muted-text);">Play to the drum arrangement — let the groove guide your phrasing and dynamics.</span></div>
+        </div>
+      `).join('')}
+
+      <h3 style="color:var(--stage2);margin:20px 0 12px;font-size:1rem;">Bass — Lock to the Kick</h3>
+      <div class="instrument-card bass">
+        <h4>Bass</h4>
+        <div class="inst-field"><strong>Role:</strong> ${s.bass.role}</div>
+        <div class="inst-field"><strong>Pattern:</strong> ${s.bass.patternIdea}</div>
+        <div class="inst-field"><strong>Effects:</strong> ${s.bass.effectNotes}</div>
+        <div class="inst-field" style="margin-top:8px;"><strong>Drum relationship:</strong> <span style="color:var(--muted-text);">Bass follows the kick pattern. Verify alignment in Logic's piano roll.</span></div>
+      </div>
+
+      <h3 style="color:var(--stage5);margin:20px 0 12px;font-size:1rem;">Moog / Synth — Final Layer</h3>
+      <div class="instrument-card moog">
+        <h4>Moog / Synth</h4>
+        <div class="inst-field"><strong>Role:</strong> ${s.moog.role}</div>
+        <div class="inst-field"><strong>Motif:</strong> ${s.moog.motifIdea}</div>
+        <div class="inst-field"><strong>Modulation:</strong> ${s.moog.modulationNotes}</div>
+        <div class="inst-field" style="margin-top:8px;"><strong>Drum relationship:</strong> <span style="color:var(--muted-text);">Fills frequency space the drums don't occupy. Should never compete with the kit.</span></div>
+      </div>
+
+      <div class="section-block" style="margin-top:16px;">
+        <h3>Tuning Notes</h3>
+        <p style="color:var(--muted-text);font-size:.88rem;">${s.tuningNotes}</p>
+      </div>
+    </div>
+  `;
+
+  // Tab switching
+  el.querySelectorAll('.detail-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      el.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+      el.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      el.querySelector(`.tab-panel[data-tab="${tab.dataset.tab}"]`).classList.add('active');
+    });
+  });
+}
+
+function renderGrooveCard(g) {
+  const grid = parseAsciiToGrid(g.asciiNotation);
+  return `
+    <div class="groove-card">
+      <div class="groove-label">${g.label}</div>
+      <div class="groove-desc">${g.description}</div>
+      ${g.meter ? `<div class="groove-meter">${g.meter}</div>` : ''}
+      ${grid ? renderDrumGrid(grid) : `<div class="ascii-block">${g.asciiNotation}</div>`}
+    </div>
+  `;
+}
+
+function renderFillCard(f) {
+  return `
+    <div class="fill-card">
+      <div class="fill-label">${f.label}</div>
+      <div class="fill-desc">${f.description}</div>
+      <div class="ascii-block">${f.asciiNotation}</div>
+    </div>
+  `;
+}
+
+function parseAsciiToGrid(ascii) {
+  const lines = ascii.split('\n').map(l => l.trim()).filter(l => l);
+  let countLine = null;
+  const rows = [];
+  for (const line of lines) {
+    if (line.toLowerCase().startsWith('count')) {
+      countLine = line.split(':')[1]?.trim() || '';
+    } else {
+      const match = line.match(/^(\w[\w\s/]*?)\s*:\s*(.+)$/);
+      if (match) {
+        const label = match[1].trim();
+        const cells = match[2].trim().split('').filter(c => c !== ' ');
+        rows.push({ label, cells });
+      }
+    }
+  }
+  if (rows.length === 0) return null;
+
+  // Parse count line for beat markers
+  let beats = [];
+  if (countLine) {
+    beats = countLine.split('').filter(c => c !== ' ');
+  }
+  return { beats, rows };
+}
+
+function renderDrumGrid(grid) {
+  const numCells = grid.rows[0]?.cells.length || 8;
+  let html = '<div class="grid-container"><div class="drum-grid">';
+
+  // Beat markers
+  if (grid.beats.length) {
+    html += '<div class="beat-markers">';
+    grid.beats.forEach(b => {
+      const isDown = /^[1-9]$/.test(b);
+      html += `<div class="beat-marker-cell${isDown?' downbeat':''}">${b}</div>`;
+    });
+    html += '</div>';
+  }
+
+  grid.rows.forEach(row => {
+    html += '<div class="drum-grid-row">';
+    html += `<div class="drum-grid-label">${row.label}</div>`;
+    html += '<div class="drum-grid-cells">';
+    row.cells.forEach(cell => {
+      const isOn = cell !== '-';
+      const isGhost = cell.toLowerCase() === 'g';
+      const cls = isGhost ? 'ghost' : (isOn ? 'on' : 'off');
+      html += `<div class="drum-cell ${cls}">${isOn ? cell : ''}</div>`;
+    });
+    html += '</div></div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+// ══════════════════════════════════════════════
+//  SONG LADDER
+// ══════════════════════════════════════════════
+function renderLadder() {
+  const el = document.getElementById('ladderContent');
+  const stageColors = ['','var(--stage1)','var(--stage2)','var(--stage3)','var(--stage4)','var(--stage5)'];
+  const stageLabels = ['','Foundations','Building Blocks','Intermediate','Advanced','Mastery'];
+  let html = '';
+  for (let st = 1; st <= 5; st++) {
+    const stageSongs = songs.filter(s => s.stage === st);
+    html += `
+      <div class="ladder-stage">
+        <div class="ladder-stage-header">
+          <div class="ladder-stage-num" style="background:${stageColors[st]}">${st}</div>
+          <div class="ladder-stage-label" style="color:${stageColors[st]}">${stageLabels[st]}</div>
+        </div>
+        <div class="ladder-songs">
+          ${stageSongs.map(s => `
+            <div class="ladder-song" onclick="openSongDetail(${s.id})">
+              <h4>${s.id}. ${s.title}</h4>
+              <div class="diff-dots" style="margin-bottom:6px;">${Array(5).fill(0).map((_,i)=>`<div class="diff-dot${i<s.difficulty?' filled':''}"></div>`).join('')}</div>
+              <div class="ladder-focus">${s.feel}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+//  GROOVE BUILDER (Step Sequencer)
+// ══════════════════════════════════════════════
+const GM_DRUMS = {
+  'Kick': 36, 'Snare': 38, 'HH': 42, 'Ride': 51,
+  'Crash': 49, 'FT': 43, 'MT': 47, 'HT': 50,
+  'F1': 43, 'Splash': 55
+};
+const DRUM_SOUNDS = {
+  36: { freq: 55, dur: 0.4, gain: 0.8, type: 'sine' },
+  38: { freq: 180, dur: 0.12, gain: 0.6, type: 'triangle' },
+  42: { freq: 8000, dur: 0.06, gain: 0.3, type: 'square' },
+  51: { freq: 5000, dur: 0.15, gain: 0.25, type: 'triangle' },
+  49: { freq: 3000, dur: 0.3, gain: 0.4, type: 'square' },
+  43: { freq: 90, dur: 0.25, gain: 0.6, type: 'sine' },
+  47: { freq: 120, dur: 0.2, gain: 0.5, type: 'sine' },
+  50: { freq: 160, dur: 0.18, gain: 0.45, type: 'sine' },
+  55: { freq: 6000, dur: 0.12, gain: 0.3, type: 'square' }
+};
+
+function initGrooveBuilder() {
+  const songSel = document.getElementById('gbSongSelect');
+  songSel.innerHTML = songs.map(s => `<option value="${s.id}">${s.id}. ${s.title}</option>`).join('');
+  songSel.addEventListener('change', updateGrooveSelect);
+  document.getElementById('gbGrooveSelect').addEventListener('change', loadGrooveIntoSequencer);
+  document.getElementById('gbPlay').addEventListener('click', startGBPlayback);
+  document.getElementById('gbStop').addEventListener('click', stopGBPlayback);
+  document.getElementById('gbClear').addEventListener('click', clearGB);
+  document.getElementById('gbExport').addEventListener('click', exportGBMidi);
+  updateGrooveSelect();
+}
+
+function updateGrooveSelect() {
+  const songId = parseInt(document.getElementById('gbSongSelect').value);
+  const song = songs.find(s => s.id === songId);
+  const grooveSel = document.getElementById('gbGrooveSelect');
+  grooveSel.innerHTML = song.groove.map((g, i) => `<option value="${i}">${g.label}</option>`).join('');
+  document.getElementById('gbTempo').value = song.tempoRangeBPM.min;
+  loadGrooveIntoSequencer();
+}
+
+function loadGrooveIntoSequencer() {
+  const songId = parseInt(document.getElementById('gbSongSelect').value);
+  const grooveIdx = parseInt(document.getElementById('gbGrooveSelect').value);
+  const song = songs.find(s => s.id === songId);
+  const groove = song.groove[grooveIdx];
+  if (!groove) return;
+
+  const grid = parseAsciiToGrid(groove.asciiNotation);
+  if (!grid) return;
+
+  const numSteps = grid.rows[0]?.cells.length || 8;
+  gbPattern = {};
+  const drumNames = [];
+
+  grid.rows.forEach(row => {
+    const name = row.label;
+    drumNames.push(name);
+    gbPattern[name] = row.cells.map(c => c !== '-' ? 1 : 0);
+  });
+
+  renderSequencer(drumNames, numSteps, grid.beats);
+}
+
+function renderSequencer(drumNames, numSteps, beats) {
+  const container = document.getElementById('gbSequencer');
+  let html = '<div class="sequencer-container">';
+
+  // Beat markers
+  html += '<div class="seq-beat-markers">';
+  if (beats && beats.length) {
+    beats.forEach(b => {
+      const isDown = /^[1-9]$/.test(b);
+      html += `<div class="seq-beat-num${isDown?' downbeat':''}">${b}</div>`;
+    });
+  } else {
+    for (let i = 0; i < numSteps; i++) {
+      html += `<div class="seq-beat-num${i%4===0?' downbeat':''}">${i%4===0?Math.floor(i/4)+1:''}</div>`;
+    }
+  }
+  html += '</div>';
+
+  drumNames.forEach(name => {
+    html += `<div class="seq-row"><div class="seq-label">${name}</div><div class="seq-cells">`;
+    for (let i = 0; i < numSteps; i++) {
+      const isOn = gbPattern[name]?.[i] ? 'on' : 'off';
+      html += `<button class="seq-cell ${isOn}" data-drum="${name}" data-step="${i}" id="seq-${name}-${i}"></button>`;
+    }
+    html += '</div></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+
+  // Click handlers
+  container.querySelectorAll('.seq-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const drum = cell.dataset.drum;
+      const step = parseInt(cell.dataset.step);
+      gbPattern[drum][step] = gbPattern[drum][step] ? 0 : 1;
+      cell.classList.toggle('on');
+      cell.classList.toggle('off');
+    });
+  });
+}
+
+function playDrumHit(midiNote) {
+  const ctx = getAudioCtx();
+  const sound = DRUM_SOUNDS[midiNote] || DRUM_SOUNDS[42];
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = sound.type;
+  osc.frequency.setValueAtTime(sound.freq, now);
+  if (midiNote === 36 || midiNote === 43 || midiNote === 47 || midiNote === 50) {
+    osc.frequency.exponentialRampToValueAtTime(1, now + sound.dur);
+  }
+  gain.gain.setValueAtTime(sound.gain, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + sound.dur);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + sound.dur + 0.05);
+}
+
+function startGBPlayback() {
+  if (gbPlaying) return;
+  gbPlaying = true;
+  gbStep = 0;
+  document.getElementById('gbPlay').style.display = 'none';
+  document.getElementById('gbStop').style.display = '';
+  const tempo = parseInt(document.getElementById('gbTempo').value) || 120;
+  const drums = Object.keys(gbPattern);
+  const numSteps = gbPattern[drums[0]]?.length || 8;
+
+  // Determine step duration based on notation density
+  // 16th notes: numSteps >= 16; 8th notes: numSteps ~8; 6th: 6
+  let stepsPerBeat = numSteps <= 8 ? 2 : 4;
+  if (numSteps === 6 || numSteps === 7) stepsPerBeat = numSteps <= 6 ? 2 : 2;
+  const stepDur = 60000 / tempo / stepsPerBeat;
+
+  function tick() {
+    if (!gbPlaying) return;
+    // Clear previous highlights
+    document.querySelectorAll('.seq-cell.seq-playing').forEach(c => c.classList.remove('seq-playing'));
+    // Highlight and play
+    drums.forEach(drum => {
+      const cell = document.getElementById(`seq-${drum}-${gbStep}`);
+      if (cell) cell.classList.add('seq-playing');
+      if (gbPattern[drum]?.[gbStep]) {
+        const midiNote = GM_DRUMS[drum] || 42;
+        playDrumHit(midiNote);
+      }
+    });
+    gbStep = (gbStep + 1) % numSteps;
+    gbInterval = setTimeout(tick, stepDur);
+  }
+  tick();
+}
+
+function stopGBPlayback() {
+  gbPlaying = false;
+  clearTimeout(gbInterval);
+  document.querySelectorAll('.seq-cell.seq-playing').forEach(c => c.classList.remove('seq-playing'));
+  document.getElementById('gbPlay').style.display = '';
+  document.getElementById('gbStop').style.display = 'none';
+}
+
+function clearGB() {
+  stopGBPlayback();
+  Object.keys(gbPattern).forEach(drum => {
+    gbPattern[drum] = gbPattern[drum].map(() => 0);
+  });
+  document.querySelectorAll('.seq-cell').forEach(c => { c.classList.remove('on'); c.classList.add('off'); });
+}
+
+// ══════════════════════════════════════════════
+//  MIDI EXPORT
+// ══════════════════════════════════════════════
+function exportGBMidi() {
+  const tempo = parseInt(document.getElementById('gbTempo').value) || 120;
+  const drums = Object.keys(gbPattern);
+  const numSteps = gbPattern[drums[0]]?.length || 8;
+  const division = 480;
+  const stepsPerBeat = numSteps <= 8 ? 2 : 4;
+  const ticksPerStep = division / stepsPerBeat;
+
+  // Build MIDI bytes
+  const data = [];
+  // Header
+  push(data, str2b('MThd')); push(data, i32(6)); push(data, i16(0)); push(data, i16(1)); push(data, i16(division));
+  // Track
+  const trk = [];
+  // Tempo
+  const uspqn = Math.round(60000000 / tempo);
+  push(trk, vlq(0)); push(trk, [0xFF, 0x51, 0x03]); push(trk, [(uspqn>>16)&0xFF,(uspqn>>8)&0xFF,uspqn&0xFF]);
+  // Notes
+  let events = [];
+  for (let step = 0; step < numSteps; step++) {
+    drums.forEach(drum => {
+      if (gbPattern[drum][step]) {
+        const note = GM_DRUMS[drum] || 42;
+        const tick = step * ticksPerStep;
+        events.push({ tick, note, vel: 100, dur: Math.round(ticksPerStep * 0.8) });
+      }
+    });
+  }
+  events.sort((a, b) => a.tick - b.tick || a.note - b.note);
+  let lastTick = 0;
+  events.forEach(ev => {
+    const delta = ev.tick - lastTick;
+    push(trk, vlq(delta));
+    push(trk, [0x99, ev.note, ev.vel]); // ch 10
+    push(trk, vlq(ev.dur));
+    push(trk, [0x89, ev.note, 0]);
+    lastTick = ev.tick + ev.dur;
+  });
+  push(trk, [0, 0xFF, 0x2F, 0x00]);
+  push(data, str2b('MTrk')); push(data, i32(trk.length)); push(data, trk);
+
+  const blob = new Blob([new Uint8Array(data)], { type: 'audio/midi' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const songId = document.getElementById('gbSongSelect').value;
+  const song = songs.find(s => s.id === parseInt(songId));
+  a.href = url;
+  a.download = `${song.slug}_${tempo}BPM.mid`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function push(arr, items) { items.forEach(b => arr.push(b)); }
+function str2b(s) { return s.split('').map(c => c.charCodeAt(0)); }
+function i16(n) { return [(n>>8)&0xFF, n&0xFF]; }
+function i32(n) { return [(n>>24)&0xFF,(n>>16)&0xFF,(n>>8)&0xFF,n&0xFF]; }
+function vlq(n) {
+  const bytes = [n & 0x7F];
+  n >>= 7;
+  while (n > 0) { bytes.unshift((n & 0x7F) | 0x80); n >>= 7; }
+  return bytes;
+}
+
+// ══════════════════════════════════════════════
+//  MASTER CLASS: City of Haze
+// ══════════════════════════════════════════════
+function renderMasterClass() {
+  const el = document.getElementById('masterclassContent');
+  el.innerHTML = `
+    <div class="hero">
+      <h1>MASTER CLASS</h1>
+      <p>City of Haze — Deep-dive module</p>
+    </div>
+
+    <div class="mc-section">
+      <div class="section-block">
+        <h3>Why City of Haze?</h3>
+        <p style="color:var(--muted-text);font-size:.9rem;line-height:1.6;">
+          City of Haze tests high-value skills without requiring advanced metal technique: fast 8th-note hats, dependable snare backbeats, compact motion, and a controlled half-time breakdown. Punk and post-hardcore drumming starts from a steady 8th-note hat pulse plus backbeat before adding kick variations — this matches the song's architecture.
+        </p>
+      </div>
+    </div>
+
+    <div class="mc-section">
+      <h2>Bar-by-Bar Practice Plan</h2>
+      <div class="bar-plan">
+        <div class="bar-row"><div class="bar-range">Bars 1-4</div><div class="bar-instruction">Hats only at target BPM. No kick or snare. Focus on even 8th notes.</div></div>
+        <div class="bar-row"><div class="bar-range">Bars 5-8</div><div class="bar-instruction">Add snare on 2 and 4. Keep hats unchanged.</div></div>
+        <div class="bar-row"><div class="bar-range">Bars 9-16</div><div class="bar-instruction">Add kick on 1 and 3. This is your base groove.</div></div>
+        <div class="bar-row"><div class="bar-range">Bars 17-24</div><div class="bar-instruction">Upgrade: K on 1, & of 2, 3, and & of 3 — only if bars 9-16 are stable.</div></div>
+        <div class="bar-row"><div class="bar-range">Bars 25-32</div><div class="bar-instruction">Chorus: crash on bar 1 and 5, otherwise hats continue.</div></div>
+        <div class="bar-row"><div class="bar-range">Bars 33-40</div><div class="bar-instruction">Breakdown: snare moves to beat 3, floor tom on beat 1. Half-time feel.</div></div>
+        <div class="bar-row"><div class="bar-range">Bars 41-48</div><div class="bar-instruction">Return to verse groove. No fill. Prove you can switch back cleanly.</div></div>
+        <div class="bar-row"><div class="bar-range">Bars 49-56</div><div class="bar-instruction">Final chorus. Same groove with more crashes for energy.</div></div>
+      </div>
+    </div>
+
+    <div class="mc-section">
+      <h2>Three MIDI Groove Templates</h2>
+      ${renderGrooveCard({label:"Verse A (Safe Version)",description:"Basic fast groove — kicks on 1 and 3 only",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - K - - -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"})}
+      ${renderGrooveCard({label:"Verse B (Album Version)",description:"Added kicks for drive — every beat",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - K - K - K -\nSnare: - - S - - - S -\nHH   : x x x x x x x x"})}
+      ${renderGrooveCard({label:"Breakdown",description:"Half-time — snare on 3, floor tom on 1",meter:"4/4",asciiNotation:"Count: 1 & 2 & 3 & 4 &\nKick : K - - - - - K -\nSnare: - - - - S - - -\nFT   : T - - - - - - -\nHH   : x x x x x x x x"})}
+    </div>
+
+    <div class="mc-section">
+      <h2>Suggested Logic Region Layout</h2>
+      <div class="region-layout">
+        <div class="region-chip"><span class="region-label">Region A</span><span class="region-desc">Intro pickup fill — 4 bars</span></div>
+        <div class="region-chip"><span class="region-label">Region B</span><span class="region-desc">Verse groove — 16 bars</span></div>
+        <div class="region-chip"><span class="region-label">Region C</span><span class="region-desc">Chorus groove — 8 bars</span></div>
+        <div class="region-chip"><span class="region-label">Region D</span><span class="region-desc">Verse + fill variation — 16 bars</span></div>
+        <div class="region-chip"><span class="region-label">Region E</span><span class="region-desc">Breakdown groove — 8 bars</span></div>
+        <div class="region-chip"><span class="region-label">Region F</span><span class="region-desc">Final chorus — 8 bars</span></div>
+        <div class="region-chip"><span class="region-label">Region G</span><span class="region-desc">End crash tail — 2 bars</span></div>
+      </div>
+      <p style="color:var(--muted-text);font-size:.85rem;margin-top:12px;line-height:1.5;">
+        This modular approach lets you perfect one groove family at a time, then arrange the song from reusable blocks instead of forcing one full uninterrupted performance too early.
+      </p>
+    </div>
+
+    <div class="mc-section">
+      <h2>Superior Drummer Setup</h2>
+      <div class="section-block">
+        <ul class="coaching-list">
+          <li>Start with a tight modern rock kit and lower room mics for clarity at speed</li>
+          <li>Map closed hats and slightly open hats clearly so chorus energy changes show in the piano roll</li>
+          <li>Keep snare velocity zones distinct: 70-80 for ghost/light notes, 105-120 for backbeats</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mc-section">
+      <h2>Physical Coaching Notes</h2>
+      <div class="section-block">
+        <ul class="coaching-list">
+          <li>Use compact wrist motion for hats — not arm strokes</li>
+          <li>Keep shoulders relaxed between phrases</li>
+          <li>Don't chase volume on the electronic kit — chase consistency and timing first</li>
+          <li>Hybrid/electronic workflows reward repeatable control more than brute force</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mc-section">
+      <h2>BPM Ladder</h2>
+      <div class="bpm-ladder">
+        ${[120,132,140,148,156,164,168].map((bpm,i) => `<div class="bpm-step${i===0?' current':''}" onclick="this.parentElement.querySelectorAll('.bpm-step').forEach(b=>b.classList.remove('current'));this.classList.add('current');">${bpm}</div>`).join('')}
+      </div>
+      <p style="color:var(--muted-text);font-size:.85rem;margin-top:8px;">Start at 120. Increase 5 BPM weekly. The goal is 156-168 BPM with clean execution.</p>
+    </div>
+
+    <div style="text-align:center;margin-top:32px;">
+      <button class="btn btn-teal" onclick="openSongDetail(10)">View Full Song Details</button>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+renderDashboard();
+renderLadder();
+renderMasterClass();
+initGrooveBuilder();
+</script>
+</body>
+</html>
