@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percussion Pattern MIDI Exporter - Ultrabeat</title>
+    <style>
+        :root {
+            --dark-bg: #1a2332;
+            --card-bg: #2a3a4a;
+            --teal: #4db8a8;
+            --tan: #d4a574;
+            --light-text: #f1f5f9;
+            --muted-text: #a0adb8;
+            --on-color: #4db8a8;
+            --off-color: #3a4a5a;
+            --playing: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--tan);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: var(--muted-text);
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .genre-select {
+            padding: 12px 16px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--teal);
+            color: var(--light-text);
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .genre-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(77, 184, 168, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--teal);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background-color: #5cc9b8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(77, 184, 168, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            color: var(--light-text);
+            border: 1px solid var(--teal);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--teal);
+            color: #000;
+        }
+
+        .btn-play {
+            background-color: #ff6b6b;
+            color: #fff;
+        }
+
+        .btn-play:hover {
+            background-color: #ff5252;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        .pattern-container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(77, 184, 168, 0.2);
+        }
+
+        .genre-title {
+            font-size: 1.8rem;
+            color: var(--tan);
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .drum-row {
+            margin-bottom: 20px;
+        }
+
+        .drum-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .drum-name {
+            font-size: 0.9rem;
+            color: var(--muted-text);
+            min-width: 180px;
+            font-weight: 500;
+        }
+
+        .drum-midikey {
+            font-size: 0.8rem;
+            color: var(--teal);
+            background-color: rgba(77, 184, 168, 0.1);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .step {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 0;
+            position: relative;
+        }
+
+        .step.off {
+            background-color: var(--off-color);
+        }
+
+        .step.on {
+            background-color: var(--on-color);
+            box-shadow: 0 0 8px rgba(77, 184, 168, 0.5);
+        }
+
+        .step:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .step.playing {
+            background-color: var(--playing);
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.8);
+        }
+
+        .beat-marker {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 4px;
+            margin-bottom: 15px;
+            margin-top: -8px;
+        }
+
+        .beat-num {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted-text);
+            font-weight: 500;
+        }
+
+        .export-section {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .preview-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-btn {
+            background-color: #2d8659;
+            color: var(--light-text);
+            padding: 14px 24px;
+            font-size: 0.95rem;
+        }
+
+        .export-btn:hover {
+            background-color: #35a86d;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(45, 134, 89, 0.3);
+        }
+
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.success {
+            background-color: rgba(45, 134, 89, 0.2);
+            color: #7edd9f;
+            border: 1px solid #2d8659;
+        }
+
+        .status-message.info {
+            background-color: rgba(77, 184, 168, 0.2);
+            color: #7fddcc;
+            border: 1px solid #4db8a8;
+        }
+
+        .info-panel {
+            background-color: rgba(77, 184, 168, 0.1);
+            border-left: 3px solid var(--teal);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--muted-text);
+        }
+
+        .tempo-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tempo-control label {
+            color: var(--muted-text);
+            font-size: 0.9rem;
+        }
+
+        .tempo-control input {
+            width: 80px;
+            padding: 8px 10px;
+            background-color: var(--dark-bg);
+            border: 1px solid var(--teal);
+            color: var(--light-text);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .tempo-control input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(77, 184, 168, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+
+            .beat-marker {
+                grid-template-columns: repeat(8, 1fr);
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .genre-select {
+                min-width: auto;
+            }
+
+            .button-group {
+                width: 100%;
+            }
+
+            button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PERCUSSION PATTERNS 2/2</h1>
+            <p class="subtitle">MIDI Exporter for Logic Pro Ultrabeat (General MIDI Standard)</p>
+        </header>
+
+        <div class="controls">
+            <select class="genre-select" id="genreSelect">
+                <option value="trap">TRAP</option>
+                <option value="hiphop">HIP HOP</option>
+                <option value="dubstep">DUBSTEP</option>
+                <option value="deephouse">DEEP HOUSE</option>
+                <option value="jungle">JUNGLE</option>
+                <option value="salsa">SALSA</option>
+            </select>
+            <div class="tempo-control">
+                <label for="tempoInput">Tempo (BPM):</label>
+                <input type="number" id="tempoInput" value="120" min="60" max="300">
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary btn-small" onclick="clearCurrentPattern()">Clear</button>
+                <button class="btn-secondary btn-small" onclick="randomizePattern()">Randomize</button>
+                <button class="btn-primary btn-small" onclick="exportAllToMidi()">Export All as .ZIP</button>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            ✓ Optimized for Ultrabeat in Logic Pro X. MIDI notes follow General MIDI standard for perfect pad mapping. Preview plays drum sounds, export downloads production-ready .mid files.
+        </div>
+
+        <div id="patternDisplay"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+    <script>
+        // Drum sound parameters optimized for Ultrabeat preview
+        const drumSounds = {
+            36: { name: 'Kick', frequency: 60, duration: 0.5, gain: 0.8 },
+            38: { name: 'Snare', frequency: 200, duration: 0.15, gain: 0.6 },
+            42: { name: 'Hi-Hat Closed', frequency: 9000, duration: 0.08, gain: 0.3 },
+            44: { name: 'Hi-Hat Pedal', frequency: 9500, duration: 0.06, gain: 0.25 },
+            39: { name: 'Clap', frequency: 250, duration: 0.15, gain: 0.5 },
+            37: { name: 'Side Stick', frequency: 3000, duration: 0.1, gain: 0.4 },
+            61: { name: 'Bongos', frequency: 450, duration: 0.12, gain: 0.4 },
+            63: { name: 'Congas', frequency: 350, duration: 0.15, gain: 0.45 },
+            65: { name: 'Timbales', frequency: 500, duration: 0.13, gain: 0.42 },
+            70: { name: 'Maracas', frequency: 3500, duration: 0.08, gain: 0.3 },
+            72: { name: 'Guiro', frequency: 2500, duration: 0.1, gain: 0.35 },
+            76: { name: 'Claves', frequency: 1500, duration: 0.06, gain: 0.4 }
+        };
+
+        class MIDIFile {
+            constructor() {
+                this.tracks = [];
+                this.tempo = 120;
+                this.division = 480;
+            }
+
+            setTempo(tempo) {
+                this.tempo = tempo;
+            }
+
+            addTrack() {
+                const track = new MIDITrack(this.division);
+                this.tracks.push(track);
+                return track;
+            }
+
+            toBytes() {
+                let data = [];
+                data = data.concat(this.stringToBytes('MThd'));
+                data = data.concat(this.int32ToBytes(6));
+                data = data.concat(this.int16ToBytes(0));
+                data = data.concat(this.int16ToBytes(this.tracks.length));
+                data = data.concat(this.int16ToBytes(this.division));
+                this.tracks.forEach(track => {
+                    data = data.concat(track.toBytes(this.tempo, this.division));
+                });
+                return data;
+            }
+
+            stringToBytes(str) {
+                return str.split('').map(c => c.charCodeAt(0));
+            }
+
+            int16ToBytes(num) {
+                return [(num >> 8) & 0xFF, num & 0xFF];
+            }
+
+            int32ToBytes(num) {
+                return [(num >> 24) & 0xFF, (num >> 16) & 0xFF, (num >> 8) & 0xFF, num & 0xFF];
+            }
+
+            variableLengthToBytes(num) {
+                let bytes = [num & 0x7F];
+                num >>= 7;
+                while (num > 0) {
+                    bytes.unshift((num & 0x7F) | 0x80);
+                    num >>= 7;
+                }
+                return bytes;
+            }
+        }
+
+        class MIDITrack {
+            constructor(division) {
+                this.division = division;
+                this.notes = [];
+            }
+
+            addNote(channel, pitch, duration, time) {
+                this.notes.push({ channel, pitch, duration, time });
+            }
+
+            toBytes(tempo, division) {
+                let trackData = [];
+                const file = new MIDIFile();
+                const tempoBytes = file.int32ToBytes(Math.round(60000000 / tempo));
+                trackData = trackData.concat(file.variableLengthToBytes(0));
+                trackData = trackData.concat([0xFF, 0x51, 0x03]);
+                trackData = trackData.concat(Array.from(tempoBytes));
+                const sortedNotes = this.notes.sort((a, b) => a.time - b.time);
+                let lastTime = 0;
+                sortedNotes.forEach(note => {
+                    const timeDelta = Math.round((note.time - lastTime) * division);
+                    const deltaBytes = file.variableLengthToBytes(timeDelta);
+                    trackData = trackData.concat(deltaBytes);
+                    trackData.push(0x90 | note.channel);
+                    trackData.push(Math.max(0, Math.min(127, note.pitch)));
+                    trackData.push(100);
+                    const durationDelta = Math.round(note.duration * division);
+                    const durationDeltaBytes = file.variableLengthToBytes(durationDelta);
+                    trackData = trackData.concat(durationDeltaBytes);
+                    trackData.push(0x80 | note.channel);
+                    trackData.push(Math.max(0, Math.min(127, note.pitch)));
+                    trackData.push(0);
+                    lastTime = note.time + note.duration;
+                });
+                trackData = trackData.concat([0, 0xFF, 0x2F, 0x00]);
+                let result = [];
+                result = result.concat(file.stringToBytes('MTrk'));
+                result = result.concat(file.int32ToBytes(trackData.length));
+                result = result.concat(trackData);
+                return result;
+            }
+        }
+
+        const patterns = {
+            trap: {
+                name: 'TRAP',
+                drums: [
+                    { name: 'CHARLESTON / HIHAT 0', key: 42, pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] },
+                    { name: 'CAISSE CLAIRE / SNARE', key: 38, pattern: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0] },
+                    { name: 'GROSSE CAISSE / KICK', key: 36, pattern: [1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0] }
+                ]
+            },
+            hiphop: {
+                name: 'HIP HOP',
+                drums: [
+                    { name: 'CHARLESTON / HIHAT 0', key: 42, pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] },
+                    { name: 'CAISSE CLAIRE / SNARE', key: 38, pattern: [0,0,1,0,0,1,1,0,0,0,1,0,0,1,1,0] },
+                    { name: 'GROSSE CAISSE / KICK', key: 36, pattern: [1,0,0,0,1,0,0,0,1,0,0,0,0,1,0,1] }
+                ]
+            },
+            dubstep: {
+                name: 'DUBSTEP',
+                drums: [
+                    { name: 'CHARLESTON / HIHAT 0', key: 42, pattern: [1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,0] },
+                    { name: 'CHARLESTON FERMÉ / HIHAT C', key: 44, pattern: [0,1,0,1,0,0,1,0,0,1,0,1,0,0,1,0] },
+                    { name: 'CAISSE CLAIRE / SNARE', key: 38, pattern: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0] },
+                    { name: 'GROSSE CAISSE / KICK', key: 36, pattern: [1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,1] }
+                ]
+            },
+            deephouse: {
+                name: 'DEEP HOUSE',
+                drums: [
+                    { name: 'CHARLESTON / HIHAT 0', key: 42, pattern: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1] },
+                    { name: 'CHARLESTON FERMÉ / HIHAT C', key: 44, pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] },
+                    { name: 'CLAP', key: 39, pattern: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0] },
+                    { name: 'GROSSE CAISSE / KICK', key: 36, pattern: [1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0] }
+                ]
+            },
+            jungle: {
+                name: 'JUNGLE',
+                drums: [
+                    { name: 'CHARLESTON / HIHAT 0', key: 42, pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] },
+                    { name: 'CHARLESTON FERMÉ / HIHAT C', key: 44, pattern: [0,1,0,1,0,0,1,0,0,1,0,0,1,0,1,0] },
+                    { name: 'CAISSE CLAIRE / SNARE', key: 38, pattern: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,1] },
+                    { name: 'GROSSE CAISSE / KICK', key: 36, pattern: [1,0,0,0,1,0,0,1,1,0,0,0,1,0,0,0] }
+                ]
+            },
+            salsa: {
+                name: 'SALSA',
+                drums: [
+                    { name: 'CLAVES', key: 76, pattern: [1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,0] },
+                    { name: 'GUIRO', key: 72, pattern: [0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0] },
+                    { name: 'CONGAS', key: 63, pattern: [1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,1] },
+                    { name: 'TIMBALES', key: 65, pattern: [0,1,0,0,1,0,0,1,0,0,1,0,1,0,0,1] },
+                    { name: 'MARACAS', key: 70, pattern: [1,1,0,0,1,0,1,0,1,0,1,0,1,1,0,0] },
+                    { name: 'BONGOS', key: 61, pattern: [0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0] }
+                ]
+            }
+        };
+
+        let currentGenre = 'trap';
+        let currentPatterns = JSON.parse(JSON.stringify(patterns.trap.drums));
+        let isPlaying = false;
+        let audioContext = null;
+
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playDrumSound(drumKey) {
+            initAudioContext();
+            const sound = drumSounds[drumKey];
+            if (!sound) return;
+            const now = audioContext.currentTime;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(sound.frequency, now);
+            oscillator.frequency.exponentialRampToValueAtTime(0.01, now + sound.duration);
+            gainNode.gain.setValueAtTime(sound.gain, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + sound.duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(now);
+            oscillator.stop(now + sound.duration);
+        }
+
+        function initializeUI() {
+            updatePatternDisplay();
+            document.getElementById('genreSelect').addEventListener('change', (e) => {
+                currentGenre = e.target.value;
+                currentPatterns = JSON.parse(JSON.stringify(patterns[currentGenre].drums));
+                updatePatternDisplay();
+            });
+        }
+
+        function updatePatternDisplay() {
+            const container = document.getElementById('patternDisplay');
+            container.innerHTML = '';
+            const genreData = patterns[currentGenre];
+            const patternDiv = document.createElement('div');
+            patternDiv.className = 'pattern-container';
+            const title = document.createElement('div');
+            title.className = 'genre-title';
+            title.textContent = genreData.name;
+            patternDiv.appendChild(title);
+            currentPatterns.forEach((drum, drumIndex) => {
+                const drumRow = document.createElement('div');
+                drumRow.className = 'drum-row';
+                const label = document.createElement('div');
+                label.className = 'drum-label';
+                const name = document.createElement('div');
+                name.className = 'drum-name';
+                name.textContent = drum.name;
+                const midiKey = document.createElement('div');
+                midiKey.className = 'drum-midikey';
+                midiKey.textContent = `MIDI ${drum.key}`;
+                label.appendChild(name);
+                label.appendChild(midiKey);
+                drumRow.appendChild(label);
+                const beatMarker = document.createElement('div');
+                beatMarker.className = 'beat-marker';
+                const beatNumbers = [1, '1.2', '1.3', '1.4', 2, '2.2', '2.3', '2.4', 1, '1.2', '1.3', '1.4', 2, '2.2', '2.3', '2.4'];
+                beatNumbers.forEach((num, idx) => {
+                    if (idx % 4 === 0) {
+                        const marker = document.createElement('div');
+                        marker.className = 'beat-num';
+                        marker.textContent = num;
+                        beatMarker.appendChild(marker);
+                    } else {
+                        beatMarker.appendChild(document.createElement('div'));
+                    }
+                });
+                drumRow.appendChild(beatMarker);
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+                grid.id = `grid-${drumIndex}`;
+                drum.pattern.forEach((step, stepIndex) => {
+                    const button = document.createElement('button');
+                    button.className = `step ${step ? 'on' : 'off'}`;
+                    button.dataset.drum = drumIndex;
+                    button.dataset.step = stepIndex;
+                    button.id = `step-${drumIndex}-${stepIndex}`;
+                    button.addEventListener('click', toggleStep);
+                    grid.appendChild(button);
+                });
+                drumRow.appendChild(grid);
+                patternDiv.appendChild(drumRow);
+            });
+            const exportSection = document.createElement('div');
+            exportSection.className = 'export-section';
+            const exportSingle = document.createElement('button');
+            exportSingle.className = 'btn-primary export-btn';
+            exportSingle.textContent = `Export ${genreData.name}`;
+            exportSingle.onclick = () => exportToMidi(currentGenre);
+            exportSection.appendChild(exportSingle);
+            const previewSection = document.createElement('div');
+            previewSection.className = 'preview-section';
+            const playBtn = document.createElement('button');
+            playBtn.className = 'btn-play btn-small';
+            playBtn.id = 'playBtn';
+            playBtn.textContent = '▶ Preview';
+            playBtn.onclick = playPattern;
+            previewSection.appendChild(playBtn);
+            const stopBtn = document.createElement('button');
+            stopBtn.className = 'btn-secondary btn-small';
+            stopBtn.id = 'stopBtn';
+            stopBtn.textContent = '⏹ Stop';
+            stopBtn.onclick = stopPattern;
+            stopBtn.style.display = 'none';
+            previewSection.appendChild(stopBtn);
+            exportSection.appendChild(previewSection);
+            const statusMsg = document.createElement('div');
+            statusMsg.className = 'status-message';
+            statusMsg.id = 'statusMessage';
+            patternDiv.appendChild(exportSection);
+            patternDiv.appendChild(statusMsg);
+            container.appendChild(patternDiv);
+        }
+
+        function toggleStep(e) {
+            const drum = parseInt(e.target.dataset.drum);
+            const step = parseInt(e.target.dataset.step);
+            currentPatterns[drum].pattern[step] = currentPatterns[drum].pattern[step] ? 0 : 1;
+            updatePatternDisplay();
+        }
+
+        function clearCurrentPattern() {
+            currentPatterns.forEach(drum => {
+                drum.pattern = drum.pattern.map(() => 0);
+            });
+            updatePatternDisplay();
+        }
+
+        function randomizePattern() {
+            currentPatterns.forEach(drum => {
+                drum.pattern = drum.pattern.map(() => Math.random() > 0.6 ? 1 : 0);
+            });
+            updatePatternDisplay();
+        }
+
+        function createMidiFile(drumPatterns, tempo) {
+            const file = new MIDIFile();
+            file.setTempo(tempo);
+            const track = file.addTrack();
+            const sixteenthNoteDuration = 0.25;
+            for (let stepIndex = 0; stepIndex < 16; stepIndex++) {
+                drumPatterns.forEach(drum => {
+                    if (drum.pattern[stepIndex]) {
+                        track.addNote(0, drum.key, sixteenthNoteDuration, stepIndex * sixteenthNoteDuration);
+                    }
+                });
+            }
+            return file;
+        }
+
+        function downloadFile(bytes, filename) {
+            const blob = new Blob([new Uint8Array(bytes)], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToMidi(genre) {
+            try {
+                const patternData = patterns[genre];
+                const tempo = parseInt(document.getElementById('tempoInput').value) || 120;
+                const file = createMidiFile(currentPatterns, tempo);
+                const midiBytes = file.toBytes();
+                const filename = `${patternData.name.replace(/\s+/g, '_')}_${tempo}BPM.mid`;
+                downloadFile(midiBytes, filename);
+                showStatus(`✓ ${filename} ready for Ultrabeat`, 'success');
+            } catch (err) {
+                showStatus(`✗ Error: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        function exportAllToMidi() {
+            try {
+                const tempo = parseInt(document.getElementById('tempoInput').value) || 120;
+                const zip = new JSZip();
+                let fileCount = 0;
+                Object.keys(patterns).forEach(genreKey => {
+                    const genreData = patterns[genreKey];
+                    const file = createMidiFile(genreData.drums, tempo);
+                    const midiBytes = file.toBytes();
+                    const filename = `${genreData.name.replace(/\s+/g, '_')}_${tempo}BPM.mid`;
+                    zip.file(filename, new Uint8Array(midiBytes));
+                    fileCount++;
+                });
+                zip.generateAsync({ type: 'blob' }).then((content) => {
+                    const url = URL.createObjectURL(content);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Percussion_Patterns_${tempo}BPM.zip`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    showStatus(`✓ ${fileCount} MIDI files ready for Ultrabeat`, 'success');
+                });
+            } catch (err) {
+                showStatus(`✗ Error: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        function playPattern() {
+            try {
+                isPlaying = true;
+                const tempo = parseInt(document.getElementById('tempoInput').value) || 120;
+                const stepDurationMs = (60000 / tempo) / 4;
+                document.getElementById('playBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'inline-block';
+                let stepIdx = 0;
+                const playStep = () => {
+                    if (!isPlaying || stepIdx >= 16) {
+                        if (isPlaying) stopPattern();
+                        return;
+                    }
+                    highlightPlayingStep(stepIdx);
+                    currentPatterns.forEach(drum => {
+                        if (drum.pattern[stepIdx]) {
+                            playDrumSound(drum.key);
+                        }
+                    });
+                    stepIdx++;
+                    setTimeout(playStep, stepDurationMs);
+                };
+                playStep();
+                showStatus(`🎵 ${tempo} BPM`, 'info');
+            } catch (err) {
+                showStatus(`✗ Error: ${err.message}`, 'error');
+            }
+        }
+
+        function stopPattern() {
+            isPlaying = false;
+            document.querySelectorAll('.step.playing').forEach(step => {
+                step.classList.remove('playing');
+            });
+            document.getElementById('playBtn').style.display = 'inline-block';
+            document.getElementById('stopBtn').style.display = 'none';
+            showStatus('⏹ Stopped', 'info');
+        }
+
+        function highlightPlayingStep(stepIndex) {
+            document.querySelectorAll('.step.playing').forEach(step => {
+                step.classList.remove('playing');
+            });
+            currentPatterns.forEach((drum, drumIdx) => {
+                const stepEl = document.getElementById(`step-${drumIdx}-${stepIndex}`);
+                if (stepEl) {
+                    stepEl.classList.add('playing');
+                }
+            });
+        }
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message show ${type}`;
+            setTimeout(() => {
+                statusEl.classList.remove('show');
+            }, 4000);
+        }
+
+        window.addEventListener('DOMContentLoaded', initializeUI);
+    </script>
+</body>
+</html>
