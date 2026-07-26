@@ -1216,6 +1216,8 @@ let audioCtx = null;
 let noiseBuffer = null;
 let activeGrooveId = null; // only one groove plays at a time
 const groovePlayback = {}; // keyed by grooveId
+const drumSampleBuffers = {};
+let samplesReady = false;
 
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1230,6 +1232,323 @@ function getNoiseBuffer(ctx) {
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   noiseBuffer = buf;
   return buf;
+}
+
+async function renderDrumSample(sampleRate, duration, renderFn) {
+  const len = Math.ceil(sampleRate * duration);
+  const offline = new OfflineAudioContext(1, len, sampleRate);
+  renderFn(offline);
+  return await offline.startRendering();
+}
+
+async function initDrumSamples() {
+  const sr = 44100;
+  const samples = {};
+
+  // KICK (36) — sub-heavy punch with click transient
+  samples[36] = await renderDrumSample(sr, 0.6, ctx => {
+    const now = 0;
+    // Sub body
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.exponentialRampToValueAtTime(38, now + 0.08);
+    osc.frequency.setTargetAtTime(32, now + 0.08, 0.12);
+    g.gain.setValueAtTime(1.0, now);
+    g.gain.setTargetAtTime(0.6, now + 0.04, 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.55);
+    // Second harmonic for body
+    const osc2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(320, now);
+    osc2.frequency.exponentialRampToValueAtTime(76, now + 0.06);
+    g2.gain.setValueAtTime(0.35, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc2.connect(g2); g2.connect(ctx.destination);
+    osc2.start(now); osc2.stop(now + 0.15);
+    // Click transient
+    const nb = ctx.createBuffer(1, sr * 0.03, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 2500;
+    ng.gain.setValueAtTime(0.6, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.03);
+  });
+
+  // SNARE (38) — crack with wire rattle
+  samples[38] = await renderDrumSample(sr, 0.4, ctx => {
+    const now = 0;
+    // Body tone
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.exponentialRampToValueAtTime(140, now + 0.04);
+    g.gain.setValueAtTime(0.7, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.12);
+    // Snap transient
+    const osc2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    osc2.type = 'square';
+    osc2.frequency.setValueAtTime(400, now);
+    g2.gain.setValueAtTime(0.3, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    osc2.connect(g2); g2.connect(ctx.destination);
+    osc2.start(now); osc2.stop(now + 0.03);
+    // Wire noise
+    const nb = ctx.createBuffer(1, sr * 0.35, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const bpf = ctx.createBiquadFilter();
+    bpf.type = 'bandpass'; bpf.frequency.value = 4000; bpf.Q.value = 0.8;
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 1800;
+    ng.gain.setValueAtTime(0.55, now);
+    ng.gain.setTargetAtTime(0.3, now + 0.01, 0.02);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    ns.connect(hpf); hpf.connect(bpf); bpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.35);
+  });
+
+  // RIMCLICK (37)
+  samples[37] = await renderDrumSample(sr, 0.08, ctx => {
+    const now = 0;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(1800, now);
+    osc.frequency.exponentialRampToValueAtTime(600, now + 0.01);
+    g.gain.setValueAtTime(0.7, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.06);
+    const nb = ctx.createBuffer(1, sr * 0.01, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.4, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.008);
+    ns.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.01);
+  });
+
+  // CLOSED HI-HAT (42) — tight metallic
+  samples[42] = await renderDrumSample(sr, 0.1, ctx => {
+    const now = 0;
+    const nb = ctx.createBuffer(1, sr * 0.08, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 7000;
+    const peak = ctx.createBiquadFilter();
+    peak.type = 'peaking'; peak.frequency.value = 10000; peak.Q.value = 3; peak.gain.value = 8;
+    ng.gain.setValueAtTime(0.5, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    ns.connect(hpf); hpf.connect(peak); peak.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.08);
+    // Metallic ring
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 6200;
+    g.gain.setValueAtTime(0.08, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.05);
+  });
+
+  // OPEN HI-HAT (46) — longer sizzle
+  samples[46] = await renderDrumSample(sr, 0.5, ctx => {
+    const now = 0;
+    const nb = ctx.createBuffer(1, sr * 0.45, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 6000;
+    const peak = ctx.createBiquadFilter();
+    peak.type = 'peaking'; peak.frequency.value = 9000; peak.Q.value = 2; peak.gain.value = 6;
+    ng.gain.setValueAtTime(0.5, now);
+    ng.gain.setTargetAtTime(0.35, now + 0.02, 0.04);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    ns.connect(hpf); hpf.connect(peak); peak.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.45);
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 6200;
+    g.gain.setValueAtTime(0.06, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.18);
+  });
+
+  // RIDE (51) — bell + shimmer
+  samples[51] = await renderDrumSample(sr, 0.8, ctx => {
+    const now = 0;
+    // Metallic bell
+    [5200, 7800, 3900].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = idx === 0 ? 'square' : 'triangle';
+      osc.frequency.value = freq;
+      const vol = [0.1, 0.05, 0.07][idx];
+      g.gain.setValueAtTime(vol, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.5 + idx * 0.1);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(now); osc.stop(now + 0.6 + idx * 0.1);
+    });
+    // Shimmer noise
+    const nb = ctx.createBuffer(1, sr * 0.7, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const bpf = ctx.createBiquadFilter();
+    bpf.type = 'bandpass'; bpf.frequency.value = 6000; bpf.Q.value = 1.5;
+    ng.gain.setValueAtTime(0.2, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    ns.connect(bpf); bpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.7);
+  });
+
+  // CRASH (49)
+  samples[49] = await renderDrumSample(sr, 1.2, ctx => {
+    const now = 0;
+    const nb = ctx.createBuffer(1, sr * 1.1, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 2500;
+    const peak = ctx.createBiquadFilter();
+    peak.type = 'peaking'; peak.frequency.value = 5000; peak.Q.value = 1; peak.gain.value = 4;
+    ng.gain.setValueAtTime(0.55, now);
+    ng.gain.setTargetAtTime(0.35, now + 0.05, 0.08);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    ns.connect(hpf); hpf.connect(peak); peak.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 1.1);
+  });
+
+  // SPLASH (55)
+  samples[55] = await renderDrumSample(sr, 0.5, ctx => {
+    const now = 0;
+    const nb = ctx.createBuffer(1, sr * 0.45, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 4000;
+    ng.gain.setValueAtTime(0.45, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.4);
+  });
+
+  // FLOOR TOM (43)
+  samples[43] = await renderDrumSample(sr, 0.45, ctx => {
+    const now = 0;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(130, now);
+    osc.frequency.exponentialRampToValueAtTime(65, now + 0.1);
+    g.gain.setValueAtTime(0.8, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.4);
+    const nb = ctx.createBuffer(1, sr * 0.04, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.3, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+    ns.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.04);
+  });
+
+  // MID TOM (47)
+  samples[47] = await renderDrumSample(sr, 0.4, ctx => {
+    const now = 0;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(170, now);
+    osc.frequency.exponentialRampToValueAtTime(85, now + 0.08);
+    g.gain.setValueAtTime(0.75, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.35);
+    const nb = ctx.createBuffer(1, sr * 0.04, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.25, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    ns.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.04);
+  });
+
+  // HIGH TOM (50)
+  samples[50] = await renderDrumSample(sr, 0.35, ctx => {
+    const now = 0;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.exponentialRampToValueAtTime(105, now + 0.07);
+    g.gain.setValueAtTime(0.7, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.3);
+    const nb = ctx.createBuffer(1, sr * 0.03, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.25, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    ns.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.03);
+  });
+
+  // Copy all rendered buffers to the global map
+  for (const [note, buf] of Object.entries(samples)) {
+    drumSampleBuffers[note] = buf;
+  }
+  samplesReady = true;
 }
 
 // ══════════════════════════════════════════════
@@ -1772,154 +2091,17 @@ function renderSequencer(drumNames, numSteps, beats) {
 
 function playDrumHit(midiNote, velocity) {
   const ctx = getAudioCtx();
-  const now = ctx.currentTime;
+  if (ctx.state === 'suspended') ctx.resume();
   const vol = (velocity || 100) / 127;
-
-  if (midiNote === 36) {
-    // KICK — sine body sweep + noise click
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(150, now);
-    osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
-    g.gain.setValueAtTime(0.9 * vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.4);
-    // click transient
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(ctx);
-    const ng = ctx.createGain();
-    const hpf = ctx.createBiquadFilter();
-    hpf.type = 'highpass'; hpf.frequency.value = 1000;
-    ng.gain.setValueAtTime(0.4 * vol, now);
-    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
-    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
-    ns.start(now); ns.stop(now + 0.05);
-
-  } else if (midiNote === 38) {
-    // SNARE — triangle body + bandpass noise rattle
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(200, now);
-    osc.frequency.exponentialRampToValueAtTime(120, now + 0.06);
-    g.gain.setValueAtTime(0.5 * vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.15);
-    // noise rattle
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(ctx);
-    const ng = ctx.createGain();
-    const bpf = ctx.createBiquadFilter();
-    bpf.type = 'bandpass'; bpf.frequency.value = 3500; bpf.Q.value = 1.2;
-    ng.gain.setValueAtTime(0.45 * vol, now);
-    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-    ns.connect(bpf); bpf.connect(ng); ng.connect(ctx.destination);
-    ns.start(now); ns.stop(now + 0.2);
-
-  } else if (midiNote === 37) {
-    // RIMCLICK — short high triangle
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(820, now);
-    g.gain.setValueAtTime(0.45 * vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.06);
-
-  } else if (midiNote === 42) {
-    // CLOSED HI-HAT — highpass noise, short
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(ctx);
-    const ng = ctx.createGain();
-    const hpf = ctx.createBiquadFilter();
-    hpf.type = 'highpass'; hpf.frequency.value = 7000;
-    ng.gain.setValueAtTime(0.28 * vol, now);
-    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
-    ns.start(now); ns.stop(now + 0.08);
-
-  } else if (midiNote === 46) {
-    // OPEN HI-HAT — highpass noise, longer decay
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(ctx);
-    const ng = ctx.createGain();
-    const hpf = ctx.createBiquadFilter();
-    hpf.type = 'highpass'; hpf.frequency.value = 6000;
-    ng.gain.setValueAtTime(0.32 * vol, now);
-    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
-    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
-    ns.start(now); ns.stop(now + 0.35);
-
-  } else if (midiNote === 51) {
-    // RIDE — bandpass noise + metallic osc
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(ctx);
-    const ng = ctx.createGain();
-    const bpf = ctx.createBiquadFilter();
-    bpf.type = 'bandpass'; bpf.frequency.value = 5500; bpf.Q.value = 2;
-    ng.gain.setValueAtTime(0.22 * vol, now);
-    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    ns.connect(bpf); bpf.connect(ng); ng.connect(ctx.destination);
-    ns.start(now); ns.stop(now + 0.4);
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'square'; osc.frequency.value = 5200;
-    g.gain.setValueAtTime(0.06 * vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.35);
-
-  } else if (midiNote === 49 || midiNote === 55) {
-    // CRASH / SPLASH — wideband noise
-    const dur = midiNote === 49 ? 0.7 : 0.3;
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(ctx);
-    const ng = ctx.createGain();
-    const hpf = ctx.createBiquadFilter();
-    hpf.type = 'highpass'; hpf.frequency.value = 3000;
-    ng.gain.setValueAtTime(0.35 * vol, now);
-    ng.gain.exponentialRampToValueAtTime(0.001, now + dur);
-    ns.connect(hpf); hpf.connect(ng); ng.connect(ctx.destination);
-    ns.start(now); ns.stop(now + dur + 0.05);
-
-  } else if (midiNote === 43 || midiNote === 47 || midiNote === 50) {
-    // TOMS — sine body sweep + noise attack
-    const freqs = { 43: [110, 65], 47: [140, 85], 50: [170, 105] };
-    const [hi, lo] = freqs[midiNote];
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(hi, now);
-    osc.frequency.exponentialRampToValueAtTime(lo, now + 0.15);
-    g.gain.setValueAtTime(0.55 * vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.28);
-    // attack noise
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(ctx);
-    const ng = ctx.createGain();
-    ng.gain.setValueAtTime(0.15 * vol, now);
-    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-    ns.connect(ng); ng.connect(ctx.destination);
-    ns.start(now); ns.stop(now + 0.06);
-
-  } else {
-    // Fallback — simple osc
-    const sound = DRUM_SOUNDS[midiNote] || DRUM_SOUNDS[42];
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = sound.type;
-    osc.frequency.setValueAtTime(sound.freq, now);
-    g.gain.setValueAtTime(sound.gain * vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + sound.dur);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(now); osc.stop(now + sound.dur + 0.05);
-  }
+  const buf = drumSampleBuffers[midiNote] || drumSampleBuffers[42];
+  if (!buf) return;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const g = ctx.createGain();
+  g.gain.value = vol;
+  src.connect(g);
+  g.connect(ctx.destination);
+  src.start();
 }
 
 // Resolve ASCII cell character + row label to MIDI note and velocity
@@ -2279,6 +2461,7 @@ renderDashboard();
 renderLadder();
 renderMasterClass();
 initGrooveBuilder();
+initDrumSamples();
 </script>
 </body>
 </html>
