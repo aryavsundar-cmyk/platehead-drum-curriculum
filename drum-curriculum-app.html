@@ -188,6 +188,64 @@
         .kit-map-actions { display: flex; gap: 8px; margin-top: 10px; }
         .kit-map-actions button { font-size: .78rem; padding: 5px 12px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: var(--card-bg); color: var(--muted-text); transition: all .2s; }
         .kit-map-actions button:hover { border-color: var(--teal); color: var(--light-text); }
+
+        /* ── P2: Transport extras ── */
+        .transport-toggle { background: none; border: 1px solid rgba(255,255,255,0.1); color: var(--muted-text); font-size: .68rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all .2s; text-transform: uppercase; font-family: 'SF Mono','Fira Code',monospace; }
+        .transport-toggle.active { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+        .transport-toggle:hover { border-color: var(--teal); }
+        .transport-extras { display: flex; align-items: center; gap: 6px; margin-left: 6px; }
+        .count-in-indicator { font-size: .72rem; color: var(--teal); font-weight: 700; display: none; font-family: 'SF Mono','Fira Code',monospace; }
+        .count-in-indicator.visible { display: inline; }
+
+        /* ── P2: Limb mute ── */
+        .limb-controls { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .limb-btn { background: none; border: 1px solid rgba(255,255,255,0.08); color: var(--muted-text); font-size: .68rem; font-weight: 600; padding: 2px 8px; border-radius: 3px; cursor: pointer; transition: all .15s; text-transform: uppercase; }
+        .limb-btn.muted { opacity: 0.35; text-decoration: line-through; border-color: rgba(255,255,255,0.04); }
+        .limb-btn:hover { border-color: var(--teal); color: var(--light-text); }
+
+        /* ── P2: Tempo ladder interactive ── */
+        .tempo-ladder-interactive { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .tempo-rung { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: var(--card-bg); cursor: pointer; transition: all .2s; min-width: 60px; }
+        .tempo-rung .rung-bpm { font-size: .88rem; font-weight: 700; color: var(--light-text); font-family: 'SF Mono','Fira Code',monospace; }
+        .tempo-rung .rung-pct { font-size: .66rem; color: var(--muted-text); }
+        .tempo-rung .rung-status { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+        .tempo-rung.locked { opacity: 0.45; cursor: default; }
+        .tempo-rung.locked .rung-status { color: var(--muted-text); }
+        .tempo-rung.current { border-color: var(--teal); background: var(--teal-dim); }
+        .tempo-rung.current .rung-status { color: var(--teal); }
+        .tempo-rung.clean { border-color: rgba(77,184,168,0.3); }
+        .tempo-rung.clean .rung-status { color: #3a9e6e; }
+        .tempo-rung-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .mark-clean-btn { font-size: .74rem; padding: 4px 12px; border-radius: 4px; border: 1px solid rgba(77,184,168,0.3); background: none; color: var(--teal); cursor: pointer; font-weight: 600; transition: all .2s; }
+        .mark-clean-btn:hover { background: var(--teal); color: #000; }
+
+        /* ── P2: Complexity badge ── */
+        .complexity-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.06); font-size: .72rem; }
+        .complexity-bar { display: flex; gap: 2px; align-items: center; }
+        .complexity-pip { width: 6px; height: 12px; border-radius: 2px; background: rgba(255,255,255,0.08); }
+        .complexity-pip.filled { background: var(--teal); }
+        .complexity-label { color: var(--muted-text); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: .66rem; }
+        .complexity-detail { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+        .complexity-metric { font-size: .72rem; color: var(--muted-text); }
+        .complexity-metric strong { color: var(--light-text); }
+
+        /* ── P2: Unit structure ── */
+        .unit-group { margin-bottom: 24px; }
+        .unit-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 10px 16px; border-radius: 8px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.04); }
+        .unit-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .82rem; color: #000; }
+        .unit-title { font-size: .92rem; font-weight: 700; color: var(--light-text); }
+        .unit-gate { font-size: .72rem; color: var(--muted-text); margin-left: auto; font-style: italic; }
+        .unit-songs { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+
+        /* ── P2: Practice science ── */
+        .practice-principle { background: var(--card-bg); border-radius: var(--radius, 8px); padding: 16px; margin-bottom: 10px; border-left: 3px solid var(--teal); }
+        .practice-principle h4 { color: var(--teal); font-size: .88rem; margin-bottom: 4px; }
+        .practice-principle p { color: var(--muted-text); font-size: .82rem; line-height: 1.5; margin: 0; }
+        .session-template { background: var(--card-bg); border-radius: var(--radius, 8px); padding: 16px; margin-top: 12px; border: 1px solid rgba(77,184,168,0.15); }
+        .session-template h4 { color: var(--teal); font-size: .88rem; margin-bottom: 8px; }
+        .session-block { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .session-time { font-size: .76rem; font-weight: 700; color: var(--teal); min-width: 44px; font-family: 'SF Mono','Fira Code',monospace; }
+        .session-activity { font-size: .82rem; color: var(--muted-text); }
         .drum-cell.playhead { background: var(--playing) !important; color: #fff !important; box-shadow: 0 0 8px rgba(255,107,107,0.5); }
 
         /* ── Fill Viz ── */
@@ -1219,7 +1277,7 @@ const songs = [
 //  APP STATE
 // ══════════════════════════════════════════════
 let currentView = 'dashboard';
-let activeStage = 0; // 0 = all
+let activeStage = 'units';
 let selectedSong = null;
 let gbPattern = {}; // groove builder pattern state
 let gbPlaying = false;
@@ -1231,6 +1289,7 @@ let activeGrooveId = null; // only one groove plays at a time
 const groovePlayback = {}; // keyed by grooveId
 const drumSampleBuffers = {};
 let samplesReady = false;
+const mutedLimbs = {}; // keyed by grooveId -> Set of row labels
 
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1690,8 +1749,8 @@ function switchView(view) {
 function renderDashboard() {
   const filtersEl = document.getElementById('stageFilters');
   filtersEl.innerHTML = '';
-  const stages = [{s:0,label:'All'},{s:1,label:'Stage 1'},{s:2,label:'Stage 2'},{s:3,label:'Stage 3'},{s:4,label:'Stage 4'},{s:5,label:'Stage 5'}];
-  stages.forEach(({s,label}) => {
+  const views = [{s:'units',label:'By Unit'},{s:0,label:'All'},{s:1,label:'Stage 1'},{s:2,label:'Stage 2'},{s:3,label:'Stage 3'},{s:4,label:'Stage 4'},{s:5,label:'Stage 5'}];
+  views.forEach(({s,label}) => {
     const btn = document.createElement('button');
     btn.className = `stage-btn${activeStage===s?' active':''}`;
     btn.dataset.stage = s;
@@ -1702,8 +1761,44 @@ function renderDashboard() {
 
   const gridEl = document.getElementById('songGrid');
   gridEl.innerHTML = '';
+
+  if (activeStage === 'units') {
+    UNITS.forEach(unit => {
+      const unitDiv = document.createElement('div');
+      unitDiv.className = 'unit-group';
+      unitDiv.innerHTML = `<div class="unit-header"><div class="unit-num" style="background:${unit.color}">U${unit.id}</div><div class="unit-title">${unit.name}</div><div class="unit-gate">Gate: ${unit.gate}</div></div>`;
+      const songsDiv = document.createElement('div');
+      songsDiv.className = 'unit-songs';
+      unit.songIds.forEach(sid => {
+        const song = songs.find(s => s.id === sid);
+        if (!song) return;
+        const cx = computeSongComplexity(song);
+        const card = document.createElement('div');
+        card.className = 'song-card';
+        card.onclick = () => openSongDetail(song.id);
+        card.innerHTML = `
+          <div class="card-num">${String(song.id).padStart(2,'0')}</div>
+          <h3>${song.title}</h3>
+          <div class="card-meta">
+            ${renderComplexityBadge(cx)}
+            <span class="pill pill-tempo">${song.tempoRangeBPM.min}-${song.tempoRangeBPM.max} BPM</span>
+            <span class="pill pill-tempo">${song.primaryMeter}</span>
+          </div>
+          <div class="card-focus">${song.feel}</div>
+          <div style="margin-top:8px;font-size:.76rem;color:var(--teal);">${song.kitFocus.slice(0,3).join(' / ')}</div>
+        `;
+        songsDiv.appendChild(card);
+      });
+      unitDiv.appendChild(songsDiv);
+      gridEl.appendChild(unitDiv);
+    });
+    return;
+  }
+
   const filtered = activeStage === 0 ? songs : songs.filter(s => s.stage === activeStage);
   filtered.forEach(song => {
+    const cx = computeSongComplexity(song);
+    const unit = getSongUnit(song.id);
     const card = document.createElement('div');
     card.className = 'song-card';
     card.onclick = () => openSongDetail(song.id);
@@ -1711,14 +1806,13 @@ function renderDashboard() {
       <div class="card-num">${String(song.id).padStart(2,'0')}</div>
       <h3>${song.title}</h3>
       <div class="card-meta">
-        <span class="pill pill-stage">Stage ${song.stage}</span>
-        <span class="pill pill-diff">Diff ${song.difficulty}/5</span>
+        ${renderComplexityBadge(cx)}
         <span class="pill pill-tempo">${song.tempoRangeBPM.min}-${song.tempoRangeBPM.max} BPM</span>
         <span class="pill pill-tempo">${song.primaryMeter}</span>
       </div>
       <div class="card-focus">${song.feel}</div>
       <div style="margin-top:8px;font-size:.76rem;color:var(--teal);">${song.kitFocus.slice(0,3).join(' / ')}</div>
-      <div style="margin-top:6px;font-size:.72rem;color:var(--muted-text);opacity:.7;">${song.drumGoals[0]}</div>
+      ${unit ? `<div style="margin-top:4px;font-size:.68rem;color:var(--muted-text);">Unit ${unit.id}: ${unit.name}</div>` : ''}
     `;
     gridEl.appendChild(card);
   });
@@ -1739,12 +1833,14 @@ function renderDetail() {
   const el = document.getElementById('detailContent');
   const stageColors = ['','var(--stage1)','var(--stage2)','var(--stage3)','var(--stage4)','var(--stage5)'];
 
+  const songCx = computeSongComplexity(s);
+  const songUnit = getSongUnit(s.id);
   el.innerHTML = `
     <div class="detail-header">
       <h1>${s.title}</h1>
       <div class="detail-meta">
-        <span class="pill pill-stage">Stage ${s.stage}</span>
-        <span class="pill pill-diff">Difficulty ${s.difficulty}/5</span>
+        ${songUnit ? `<span class="pill pill-stage">U${songUnit.id}: ${songUnit.name}</span>` : `<span class="pill pill-stage">Stage ${s.stage}</span>`}
+        ${renderComplexityBadge(songCx)}
         <span class="pill pill-tempo">${s.tempoRangeBPM.min}-${s.tempoRangeBPM.max} BPM</span>
         <span class="pill pill-tempo">${s.primaryMeter}</span>
         <span class="pill pill-tempo">${s.tonalCenter}</span>
@@ -1795,9 +1891,9 @@ function renderDetail() {
     <div class="tab-panel" data-tab="practice">
       <div class="phase-badge drums">PHASE 1 — Build Technique &amp; Stamina</div>
       <div class="section-block">
-        <h3>BPM Ladder</h3>
-        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Start slow. Move up only when the current tempo feels locked and relaxed.</p>
-        <div class="bpm-ladder">${s.practiceBpmLadder.map((bpm,i) => `<div class="bpm-step${i===0?' current':''}" onclick="this.parentElement.querySelectorAll('.bpm-step').forEach(b=>b.classList.remove('current'));this.classList.add('current');">${bpm}</div>`).join('')}</div>
+        <h3>Tempo Ladder</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Progress through each tempo. Mark a rung "clean" when you can play the groove relaxed and locked for 2 minutes without tempo drift. The next rung unlocks automatically.</p>
+        ${renderTempoLadderInteractive(s.id, s.practiceBpmLadder, s.tempoRangeBPM.max)}
       </div>
       <div class="section-block">
         <h3>Milestones</h3>
@@ -1811,6 +1907,29 @@ function renderDetail() {
       <div class="section-block">
         <h3>Common Mistakes to Avoid</h3>
         <ul class="mistake-list">${s.commonMistakes.map(m=>`<li>${m}</li>`).join('')}</ul>
+      </div>
+      <div class="section-block">
+        <h3>Practice Science</h3>
+        <div class="practice-principle"><h4>Slow is fast</h4><p>Always start below your comfort tempo. If you can't play it perfectly slow, speeding up only rehearses mistakes. Use the tempo ladder — don't skip rungs.</p></div>
+        <div class="practice-principle"><h4>Isolate before integrating</h4><p>Use the limb mute buttons on groove cards. Practice kick alone, then add hats, then snare. Each layer should feel automatic before you combine them. This builds genuine independence, not just muscle memory for one specific coordination.</p></div>
+        <div class="practice-principle"><h4>Interleave, don't block</h4><p>Don't repeat one groove for 30 minutes. Rotate between 2-3 sections in short bursts (3-5 minutes each). Research shows interleaved practice produces better long-term retention than blocked repetition, even though it feels harder in the moment.</p></div>
+        <div class="practice-principle"><h4>Spaced repetition</h4><p>Once a tempo rung is clean, revisit it the next day, then 3 days later, then a week later. If it's still locked on the spaced review, it's genuinely learned. If not, spend another session at that rung before progressing.</p></div>
+        <div class="practice-principle"><h4>Record yourself</h4><p>Play along with the app, then record a take without it. Listening back reveals timing issues your body can't feel in the moment. This is especially critical before marking a tempo clean.</p></div>
+      </div>
+      <div class="section-block">
+        <h3>Session Template</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:8px;">A 30-minute focused session is worth more than 2 hours of noodling.</p>
+        <div class="session-template">
+          <h4>30-Minute Practice Session</h4>
+          <div class="session-block"><span class="session-time">0:00</span><span class="session-activity">Warm-up: single stroke roll at 60 BPM, 2 minutes. Focus on even volume between hands.</span></div>
+          <div class="session-block"><span class="session-time">2:00</span><span class="session-activity">Isolated layer: kick pattern only at current ladder tempo, 3 minutes. Use count-in.</span></div>
+          <div class="session-block"><span class="session-time">5:00</span><span class="session-activity">Add hats: kick + hat pattern, 4 minutes. Mute snare to focus on time layer.</span></div>
+          <div class="session-block"><span class="session-time">9:00</span><span class="session-activity">Full groove: all limbs, 5 minutes with loop. Stop if tension builds — drop a limb.</span></div>
+          <div class="session-block"><span class="session-time">14:00</span><span class="session-activity">Switch: different section or fill from the same song, 5 minutes. Interleave.</span></div>
+          <div class="session-block"><span class="session-time">19:00</span><span class="session-activity">Transitions: practice moving between two sections cleanly, 5 minutes.</span></div>
+          <div class="session-block"><span class="session-time">24:00</span><span class="session-activity">Full run: play the entire song structure once at current tempo. No stops.</span></div>
+          <div class="session-block"><span class="session-time">28:00</span><span class="session-activity">Cool-down: replay the easiest section at 80% tempo. End relaxed.</span></div>
+        </div>
       </div>
     </div>
 
@@ -1957,6 +2076,39 @@ function renderDetail() {
       exportCardMidi(ascii, tempo, label, s.slug);
     });
   });
+
+  el.querySelectorAll('.transport-toggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      const gid = btn.closest('.groove-transport').dataset.gid;
+      const state = groovePlayback[gid];
+      if (!state) return;
+      if (action === 'countin') {
+        state.countIn = !state.countIn;
+        btn.classList.toggle('active', state.countIn);
+      } else if (action === 'loop') {
+        state.loop = !state.loop;
+        btn.classList.toggle('active', state.loop);
+      }
+    });
+  });
+  el.querySelectorAll('.transport-toggle[data-action="loop"]').forEach(btn => btn.classList.add('active'));
+
+  el.querySelectorAll('.limb-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gid = btn.dataset.gid;
+      const limb = btn.dataset.limb;
+      if (!mutedLimbs[gid]) mutedLimbs[gid] = new Set();
+      if (mutedLimbs[gid].has(limb)) {
+        mutedLimbs[gid].delete(limb);
+        btn.classList.remove('muted');
+      } else {
+        mutedLimbs[gid].add(limb);
+        btn.classList.add('muted');
+      }
+    });
+  });
 }
 
 function renderGrooveCard(g, grooveId, bpm) {
@@ -1970,6 +2122,7 @@ function renderGrooveCard(g, grooveId, bpm) {
   }
   const grid = parseAsciiToGrid(g.asciiNotation);
   const hasGrid = grid && grooveId;
+  const limbLabels = hasGrid ? grid.rows.map(r => r.label) : [];
   const transportHtml = hasGrid ? `
     <div class="groove-transport" data-gid="${grooveId}">
       <button class="transport-btn" data-action="rewind" title="Rewind">&#9664;&#9664;</button>
@@ -1978,13 +2131,19 @@ function renderGrooveCard(g, grooveId, bpm) {
       <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
       <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
       <span class="transport-bpm">${bpm || '?'} BPM</span>
+      <div class="transport-extras">
+        <button class="transport-toggle" data-action="countin" title="Count-in">1234</button>
+        <button class="transport-toggle" data-action="loop" title="Loop">&#8635;</button>
+      </div>
       <button class="export-midi-btn" data-ascii="${encodeURIComponent(g.asciiNotation)}" data-tempo="${bpm}" data-label="${g.label}" title="Export as MIDI file">MIDI</button>
     </div>
+    <div class="limb-controls" data-gid="${grooveId}">${limbLabels.map(l => `<button class="limb-btn" data-limb="${l}" data-gid="${grooveId}">${l}</button>`).join('')}</div>
   ` : '';
+  const cx = !g.tacet ? computeComplexity(g.asciiNotation) : null;
   return `
     <div class="groove-card">
       ${g.section ? `<div class="groove-section-tag">${g.section}</div>` : ''}
-      <div class="groove-label">${g.label}</div>
+      <div class="groove-label">${g.label}${cx ? ' ' + renderComplexityBadge(cx) : ''}</div>
       <div class="groove-desc">${g.description}</div>
       ${g.meter ? `<div class="groove-meter">${g.meter}</div>` : ''}
       ${grid ? renderDrumGrid(grid, grooveId) : `<div class="ascii-block">${g.asciiNotation}</div>`}
@@ -1996,6 +2155,7 @@ function renderGrooveCard(g, grooveId, bpm) {
 function renderFillCard(f, fillId, bpm) {
   const grid = parseAsciiToGrid(f.asciiNotation);
   const hasGrid = grid && fillId;
+  const limbLabels = hasGrid ? grid.rows.map(r => r.label) : [];
   const transportHtml = hasGrid ? `
     <div class="groove-transport" data-gid="${fillId}">
       <button class="transport-btn" data-action="rewind" title="Rewind">&#9664;&#9664;</button>
@@ -2004,8 +2164,13 @@ function renderFillCard(f, fillId, bpm) {
       <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
       <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
       <span class="transport-bpm">${bpm || '?'} BPM</span>
+      <div class="transport-extras">
+        <button class="transport-toggle" data-action="countin" title="Count-in">1234</button>
+        <button class="transport-toggle" data-action="loop" title="Loop">&#8635;</button>
+      </div>
       <button class="export-midi-btn" data-ascii="${encodeURIComponent(f.asciiNotation)}" data-tempo="${bpm}" data-label="${f.label}" title="Export as MIDI file">MIDI</button>
     </div>
+    <div class="limb-controls" data-gid="${fillId}">${limbLabels.map(l => `<button class="limb-btn" data-limb="${l}" data-gid="${fillId}">${l}</button>`).join('')}</div>
   ` : '';
   return `
     <div class="groove-card">
@@ -2322,7 +2487,6 @@ function stopAllGroovePlayback() {
 function startGroovePlayback(grooveId) {
   const ctx = getAudioCtx();
   if (ctx.state === 'suspended') ctx.resume();
-  // Stop any other playing groove
   if (activeGrooveId && activeGrooveId !== grooveId) stopGroovePlayback(activeGrooveId);
 
   const state = groovePlayback[grooveId];
@@ -2331,15 +2495,25 @@ function startGroovePlayback(grooveId) {
   if (state.paused) {
     state.paused = false;
     state.playing = true;
+    activeGrooveId = grooveId;
+    updateTransportUI(grooveId);
+    grooveTick(grooveId);
   } else if (!state.playing) {
-    state.playing = true;
-    state.step = 0;
-  } else {
-    return; // already playing
+    activeGrooveId = grooveId;
+    if (state.countIn) {
+      state.step = 0;
+      updateTransportUI(grooveId);
+      playCountIn(state.bpm, state.stepsPerBeat <= 2 ? 4 : 4, () => {
+        state.playing = true;
+        grooveTick(grooveId);
+      });
+    } else {
+      state.playing = true;
+      state.step = 0;
+      updateTransportUI(grooveId);
+      grooveTick(grooveId);
+    }
   }
-  activeGrooveId = grooveId;
-  updateTransportUI(grooveId);
-  grooveTick(grooveId);
 }
 
 function pauseGroovePlayback(grooveId) {
@@ -2386,21 +2560,26 @@ function grooveTick(grooveId) {
   const gridEl = document.getElementById('gg-' + grooveId);
   if (!gridEl) { stopGroovePlayback(grooveId); return; }
 
-  // Clear previous playhead
   gridEl.querySelectorAll('.drum-cell.playhead').forEach(c => c.classList.remove('playhead'));
 
-  // Highlight current column and play sounds
+  const muted = mutedLimbs[grooveId] || new Set();
   state.grid.rows.forEach((row, ri) => {
     const cell = gridEl.querySelector(`[data-ri="${ri}"][data-ci="${state.step}"]`);
     if (cell) cell.classList.add('playhead');
     const ch = row.cells[state.step];
-    if (ch && ch !== '-') {
+    if (ch && ch !== '-' && !muted.has(row.label)) {
       const hit = resolveHitInfo(row.label, ch);
       if (hit) playDrumHit(hit.midiNote, hit.velocity);
     }
   });
 
-  state.step = (state.step + 1) % state.numSteps;
+  const nextStep = state.step + 1;
+  if (nextStep >= state.numSteps && !state.loop) {
+    state.step = 0;
+    stopGroovePlayback(grooveId);
+    return;
+  }
+  state.step = nextStep % state.numSteps;
   state.intervalId = setTimeout(() => grooveTick(grooveId), state.stepDurMs);
 }
 
@@ -2425,8 +2604,10 @@ function initGrooveTransport(grooveId, grid, bpm) {
   const stepDurMs = 60000 / bpm / stepsPerBeat;
   groovePlayback[grooveId] = {
     playing: false, paused: false, step: 0,
-    intervalId: null, grid, numSteps, stepsPerBeat, stepDurMs
+    intervalId: null, grid, numSteps, stepsPerBeat, stepDurMs,
+    bpm: bpm, countIn: false, loop: true
   };
+  mutedLimbs[grooveId] = new Set();
 }
 
 // ══════════════════════════════════════════════
@@ -2656,6 +2837,151 @@ function resetKitMap() {
   });
   const btns = document.querySelectorAll('.kit-map-actions button');
   if (btns[1]) { btns[1].textContent = 'Reset'; setTimeout(() => btns[1].textContent = 'Reset to GM', 1500); }
+}
+
+// ══════════════════════════════════════════════
+//  P2: COUNT-IN
+// ══════════════════════════════════════════════
+function playCountIn(bpm, beats, callback) {
+  const ctx = getAudioCtx();
+  if (ctx.state === 'suspended') ctx.resume();
+  const beatDur = 60 / bpm;
+  let count = 0;
+  function tick() {
+    if (count < beats) {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.frequency.value = count === 0 ? 1200 : 800;
+      osc.type = 'sine';
+      g.gain.setValueAtTime(0.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.08);
+      count++;
+      setTimeout(tick, beatDur * 1000);
+    } else {
+      callback();
+    }
+  }
+  tick();
+}
+
+// ══════════════════════════════════════════════
+//  P2: COMPLEXITY SCORING
+// ══════════════════════════════════════════════
+function computeComplexity(asciiNotation) {
+  const grid = parseAsciiToGrid(asciiNotation);
+  if (!grid) return { density: 0, limbs: 0, subdivision: 1, independence: 0, total: 0, tier: 'N/A' };
+  const numSteps = grid.rows[0]?.cells.length || 8;
+  const totalSlots = numSteps * grid.rows.length;
+  let onsets = 0;
+  const activeRows = new Set();
+  grid.rows.forEach(row => {
+    row.cells.forEach(c => { if (c !== '-') { onsets++; activeRows.add(row.label); } });
+  });
+  const density = totalSlots > 0 ? onsets / totalSlots : 0;
+  const limbs = activeRows.size;
+  const subdivision = numSteps <= 8 ? 1 : (numSteps <= 12 ? 2 : 3);
+  let independence = 0;
+  if (grid.rows.length >= 2) {
+    for (let ci = 0; ci < numSteps; ci++) {
+      let simultaneous = 0;
+      grid.rows.forEach(row => { if (row.cells[ci] !== '-') simultaneous++; });
+      if (simultaneous >= 2) independence++;
+    }
+  }
+  const indepScore = numSteps > 0 ? independence / numSteps : 0;
+  const raw = (density * 25) + (limbs * 8) + (subdivision * 10) + (indepScore * 30);
+  const total = Math.min(100, Math.round(raw));
+  let tier;
+  if (total <= 20) tier = 'Foundations';
+  else if (total <= 40) tier = 'Building';
+  else if (total <= 60) tier = 'Intermediate';
+  else if (total <= 80) tier = 'Advanced';
+  else tier = 'Mastery';
+  return { density: Math.round(density * 100), limbs, subdivision, independence: Math.round(indepScore * 100), total, tier };
+}
+
+function computeSongComplexity(song) {
+  if (!song.groove || !song.groove.length) return { total: 0, tier: 'N/A' };
+  const scores = song.groove.filter(g => !g.tacet).map(g => computeComplexity(g.asciiNotation));
+  if (scores.length === 0) return { total: 0, tier: 'N/A' };
+  const maxScore = scores.reduce((best, s) => s.total > best.total ? s : best, scores[0]);
+  return maxScore;
+}
+
+function renderComplexityBadge(score) {
+  const pips = Math.ceil(score.total / 20);
+  return `<div class="complexity-badge"><span class="complexity-label">${score.tier}</span><div class="complexity-bar">${Array(5).fill(0).map((_, i) => `<div class="complexity-pip${i < pips ? ' filled' : ''}"></div>`).join('')}</div><span class="complexity-label">${score.total}</span></div>`;
+}
+
+// ══════════════════════════════════════════════
+//  P2: TEMPO LADDER WITH AUTO-PROMOTION
+// ══════════════════════════════════════════════
+function getTempoProgress() {
+  try { return JSON.parse(localStorage.getItem('platehead_tempo_progress')) || {}; } catch(e) { return {}; }
+}
+function saveTempoProgress(data) {
+  localStorage.setItem('platehead_tempo_progress', JSON.stringify(data));
+}
+
+function renderTempoLadderInteractive(songId, practiceBpmLadder, targetBpm) {
+  const progress = getTempoProgress();
+  const songProgress = progress[songId] || { clean: [], current: 0 };
+  const rungs = practiceBpmLadder.map((bpm, i) => {
+    const pct = Math.round((bpm / targetBpm) * 100);
+    const isClean = songProgress.clean.includes(bpm);
+    const isCurrent = i === songProgress.current;
+    const isLocked = i > songProgress.current && !isClean;
+    const prevClean = i === 0 || songProgress.clean.includes(practiceBpmLadder[i - 1]);
+    const accessible = i <= songProgress.current || prevClean;
+    return { bpm, pct, isClean, isCurrent, isLocked: !accessible };
+  });
+
+  let html = '<div class="tempo-ladder-interactive">';
+  rungs.forEach((r, i) => {
+    const cls = r.isClean ? 'clean' : (r.isCurrent ? 'current' : (r.isLocked ? 'locked' : ''));
+    html += `<div class="tempo-rung ${cls}" data-idx="${i}" data-bpm="${r.bpm}" data-song="${songId}">`;
+    html += `<span class="rung-bpm">${r.bpm}</span>`;
+    html += `<span class="rung-pct">${r.pct}%</span>`;
+    html += `<span class="rung-status">${r.isClean ? 'Clean' : (r.isCurrent ? 'Current' : (r.isLocked ? 'Locked' : 'Ready'))}</span>`;
+    html += '</div>';
+  });
+  html += '</div>';
+  html += `<div class="tempo-rung-actions"><button class="mark-clean-btn" onclick="markTempoClean(${songId})">Mark Current BPM Clean</button></div>`;
+  return html;
+}
+
+function markTempoClean(songId) {
+  const song = songs.find(s => s.id === songId);
+  if (!song) return;
+  const progress = getTempoProgress();
+  if (!progress[songId]) progress[songId] = { clean: [], current: 0 };
+  const sp = progress[songId];
+  const currentBpm = song.practiceBpmLadder[sp.current];
+  if (currentBpm && !sp.clean.includes(currentBpm)) {
+    sp.clean.push(currentBpm);
+    if (sp.current < song.practiceBpmLadder.length - 1) sp.current++;
+  }
+  saveTempoProgress(progress);
+  renderDetail();
+}
+
+// ══════════════════════════════════════════════
+//  P2: UNIT STRUCTURE
+// ══════════════════════════════════════════════
+const UNITS = [
+  { id: 1, name: 'Timekeeping', color: 'var(--stage1)', gate: 'None — start here', songIds: [1, 3] },
+  { id: 2, name: 'Groove Vocabulary', color: 'var(--stage2)', gate: 'Steady 8th hats at 80 BPM', songIds: [2, 4, 6] },
+  { id: 3, name: 'Fills & Transitions', color: 'var(--stage3)', gate: 'All U2 grooves clean at tempo', songIds: [5, 8, 11] },
+  { id: 4, name: 'Dynamics & Feel', color: 'var(--stage2)', gate: 'Basic fills at tempo', songIds: [7, 9, 12] },
+  { id: 5, name: 'Independence', color: 'var(--stage4)', gate: 'Ghost notes + open hats clean', songIds: [10, 13, 15] },
+  { id: 6, name: 'Odd Meters & Polyrhythm', color: 'var(--stage4)', gate: 'Ghost notes + open hats clean', songIds: [14, 16, 17] },
+  { id: 7, name: 'Mastery & Performance', color: 'var(--stage5)', gate: 'U5 or U6 complete', songIds: [18, 19, 20] },
+];
+
+function getSongUnit(songId) {
+  return UNITS.find(u => u.songIds.includes(songId));
 }
 
 // ══════════════════════════════════════════════
