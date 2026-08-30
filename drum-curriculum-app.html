@@ -1544,6 +1544,97 @@ async function initDrumSamples() {
     ns.start(now); ns.stop(now + 0.03);
   });
 
+  // PEDAL HI-HAT (44) — muted foot chick
+  samples[44] = await renderDrumSample(sr, 0.06, ctx => {
+    const now = 0;
+    const nb = ctx.createBuffer(1, sr * 0.05, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 8000;
+    const lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass'; lpf.frequency.value = 12000;
+    ng.gain.setValueAtTime(0.35, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+    ns.connect(hpf); hpf.connect(lpf); lpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.05);
+  });
+
+  // HI-MID TOM (48)
+  samples[48] = await renderDrumSample(sr, 0.38, ctx => {
+    const now = 0;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(195, now);
+    osc.frequency.exponentialRampToValueAtTime(95, now + 0.08);
+    g.gain.setValueAtTime(0.72, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.33);
+    const nb = ctx.createBuffer(1, sr * 0.035, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.25, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    ns.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.035);
+  });
+
+  // RIDE BELL (53) — sharp metallic ping
+  samples[53] = await renderDrumSample(sr, 0.7, ctx => {
+    const now = 0;
+    [5800, 8200, 3200].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = idx === 0 ? 'square' : 'triangle';
+      osc.frequency.value = freq;
+      const vol = [0.15, 0.08, 0.1][idx];
+      g.gain.setValueAtTime(vol, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.4 + idx * 0.08);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(now); osc.stop(now + 0.5 + idx * 0.08);
+    });
+    const nb = ctx.createBuffer(1, sr * 0.5, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const bpf = ctx.createBiquadFilter();
+    bpf.type = 'bandpass'; bpf.frequency.value = 7000; bpf.Q.value = 2.5;
+    ng.gain.setValueAtTime(0.15, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    ns.connect(bpf); bpf.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 0.5);
+  });
+
+  // CRASH 2 (57) — slightly brighter than crash 1
+  samples[57] = await renderDrumSample(sr, 1.1, ctx => {
+    const now = 0;
+    const nb = ctx.createBuffer(1, sr * 1.0, sr);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const ng = ctx.createGain();
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 3000;
+    const peak = ctx.createBiquadFilter();
+    peak.type = 'peaking'; peak.frequency.value = 6500; peak.Q.value = 1; peak.gain.value = 5;
+    ng.gain.setValueAtTime(0.5, now);
+    ng.gain.setTargetAtTime(0.3, now + 0.04, 0.07);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+    ns.connect(hpf); hpf.connect(peak); peak.connect(ng); ng.connect(ctx.destination);
+    ns.start(now); ns.stop(now + 1.0);
+  });
+
   // Copy all rendered buffers to the global map
   for (const [note, buf] of Object.entries(samples)) {
     drumSampleBuffers[note] = buf;
@@ -1987,8 +2078,8 @@ function renderLadder() {
 // ══════════════════════════════════════════════
 const GM_DRUMS = {
   'Kick': 36, 'Snare': 38, 'HH': 42, 'Ride': 51,
-  'Crash': 49, 'FT': 43, 'MT': 47, 'HT': 50,
-  'F1': 43, 'Splash': 55
+  'Crash': 49, 'Crash2': 57, 'FT': 43, 'MT': 47, 'HMT': 48, 'HT': 50,
+  'F1': 43, 'Splash': 55, 'Bell': 53, 'Pedal': 44
 };
 const DRUM_SOUNDS = {
   36: { freq: 55, dur: 0.4, gain: 0.8, type: 'sine' },
@@ -2001,7 +2092,11 @@ const DRUM_SOUNDS = {
   43: { freq: 90, dur: 0.25, gain: 0.6, type: 'sine' },
   47: { freq: 120, dur: 0.2, gain: 0.5, type: 'sine' },
   50: { freq: 160, dur: 0.18, gain: 0.45, type: 'sine' },
-  55: { freq: 6000, dur: 0.12, gain: 0.3, type: 'square' }
+  55: { freq: 6000, dur: 0.12, gain: 0.3, type: 'square' },
+  44: { freq: 8000, dur: 0.04, gain: 0.2, type: 'square' },
+  48: { freq: 150, dur: 0.18, gain: 0.5, type: 'sine' },
+  53: { freq: 5800, dur: 0.2, gain: 0.3, type: 'triangle' },
+  57: { freq: 3200, dur: 0.3, gain: 0.4, type: 'square' }
 };
 
 function initGrooveBuilder() {
@@ -2117,10 +2212,17 @@ function resolveHitInfo(rowLabel, cellChar) {
   // Crash on its own row or accent
   if (cellChar === 'C' && /crash/i.test(label)) return { midiNote: 49, velocity: 100 };
   if (cellChar === 'C' && !/snare/i.test(label)) return { midiNote: 49, velocity: 100 };
+  // Ride bell accent
+  if (cellChar === 'B' && /ride/i.test(label)) return { midiNote: 53, velocity: 100 };
+  // Pedal hat
+  if (cellChar === 'p' && /hh|hat/i.test(label)) return { midiNote: 44, velocity: 80 };
+  // Crash 2
+  if (/crash\s*2|crash\s*r/i.test(label)) return { midiNote: 57, velocity: 100 };
   // Standard mapping from row label
   const map = {
     'kick': 36, 'snare': 38, 'hh': 42, 'ride': 51,
-    'crash': 49, 'ft': 43, 'mt': 47, 'ht': 50, 'splash': 55, 'tom': 47
+    'crash': 49, 'crash2': 57, 'ft': 43, 'mt': 47, 'hmt': 48, 'ht': 50,
+    'splash': 55, 'tom': 47, 'bell': 53, 'pedal': 44
   };
   const midiNote = map[label.toLowerCase()] || GM_DRUMS[label] || 42;
   return { midiNote, velocity: 100 };
