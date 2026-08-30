@@ -507,6 +507,67 @@
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
+        /* ── Analytics View ── */
+        .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; text-align: center; border: 1px solid rgba(77,184,168,0.1); }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 800; color: var(--teal); }
+        .stat-card .stat-label { font-size: .78rem; color: var(--muted-text); margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+        .stat-card .stat-sub { font-size: .75rem; color: var(--muted-text); margin-top: 2px; }
+        .analytics-section { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; border: 1px solid rgba(77,184,168,0.08); }
+        .analytics-section h3 { font-size: .95rem; color: var(--teal); margin-bottom: 14px; }
+        .bar-chart { display: flex; flex-direction: column; gap: 6px; }
+        .bar-row { display: flex; align-items: center; gap: 10px; }
+        .bar-label { font-size: .75rem; color: var(--muted-text); width: 140px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bar-track { flex: 1; height: 20px; background: var(--off-color); border-radius: 4px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; border-radius: 4px; transition: width .3s; }
+        .bar-value { font-size: .72rem; color: var(--muted-text); width: 50px; text-align: right; flex-shrink: 0; }
+        .streak-display { display: flex; align-items: center; gap: 8px; }
+        .streak-day { width: 18px; height: 18px; border-radius: 3px; background: var(--off-color); }
+        .streak-day.active { background: var(--teal); }
+        .session-log { max-height: 300px; overflow-y: auto; }
+        .session-log-entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: .82rem; color: var(--muted-text); }
+
+        /* ── Arrangement Builder ── */
+        .arr-builder { display: flex; gap: 20px; flex-wrap: wrap; }
+        .arr-song-select { flex: 0 0 240px; }
+        .arr-timeline { flex: 1; min-width: 300px; }
+        .arr-section-pool { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .arr-section-chip { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--card-bg); border: 1px solid rgba(77,184,168,0.15); border-radius: var(--radius-sm); cursor: grab; font-size: .82rem; color: var(--light-text); user-select: none; }
+        .arr-section-chip:active { cursor: grabbing; }
+        .arr-section-chip .arr-chip-label { flex: 1; }
+        .arr-section-chip .arr-chip-bars { font-size: .72rem; color: var(--muted-text); }
+        .arr-drop-zone { min-height: 120px; background: var(--card-bg); border: 2px dashed rgba(77,184,168,0.2); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .arr-drop-zone.drag-over { border-color: var(--teal); background: rgba(77,184,168,0.05); }
+        .arr-drop-zone .empty-msg { color: var(--muted-text); font-size: .82rem; text-align: center; padding: 30px 0; }
+        .arr-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--panel-bg); border-radius: var(--radius-sm); cursor: grab; font-size: .82rem; }
+        .arr-item:active { cursor: grabbing; }
+        .arr-item .arr-item-handle { color: var(--muted-text); cursor: grab; }
+        .arr-item .arr-item-label { flex: 1; }
+        .arr-item .arr-item-repeats { display: flex; align-items: center; gap: 4px; }
+        .arr-item .arr-item-repeats input { width: 40px; background: var(--off-color); border: 1px solid rgba(255,255,255,0.1); color: var(--light-text); border-radius: 3px; text-align: center; padding: 2px; font-size: .8rem; }
+        .arr-item .arr-item-remove { color: var(--muted-text); cursor: pointer; padding: 2px 6px; border-radius: 3px; }
+        .arr-item .arr-item-remove:hover { color: var(--playing); background: rgba(255,107,107,0.1); }
+        .arr-summary { margin-top: 14px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        .arr-summary .arr-stat { font-size: .8rem; color: var(--muted-text); }
+        .arr-summary .arr-stat strong { color: var(--teal); }
+
+        /* ── Fill Library ── */
+        .fill-lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+        .fill-lib-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; border: 1px solid rgba(77,184,168,0.08); }
+        .fill-lib-card h4 { font-size: .88rem; color: var(--light-text); margin-bottom: 4px; }
+        .fill-lib-card .fill-desc { font-size: .78rem; color: var(--muted-text); margin-bottom: 8px; line-height: 1.4; }
+        .fill-lib-card .fill-grid-mini { font-family: 'SF Mono','Fira Code',monospace; font-size: .7rem; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 4px; color: var(--muted-text); line-height: 1.5; white-space: pre; overflow-x: auto; }
+        .fill-lib-card .fill-meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .fill-lib-card .fill-tag { font-size: .7rem; padding: 2px 8px; border-radius: 10px; }
+        .fill-tag-diff { background: rgba(77,184,168,0.12); color: var(--teal); }
+        .fill-tag-rudiment { background: rgba(212,165,116,0.12); color: var(--tan); }
+        .fill-tag-bol { background: rgba(196,125,255,0.12); color: var(--stage5); }
+        .fill-gen-panel { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; border: 1px solid rgba(212,165,116,0.12); }
+        .fill-gen-panel h3 { font-size: .95rem; color: var(--tan); margin-bottom: 12px; }
+        .fill-gen-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+        .fill-gen-controls label { font-size: .78rem; color: var(--muted-text); display: flex; flex-direction: column; gap: 4px; }
+        .fill-gen-controls select, .fill-gen-controls input[type="number"] { background: var(--off-color); border: 1px solid rgba(255,255,255,0.1); color: var(--light-text); border-radius: var(--radius-sm); padding: 6px 10px; font-size: .82rem; }
+
         /* ── Scroll ── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--dark-bg); }
@@ -522,6 +583,9 @@
         <button class="nav-link" data-view="ladder">Song Ladder</button>
         <button class="nav-link" data-view="grooveBuilder">Groove Builder</button>
         <button class="nav-link" data-view="masterclass">Master Class</button>
+        <button class="nav-link" data-view="arrBuilder">Arrangement</button>
+        <button class="nav-link" data-view="fillLibrary">Fill Library</button>
+        <button class="nav-link" data-view="analytics">Analytics</button>
         <button class="nav-link" data-view="workflow">Logic Pro Workflow</button>
     </div>
 </nav>
@@ -606,6 +670,33 @@
     <!-- ═══ MASTER CLASS ═══ -->
     <div id="view-masterclass" class="view">
         <div id="masterclassContent"></div>
+    </div>
+
+    <!-- ═══ ARRANGEMENT BUILDER ═══ -->
+    <div id="view-arrBuilder" class="view">
+        <div class="hero">
+            <h1>ARRANGEMENT BUILDER</h1>
+            <p>Drag sections into a custom arrangement. Set repeat counts and export as a single MIDI file for Logic Pro.</p>
+        </div>
+        <div id="arrBuilderContent"></div>
+    </div>
+
+    <!-- ═══ FILL LIBRARY ═══ -->
+    <div id="view-fillLibrary" class="view">
+        <div class="hero">
+            <h1>FILL LIBRARY</h1>
+            <p>Browse fills across the curriculum, generate new ones from rudiment vocabulary, and explore tabla bol adaptations.</p>
+        </div>
+        <div id="fillLibraryContent"></div>
+    </div>
+
+    <!-- ═══ ANALYTICS ═══ -->
+    <div id="view-analytics" class="view">
+        <div class="hero">
+            <h1>SESSION ANALYTICS</h1>
+            <p>Track your practice time, streaks, and tempo progression across the curriculum.</p>
+        </div>
+        <div id="analyticsContent"></div>
     </div>
 
     <!-- ═══ LOGIC PRO WORKFLOW ═══ -->
@@ -1366,6 +1457,8 @@ let audioCtx = null;
 let noiseBuffer = null;
 let activeGrooveId = null; // only one groove plays at a time
 const groovePlayback = {}; // keyed by grooveId
+let practiceSessionStart = null;
+let practiceSessionSongId = null;
 const drumSampleBuffers = {};
 let samplesReady = false;
 const mutedLimbs = {}; // keyed by grooveId -> Set of row labels
@@ -1819,6 +1912,9 @@ function switchView(view) {
     const slot = document.getElementById('kitMapEditorSlot');
     if (slot && !slot.hasChildNodes()) slot.innerHTML = renderKitMapEditor();
   }
+  if (view === 'analytics') renderAnalytics();
+  if (view === 'arrBuilder') renderArrBuilder();
+  if (view === 'fillLibrary') renderFillLibrary();
   window.scrollTo(0, 0);
 }
 
@@ -2967,6 +3063,25 @@ function exportCapturedTake(gid) {
 // ══════════════════════════════════════════════
 function stopAllGroovePlayback() {
   Object.keys(groovePlayback).forEach(id => stopGroovePlayback(id));
+  savePracticeSession();
+}
+
+function savePracticeSession() {
+  if (!practiceSessionStart) return;
+  const dur = Date.now() - practiceSessionStart;
+  if (dur < 5000) { practiceSessionStart = null; return; }
+  const sessions = JSON.parse(localStorage.getItem('platehead_sessions') || '[]');
+  const bpm = practiceSessionSongId && selectedSong ? (groovePlayback[Object.keys(groovePlayback).find(k => groovePlayback[k].bpm)]?.bpm || 0) : 0;
+  sessions.push({
+    date: new Date().toISOString().slice(0, 10),
+    ts: practiceSessionStart,
+    songId: practiceSessionSongId,
+    durationMs: dur,
+    bpm: bpm
+  });
+  localStorage.setItem('platehead_sessions', JSON.stringify(sessions));
+  practiceSessionStart = null;
+  practiceSessionSongId = null;
 }
 
 function startGroovePlayback(grooveId) {
@@ -2976,6 +3091,11 @@ function startGroovePlayback(grooveId) {
 
   const state = groovePlayback[grooveId];
   if (!state) return;
+
+  if (!practiceSessionStart) {
+    practiceSessionStart = Date.now();
+    practiceSessionSongId = selectedSong ? selectedSong.id : null;
+  }
 
   if (state.paused) {
     state.paused = false;
@@ -3642,6 +3762,632 @@ function renderMasterClass() {
       <button class="btn btn-teal" onclick="openSongDetail(10)">View Full Song Details</button>
     </div>
   `;
+}
+
+// ══════════════════════════════════════════════
+//  SESSION ANALYTICS
+// ══════════════════════════════════════════════
+function getSessions() {
+  return JSON.parse(localStorage.getItem('platehead_sessions') || '[]');
+}
+
+function formatDuration(ms) {
+  const mins = Math.floor(ms / 60000);
+  const hrs = Math.floor(mins / 60);
+  if (hrs > 0) return `${hrs}h ${mins % 60}m`;
+  return `${mins}m`;
+}
+
+function renderAnalytics() {
+  const el = document.getElementById('analyticsContent');
+  const sessions = getSessions();
+
+  if (sessions.length === 0) {
+    el.innerHTML = `<div class="analytics-section" style="text-align:center;padding:60px 20px;">
+      <p style="color:var(--muted-text);font-size:1rem;">No practice sessions yet.</p>
+      <p style="color:var(--muted-text);font-size:.82rem;margin-top:8px;">Play any groove to start tracking your practice time automatically.</p>
+    </div>`;
+    return;
+  }
+
+  const totalMs = sessions.reduce((s, e) => s + e.durationMs, 0);
+  const uniqueDays = [...new Set(sessions.map(s => s.date))].sort();
+  const today = new Date().toISOString().slice(0, 10);
+  let streak = 0;
+  let d = new Date(today);
+  while (true) {
+    const ds = d.toISOString().slice(0, 10);
+    if (uniqueDays.includes(ds)) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+
+  const songTimes = {};
+  sessions.forEach(s => {
+    if (s.songId) songTimes[s.songId] = (songTimes[s.songId] || 0) + s.durationMs;
+  });
+  const maxSongTime = Math.max(...Object.values(songTimes), 1);
+
+  const last7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const dd = new Date(); dd.setDate(dd.getDate() - i);
+    last7.push(dd.toISOString().slice(0, 10));
+  }
+
+  const songTempos = {};
+  sessions.forEach(s => {
+    if (s.songId && s.bpm) {
+      if (!songTempos[s.songId]) songTempos[s.songId] = [];
+      songTempos[s.songId].push({ date: s.date, bpm: s.bpm });
+    }
+  });
+
+  let html = `<div class="analytics-grid">
+    <div class="stat-card"><div class="stat-value">${formatDuration(totalMs)}</div><div class="stat-label">Total Practice</div><div class="stat-sub">${sessions.length} sessions</div></div>
+    <div class="stat-card"><div class="stat-value">${streak}</div><div class="stat-label">Day Streak</div><div class="stat-sub">${uniqueDays.length} unique days</div></div>
+    <div class="stat-card"><div class="stat-value">${Object.keys(songTimes).length}</div><div class="stat-label">Songs Practiced</div><div class="stat-sub">of ${songs.length} total</div></div>
+    <div class="stat-card"><div class="stat-value">${formatDuration(totalMs / Math.max(uniqueDays.length, 1))}</div><div class="stat-label">Avg / Day</div></div>
+  </div>`;
+
+  html += `<div class="analytics-section"><h3>Last 7 Days</h3><div class="streak-display">`;
+  last7.forEach(day => {
+    const active = uniqueDays.includes(day);
+    const label = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(day + 'T12:00').getDay()];
+    html += `<div style="text-align:center;"><div class="streak-day${active ? ' active' : ''}" title="${day}"></div><div style="font-size:.65rem;color:var(--muted-text);margin-top:2px;">${label}</div></div>`;
+  });
+  html += `</div></div>`;
+
+  html += `<div class="analytics-section"><h3>Time per Song</h3><div class="bar-chart">`;
+  const sortedSongs = Object.entries(songTimes).sort((a, b) => b[1] - a[1]);
+  sortedSongs.forEach(([sid, ms]) => {
+    const song = songs.find(s => s.id === parseInt(sid));
+    if (!song) return;
+    const pct = (ms / maxSongTime * 100).toFixed(1);
+    const stageColor = `var(--stage${song.stage})`;
+    html += `<div class="bar-row">
+      <div class="bar-label" title="${song.title}">${song.title}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${stageColor};"></div></div>
+      <div class="bar-value">${formatDuration(ms)}</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  html += `<div class="analytics-section"><h3>Recent Sessions</h3><div class="session-log">`;
+  sessions.slice(-20).reverse().forEach(s => {
+    const song = s.songId ? songs.find(x => x.id === s.songId) : null;
+    html += `<div class="session-log-entry">
+      <span>${s.date}</span>
+      <span>${song ? song.title : 'Groove Builder'}</span>
+      <span>${formatDuration(s.durationMs)}</span>
+      ${s.bpm ? `<span>${s.bpm} BPM</span>` : '<span></span>'}
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  html += `<div style="text-align:center;margin-top:16px;">
+    <button class="btn btn-outline" onclick="if(confirm('Clear all practice data?')){localStorage.removeItem('platehead_sessions');renderAnalytics();}">Reset Data</button>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+//  ARRANGEMENT BUILDER
+// ══════════════════════════════════════════════
+let arrSongId = null;
+let arrItems = [];
+let arrDragIdx = null;
+
+function renderArrBuilder() {
+  const el = document.getElementById('arrBuilderContent');
+  let html = `<div class="arr-builder">`;
+
+  html += `<div class="arr-song-select">
+    <label style="font-size:.82rem;color:var(--muted-text);display:block;margin-bottom:6px;">Select Song</label>
+    <select id="arrSongPicker" style="width:100%;background:var(--off-color);border:1px solid rgba(255,255,255,0.1);color:var(--light-text);border-radius:var(--radius-sm);padding:8px;font-size:.85rem;">
+      <option value="">Choose a song...</option>
+      ${songs.map(s => `<option value="${s.id}"${arrSongId === s.id ? ' selected' : ''}>${s.title}</option>`).join('')}
+    </select>
+    <div id="arrSectionPool" class="arr-section-pool"></div>
+  </div>`;
+
+  html += `<div class="arr-timeline">
+    <label style="font-size:.82rem;color:var(--muted-text);display:block;margin-bottom:6px;">Arrangement Timeline</label>
+    <div id="arrDropZone" class="arr-drop-zone">
+      ${arrItems.length === 0 ? '<div class="empty-msg">Drag sections here or click them to add</div>' : ''}
+    </div>
+    <div class="arr-summary" id="arrSummary"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;">
+      <button class="btn btn-teal" id="arrExportBtn" style="font-size:.82rem;padding:6px 16px;" disabled>Export MIDI</button>
+      <button class="btn btn-outline" id="arrClearBtn" style="font-size:.82rem;padding:6px 16px;">Clear</button>
+    </div>
+  </div>`;
+
+  html += `</div>`;
+  el.innerHTML = html;
+
+  document.getElementById('arrSongPicker').addEventListener('change', function() {
+    arrSongId = this.value ? parseInt(this.value) : null;
+    arrItems = [];
+    renderArrSections();
+    renderArrTimeline();
+  });
+
+  document.getElementById('arrClearBtn').addEventListener('click', () => {
+    arrItems = [];
+    renderArrTimeline();
+  });
+
+  document.getElementById('arrExportBtn').addEventListener('click', exportCustomArrangement);
+
+  if (arrSongId) {
+    renderArrSections();
+    renderArrTimeline();
+  }
+}
+
+function renderArrSections() {
+  const pool = document.getElementById('arrSectionPool');
+  if (!arrSongId) { pool.innerHTML = ''; return; }
+  const song = songs.find(s => s.id === arrSongId);
+  if (!song) return;
+
+  let html = '';
+  song.groove.forEach((g, i) => {
+    if (g.tacet) return;
+    html += `<div class="arr-section-chip" draggable="true" data-groove-idx="${i}" onclick="addArrItem(${i})">
+      <span class="arr-chip-label">${g.section || g.label}</span>
+      <span class="arr-chip-bars">${g.label}</span>
+    </div>`;
+  });
+  pool.innerHTML = html;
+
+  pool.querySelectorAll('.arr-section-chip').forEach(chip => {
+    chip.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', chip.dataset.grooveIdx);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+  });
+}
+
+function addArrItem(grooveIdx) {
+  arrItems.push({ grooveIdx, repeats: 4 });
+  renderArrTimeline();
+}
+
+function renderArrTimeline() {
+  const zone = document.getElementById('arrDropZone');
+  const btn = document.getElementById('arrExportBtn');
+
+  if (arrItems.length === 0) {
+    zone.innerHTML = '<div class="empty-msg">Drag sections here or click them to add</div>';
+    btn.disabled = true;
+    updateArrSummary();
+    return;
+  }
+
+  btn.disabled = false;
+  const song = songs.find(s => s.id === arrSongId);
+  if (!song) return;
+
+  zone.innerHTML = arrItems.map((item, i) => {
+    const g = song.groove[item.grooveIdx];
+    if (!g) return '';
+    return `<div class="arr-item" draggable="true" data-arr-idx="${i}">
+      <span class="arr-item-handle">&#x2630;</span>
+      <span class="arr-item-label">${g.section || g.label}</span>
+      <span class="arr-item-repeats">
+        <span style="font-size:.72rem;color:var(--muted-text);">&times;</span>
+        <input type="number" min="1" max="32" value="${item.repeats}" data-arr-idx="${i}" class="arr-repeat-input">
+      </span>
+      <span class="arr-item-remove" data-arr-idx="${i}" onclick="removeArrItem(${i})">&times;</span>
+    </div>`;
+  }).join('');
+
+  zone.querySelectorAll('.arr-repeat-input').forEach(inp => {
+    inp.addEventListener('change', function() {
+      const idx = parseInt(this.dataset.arrIdx);
+      arrItems[idx].repeats = Math.max(1, Math.min(32, parseInt(this.value) || 1));
+      updateArrSummary();
+    });
+  });
+
+  zone.querySelectorAll('.arr-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      arrDragIdx = parseInt(item.dataset.arrIdx);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      const fromPool = e.dataTransfer.getData('text/plain');
+      const toIdx = parseInt(item.dataset.arrIdx);
+      if (arrDragIdx !== null && arrDragIdx !== toIdx) {
+        const moved = arrItems.splice(arrDragIdx, 1)[0];
+        arrItems.splice(toIdx, 0, moved);
+        arrDragIdx = null;
+        renderArrTimeline();
+      } else if (fromPool && arrDragIdx === null) {
+        arrItems.splice(toIdx, 0, { grooveIdx: parseInt(fromPool), repeats: 4 });
+        renderArrTimeline();
+      }
+    });
+  });
+
+  updateArrSummary();
+}
+
+function removeArrItem(idx) {
+  arrItems.splice(idx, 1);
+  renderArrTimeline();
+}
+
+function updateArrSummary() {
+  const el = document.getElementById('arrSummary');
+  if (!el) return;
+  if (arrItems.length === 0) { el.innerHTML = ''; return; }
+  const song = songs.find(s => s.id === arrSongId);
+  if (!song) return;
+
+  let totalBars = 0;
+  arrItems.forEach(item => {
+    const g = song.groove[item.grooveIdx];
+    if (!g) return;
+    const grid = parseAsciiToGrid(g.asciiNotation);
+    if (!grid) return;
+    const numSteps = grid.rows[0]?.cells.length || 8;
+    const barsPerPattern = numSteps <= 8 ? 1 : 2;
+    totalBars += barsPerPattern * item.repeats;
+  });
+  const tempo = song.tempoRangeBPM.min;
+  const durationSec = totalBars * 4 * 60 / tempo;
+  const mins = Math.floor(durationSec / 60);
+  const secs = Math.round(durationSec % 60);
+
+  el.innerHTML = `
+    <span class="arr-stat"><strong>${arrItems.length}</strong> sections</span>
+    <span class="arr-stat"><strong>${totalBars}</strong> bars</span>
+    <span class="arr-stat"><strong>${mins}:${secs.toString().padStart(2, '0')}</strong> at ${tempo} BPM</span>
+  `;
+}
+
+function exportCustomArrangement() {
+  if (!arrSongId || arrItems.length === 0) return;
+  const song = songs.find(s => s.id === arrSongId);
+  if (!song) return;
+  const tempo = song.tempoRangeBPM.min;
+  const division = 480;
+
+  const data = [];
+  push(data, str2b('MThd')); push(data, i32(6)); push(data, i16(0)); push(data, i16(1)); push(data, i16(division));
+
+  const trk = [];
+  const uspqn = Math.round(60000000 / tempo);
+  push(trk, vlq(0)); push(trk, [0xFF, 0x51, 0x03]); push(trk, [(uspqn>>16)&0xFF,(uspqn>>8)&0xFF,uspqn&0xFF]);
+
+  const nameBytes = str2b(song.title + ' - Custom Arrangement');
+  push(trk, vlq(0)); push(trk, [0xFF, 0x03, nameBytes.length]); push(trk, nameBytes);
+
+  let currentTick = 0;
+  let lastTick = 0;
+
+  arrItems.forEach(item => {
+    const g = song.groove[item.grooveIdx];
+    if (!g) return;
+    const grid = parseAsciiToGrid(g.asciiNotation);
+    if (!grid) return;
+
+    const numSteps = grid.rows[0]?.cells.length || 8;
+    const stepsPerBeat = numSteps <= 8 ? 2 : 4;
+    const ticksPerStep = division / stepsPerBeat;
+    const patternTicks = numSteps * ticksPerStep;
+
+    const markerText = str2b(g.section ? `${g.section}: ${g.label}` : g.label);
+    const markerDelta = currentTick - lastTick;
+    push(trk, vlq(markerDelta)); push(trk, [0xFF, 0x06, markerText.length]); push(trk, markerText);
+    lastTick = currentTick;
+
+    for (let rep = 0; rep < item.repeats; rep++) {
+      grid.rows.forEach(row => {
+        row.cells.forEach((cell, ci) => {
+          if (cell === '-') return;
+          const hit = resolveHitInfo(row.label, cell);
+          if (!hit) return;
+          const note = resolveExportNote(hit.midiNote);
+          const tick = currentTick + ci * ticksPerStep;
+          const delta = tick - lastTick;
+          push(trk, vlq(delta));
+          push(trk, [0x99, note, hit.velocity]);
+          const dur = Math.round(ticksPerStep * 0.8);
+          push(trk, vlq(dur));
+          push(trk, [0x89, note, 0]);
+          lastTick = tick + dur;
+        });
+      });
+      currentTick += patternTicks;
+    }
+  });
+
+  const endDelta = currentTick - lastTick;
+  push(trk, vlq(endDelta)); push(trk, [0xFF, 0x2F, 0x00]);
+  push(data, str2b('MTrk')); push(data, i32(trk.length)); push(data, trk);
+
+  const blob = new Blob([new Uint8Array(data)], { type: 'audio/midi' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${song.slug}_custom_arrangement_${tempo}BPM.mid`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Drop zone listeners
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('dragover', e => {
+    const zone = document.getElementById('arrDropZone');
+    if (zone && zone.contains(e.target)) {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    }
+  });
+  document.addEventListener('dragleave', e => {
+    const zone = document.getElementById('arrDropZone');
+    if (zone && !zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
+  });
+  document.addEventListener('drop', e => {
+    const zone = document.getElementById('arrDropZone');
+    if (zone && zone.contains(e.target)) {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const grooveIdx = e.dataTransfer.getData('text/plain');
+      if (grooveIdx !== '' && arrDragIdx === null) {
+        arrItems.push({ grooveIdx: parseInt(grooveIdx), repeats: 4 });
+        renderArrTimeline();
+      }
+      arrDragIdx = null;
+    }
+  });
+});
+
+// ══════════════════════════════════════════════
+//  FILL LIBRARY & GENERATOR
+// ══════════════════════════════════════════════
+const RUDIMENT_VOCAB = [
+  { name: 'Single Stroke Roll', sticking: 'RLRL', pattern: 'S S S S', difficulty: 1 },
+  { name: 'Double Stroke Roll', sticking: 'RRLL', pattern: 'S S S S', difficulty: 2 },
+  { name: 'Paradiddle', sticking: 'RLRR', pattern: 'S S S S', difficulty: 2 },
+  { name: 'Flam', sticking: 'lR', pattern: 'gS - -', difficulty: 2 },
+  { name: 'Drag', sticking: 'llR', pattern: 'g g S -', difficulty: 3 },
+  { name: 'Paradiddle-diddle', sticking: 'RLRRLL', pattern: 'S S S S S S', difficulty: 3 },
+  { name: 'Ratamacue', sticking: 'llRLR', pattern: 'g g S S S', difficulty: 4 },
+  { name: 'Swiss Triplet', sticking: 'fRLR', pattern: 'gS S S -', difficulty: 4 },
+];
+
+const TABLA_BOLS = [
+  { name: 'Dha-Dhin', bol: 'Dha Dhin Dhin Dha', mapping: 'K+S S S K+S', desc: 'Open bass + snare accent pattern — the Teental backbone adapted for kit', difficulty: 2 },
+  { name: 'Ti-Ra-Ki-Ta', bol: 'Ti Ra Ki Ta', mapping: 'x x S x', desc: 'Closed hat sticking with snare accent on beat 3 — fast 16th subdivision feel', difficulty: 2 },
+  { name: 'Dha Ge Na Ti', bol: 'Dha Ge Na Ti', mapping: 'K+x x S x', desc: 'Kick-hat, ghost, snare, hat — creates a linear groove fragment', difficulty: 3 },
+  { name: 'Ta Ki Ta', bol: 'Ta Ki Ta', mapping: 'S x S', desc: 'Triplet figure: snare-hat-snare — use as a 3-over-4 superimposition', difficulty: 2 },
+  { name: 'Dha Ti Dha Ge Na Ti Na Ka', bol: 'Dha Ti Dha Ge Na Ti Na Ka', mapping: 'K+S x K+S x S x S x', desc: '8-syllable phrase — full-bar fill with kick accents on 1 and 3', difficulty: 4 },
+  { name: 'Tete Kata Gadi Gana', bol: 'Tete Kata Gadi Gana', mapping: 'x x S S K K S S', desc: 'Double-time paired strokes — builds intensity through the bar', difficulty: 3 },
+];
+
+function rateFillDifficulty(ascii) {
+  const grid = parseAsciiToGrid(ascii);
+  if (!grid) return 1;
+  let voices = 0, onsets = 0, totalCells = 0;
+  grid.rows.forEach(row => {
+    let hasHit = false;
+    row.cells.forEach(c => {
+      totalCells++;
+      if (c !== '-') { onsets++; hasHit = true; }
+    });
+    if (hasHit) voices++;
+  });
+  const density = onsets / Math.max(totalCells, 1);
+  if (density > 0.6 && voices >= 3) return 5;
+  if (density > 0.45 || voices >= 3) return 4;
+  if (density > 0.3 || voices >= 2) return 3;
+  if (density > 0.15) return 2;
+  return 1;
+}
+
+function generateAlgorithmicFill(rudiment, beats, voicing) {
+  const r = RUDIMENT_VOCAB.find(x => x.name === rudiment) || RUDIMENT_VOCAB[0];
+  const stepsPerBeat = 4;
+  const totalSteps = beats * stepsPerBeat;
+  const patChars = r.pattern.replace(/ /g, '').split('');
+  const stickChars = r.sticking.split('');
+
+  const rows = { Snare: [], HH: [], Kick: [] };
+  for (let i = 0; i < totalSteps; i++) {
+    const pi = i % patChars.length;
+    const si = i % stickChars.length;
+    const ch = patChars[pi];
+    const hand = stickChars[si];
+
+    if (ch === '-' || ch === ' ') {
+      rows.Snare.push('-'); rows.HH.push('-'); rows.Kick.push('-');
+    } else if (ch === 'g') {
+      rows.Snare.push('g'); rows.HH.push('-'); rows.Kick.push('-');
+    } else {
+      if (voicing === 'snare-only') {
+        rows.Snare.push('S'); rows.HH.push('-'); rows.Kick.push('-');
+      } else if (voicing === 'around-kit') {
+        if (hand === 'R' || hand === 'r') {
+          const voices = ['S', 'S', 'S', 'S'];
+          const vi = Math.floor(i / patChars.length) % voices.length;
+          rows.Snare.push(vi < 2 ? 'S' : '-');
+          rows.HH.push('-');
+          rows.Kick.push(vi >= 2 ? 'K' : '-');
+        } else {
+          rows.Snare.push('-'); rows.HH.push('x'); rows.Kick.push('-');
+        }
+      } else {
+        if (hand === 'R' || hand === 'r' || hand === 'f') {
+          rows.Snare.push('S'); rows.HH.push('-'); rows.Kick.push('-');
+        } else {
+          rows.Snare.push('-'); rows.HH.push('x'); rows.Kick.push('-');
+        }
+      }
+    }
+  }
+
+  const countBeats = [];
+  for (let b = 1; b <= beats; b++) {
+    countBeats.push(b.toString(), 'e', '&', 'a');
+  }
+  const countStr = countBeats.join(' ');
+  const ascii = `Count: ${countStr}\nSnare: ${rows.Snare.join(' ')}\nHH   : ${rows.HH.join(' ')}\nKick : ${rows.Kick.join(' ')}`;
+  return { ascii, rudiment: r.name, difficulty: r.difficulty };
+}
+
+function generateBolFill(bolIdx) {
+  const bol = TABLA_BOLS[bolIdx];
+  const mapChars = bol.mapping.split(' ');
+  const totalSteps = mapChars.length;
+  const rows = { Snare: [], HH: [], Kick: [] };
+
+  mapChars.forEach(ch => {
+    if (ch === 'K+S' || ch === 'K+x') {
+      rows.Kick.push('K');
+      rows.Snare.push(ch === 'K+S' ? 'S' : '-');
+      rows.HH.push(ch === 'K+x' ? 'x' : '-');
+    } else if (ch === 'S') {
+      rows.Snare.push('S'); rows.HH.push('-'); rows.Kick.push('-');
+    } else if (ch === 'K') {
+      rows.Kick.push('K'); rows.Snare.push('-'); rows.HH.push('-');
+    } else if (ch === 'x') {
+      rows.HH.push('x'); rows.Snare.push('-'); rows.Kick.push('-');
+    } else {
+      rows.Snare.push('-'); rows.HH.push('-'); rows.Kick.push('-');
+    }
+  });
+
+  const beats = Math.ceil(totalSteps / 4);
+  const countBeats = [];
+  for (let b = 1; b <= beats; b++) countBeats.push(b.toString(), 'e', '&', 'a');
+  const countStr = countBeats.slice(0, totalSteps).join(' ');
+  while (rows.Snare.length < beats * 4) { rows.Snare.push('-'); rows.HH.push('-'); rows.Kick.push('-'); }
+
+  const ascii = `Count: ${countStr}\nSnare: ${rows.Snare.join(' ')}\nHH   : ${rows.HH.join(' ')}\nKick : ${rows.Kick.join(' ')}`;
+  return ascii;
+}
+
+function renderFillLibrary() {
+  const el = document.getElementById('fillLibraryContent');
+  let html = '';
+
+  // Generator panel
+  html += `<div class="fill-gen-panel">
+    <h3>Fill Generator</h3>
+    <div class="fill-gen-controls">
+      <label>Rudiment
+        <select id="fillGenRudiment">
+          ${RUDIMENT_VOCAB.map(r => `<option value="${r.name}">${r.name}</option>`).join('')}
+        </select>
+      </label>
+      <label>Beats
+        <input type="number" id="fillGenBeats" min="1" max="4" value="2">
+      </label>
+      <label>Voicing
+        <select id="fillGenVoicing">
+          <option value="hands-split">Hands Split (R=snare, L=hat)</option>
+          <option value="snare-only">Snare Only</option>
+          <option value="around-kit">Around the Kit</option>
+        </select>
+      </label>
+      <button class="btn btn-teal" id="fillGenBtn" style="font-size:.82rem;padding:6px 16px;">Generate</button>
+    </div>
+    <div id="fillGenResult" style="margin-top:12px;"></div>
+  </div>`;
+
+  // Tabla bol panel
+  html += `<div class="fill-gen-panel" style="border-color:rgba(196,125,255,0.15);">
+    <h3 style="color:var(--stage5);">Tabla Bol Adaptations</h3>
+    <p style="font-size:.82rem;color:var(--muted-text);margin-bottom:12px;">Classical Indian drum syllables adapted for rock kit. Each bol maps to kick, snare, and hat combinations.</p>
+    <div class="fill-lib-grid">`;
+
+  TABLA_BOLS.forEach((bol, i) => {
+    const ascii = generateBolFill(i);
+    html += `<div class="fill-lib-card">
+      <h4>${bol.name}</h4>
+      <div style="font-size:.78rem;color:var(--stage5);margin-bottom:4px;font-style:italic;">${bol.bol}</div>
+      <div class="fill-desc">${bol.desc}</div>
+      <div class="fill-grid-mini">${ascii}</div>
+      <div class="fill-meta">
+        <span class="fill-tag fill-tag-bol">Tabla</span>
+        <span class="fill-tag fill-tag-diff">Diff ${bol.difficulty}</span>
+      </div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // All fills from curriculum
+  html += `<div class="analytics-section"><h3 style="color:var(--tan);">Curriculum Fills</h3>
+    <div style="margin-bottom:12px;">
+      <select id="fillFilterStage" style="background:var(--off-color);border:1px solid rgba(255,255,255,0.1);color:var(--light-text);border-radius:var(--radius-sm);padding:6px 10px;font-size:.82rem;">
+        <option value="0">All Stages</option>
+        ${[1,2,3,4,5].map(s => `<option value="${s}">Stage ${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fill-lib-grid" id="fillCurriculumGrid"></div>
+  </div>`;
+
+  el.innerHTML = html;
+
+  renderCurriculumFills(0);
+
+  document.getElementById('fillFilterStage').addEventListener('change', function() {
+    renderCurriculumFills(parseInt(this.value));
+  });
+
+  document.getElementById('fillGenBtn').addEventListener('click', () => {
+    const rudiment = document.getElementById('fillGenRudiment').value;
+    const beats = parseInt(document.getElementById('fillGenBeats').value) || 2;
+    const voicing = document.getElementById('fillGenVoicing').value;
+    const result = generateAlgorithmicFill(rudiment, beats, voicing);
+    const diff = rateFillDifficulty(result.ascii);
+
+    document.getElementById('fillGenResult').innerHTML = `
+      <div class="fill-lib-card">
+        <h4>Generated: ${result.rudiment} (${beats} beat${beats > 1 ? 's' : ''})</h4>
+        <div class="fill-grid-mini">${result.ascii}</div>
+        <div class="fill-meta">
+          <span class="fill-tag fill-tag-rudiment">${result.rudiment}</span>
+          <span class="fill-tag fill-tag-diff">Diff ${diff}</span>
+        </div>
+        <div style="margin-top:8px;">
+          <button class="btn btn-outline" style="font-size:.78rem;padding:4px 12px;" onclick="exportCardMidi(\`${encodeURIComponent(result.ascii)}\`, 120, 'generated_fill', 'generated')">Export MIDI</button>
+        </div>
+      </div>`;
+  });
+}
+
+function renderCurriculumFills(stageFilter) {
+  const grid = document.getElementById('fillCurriculumGrid');
+  if (!grid) return;
+  let html = '';
+
+  songs.forEach(song => {
+    if (stageFilter && song.stage !== stageFilter) return;
+    if (!song.fills || song.fills.length === 0) return;
+
+    song.fills.forEach(f => {
+      const diff = rateFillDifficulty(f.asciiNotation);
+      html += `<div class="fill-lib-card">
+        <h4>${f.label}</h4>
+        <div style="font-size:.72rem;color:var(--stage${song.stage});margin-bottom:4px;">${song.title}</div>
+        <div class="fill-desc">${f.description}</div>
+        <div class="fill-grid-mini">${f.asciiNotation}</div>
+        <div class="fill-meta">
+          <span class="fill-tag fill-tag-diff">Diff ${diff}</span>
+          <span class="fill-tag" style="background:rgba(77,184,168,0.12);color:var(--stage${song.stage});">Stage ${song.stage}</span>
+        </div>
+      </div>`;
+    });
+  });
+
+  grid.innerHTML = html || '<p style="color:var(--muted-text);font-size:.85rem;">No fills match this filter.</p>';
 }
 
 // ══════════════════════════════════════════════
