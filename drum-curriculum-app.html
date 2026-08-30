@@ -176,6 +176,18 @@
         .transport-btn:hover { background: var(--teal-dim); border-color: var(--teal); color: var(--light-text); }
         .transport-btn.active { background: var(--teal); color: #000; border-color: var(--teal); }
         .transport-bpm { font-size: .76rem; color: var(--muted-text); margin-left: auto; font-weight: 600; }
+        .export-midi-btn { background: none; border: 1px solid rgba(77,184,168,0.25); color: var(--teal); font-size: .72rem; font-weight: 600; letter-spacing: .03em; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all .2s; text-transform: uppercase; font-family: 'SF Mono','Fira Code',monospace; }
+        .export-midi-btn:hover { background: var(--teal-dim); border-color: var(--teal); }
+        .export-all-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--teal-dim); border: 1px solid rgba(77,184,168,0.3); color: var(--teal); font-size: .82rem; font-weight: 600; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all .2s; margin-top: 14px; }
+        .export-all-btn:hover { background: var(--teal); color: #000; }
+        .kit-map-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 10px; }
+        .kit-map-table th { text-align: left; color: var(--teal); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .kit-map-table td { padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--light-text); }
+        .kit-map-table input[type="number"] { width: 56px; background: var(--card-bg); border: 1px solid rgba(77,184,168,0.2); color: var(--light-text); padding: 3px 6px; border-radius: 4px; font-size: .82rem; font-family: 'SF Mono','Fira Code',monospace; text-align: center; }
+        .kit-map-table input[type="number"]:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(77,184,168,0.15); }
+        .kit-map-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .kit-map-actions button { font-size: .78rem; padding: 5px 12px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: var(--card-bg); color: var(--muted-text); transition: all .2s; }
+        .kit-map-actions button:hover { border-color: var(--teal); color: var(--light-text); }
         .drum-cell.playhead { background: var(--playing) !important; color: #fff !important; box-shadow: 0 0 8px rgba(255,107,107,0.5); }
 
         /* ── Fill Viz ── */
@@ -523,6 +535,7 @@
                 <li>Use the MIDI mapping tips in each song's Logic tab for kit-specific guidance</li>
             </ul>
         </div>
+        <div id="kitMapEditorSlot"></div>
     </div>
 </div>
 
@@ -1664,6 +1677,10 @@ function switchView(view) {
     document.getElementById(`view-${view}`).classList.add('active');
     document.querySelector(`.nav-link[data-view="${view}"]`)?.classList.add('active');
   }
+  if (view === 'workflow') {
+    const slot = document.getElementById('kitMapEditorSlot');
+    if (slot && !slot.hasChildNodes()) slot.innerHTML = renderKitMapEditor();
+  }
   window.scrollTo(0, 0);
 }
 
@@ -1767,6 +1784,10 @@ function renderDetail() {
       <div class="section-block">
         <h3>Dynamics Notes</h3>
         <div class="dynamics-box">${s.dynamicsNotes}</div>
+      </div>
+      <div class="section-block">
+        <button class="export-all-btn" onclick="exportAllSongMidi(${s.id})">Export All Sections as MIDI</button>
+        <p style="color:var(--muted-text);font-size:.75rem;margin-top:6px;">Downloads one .mid file per section and fill. Drag into Logic Pro as reference tracks.</p>
       </div>
     </div>
 
@@ -1926,6 +1947,16 @@ function renderDetail() {
       });
     });
   });
+
+  el.querySelectorAll('.export-midi-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const ascii = decodeURIComponent(btn.dataset.ascii);
+      const tempo = parseInt(btn.dataset.tempo) || 120;
+      const label = btn.dataset.label || 'pattern';
+      exportCardMidi(ascii, tempo, label, s.slug);
+    });
+  });
 }
 
 function renderGrooveCard(g, grooveId, bpm) {
@@ -1947,6 +1978,7 @@ function renderGrooveCard(g, grooveId, bpm) {
       <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
       <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
       <span class="transport-bpm">${bpm || '?'} BPM</span>
+      <button class="export-midi-btn" data-ascii="${encodeURIComponent(g.asciiNotation)}" data-tempo="${bpm}" data-label="${g.label}" title="Export as MIDI file">MIDI</button>
     </div>
   ` : '';
   return `
@@ -1972,6 +2004,7 @@ function renderFillCard(f, fillId, bpm) {
       <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
       <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
       <span class="transport-bpm">${bpm || '?'} BPM</span>
+      <button class="export-midi-btn" data-ascii="${encodeURIComponent(f.asciiNotation)}" data-tempo="${bpm}" data-label="${f.label}" title="Export as MIDI file">MIDI</button>
     </div>
   ` : '';
   return `
@@ -2460,6 +2493,169 @@ function vlq(n) {
   n >>= 7;
   while (n > 0) { bytes.unshift((n & 0x7F) | 0x80); n >>= 7; }
   return bytes;
+}
+
+// ══════════════════════════════════════════════
+//  REUSABLE MIDI EXPORT FROM ASCII GRID
+// ══════════════════════════════════════════════
+function getKitMap() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('platehead_kit_map'));
+    if (saved && typeof saved === 'object') return saved;
+  } catch(e) {}
+  return {};
+}
+
+function resolveExportNote(midiNote) {
+  const map = getKitMap();
+  return map[midiNote] !== undefined ? map[midiNote] : midiNote;
+}
+
+function gridToMidiBytes(grid, tempo) {
+  const division = 480;
+  const numSteps = grid.rows[0]?.cells.length || 8;
+  const stepsPerBeat = numSteps <= 8 ? 2 : 4;
+  const ticksPerStep = division / stepsPerBeat;
+
+  const data = [];
+  push(data, str2b('MThd')); push(data, i32(6)); push(data, i16(0)); push(data, i16(1)); push(data, i16(division));
+
+  const trk = [];
+  const uspqn = Math.round(60000000 / tempo);
+  push(trk, vlq(0)); push(trk, [0xFF, 0x51, 0x03]); push(trk, [(uspqn>>16)&0xFF,(uspqn>>8)&0xFF,uspqn&0xFF]);
+
+  let events = [];
+  for (let step = 0; step < numSteps; step++) {
+    grid.rows.forEach(row => {
+      const ch = row.cells[step];
+      if (ch === '-') return;
+      const hit = resolveHitInfo(row.label, ch);
+      if (!hit) return;
+      const note = resolveExportNote(hit.midiNote);
+      const tick = step * ticksPerStep;
+      events.push({ tick, note, vel: hit.velocity, dur: Math.round(ticksPerStep * 0.8) });
+    });
+  }
+  events.sort((a, b) => a.tick - b.tick || a.note - b.note);
+
+  let lastTick = 0;
+  events.forEach(ev => {
+    const delta = ev.tick - lastTick;
+    push(trk, vlq(delta));
+    push(trk, [0x99, ev.note, ev.vel]);
+    push(trk, vlq(ev.dur));
+    push(trk, [0x89, ev.note, 0]);
+    lastTick = ev.tick + ev.dur;
+  });
+  push(trk, [0, 0xFF, 0x2F, 0x00]);
+  push(data, str2b('MTrk')); push(data, i32(trk.length)); push(data, trk);
+  return new Uint8Array(data);
+}
+
+function downloadMidiFromGrid(grid, tempo, filename) {
+  const bytes = gridToMidiBytes(grid, tempo);
+  const blob = new Blob([bytes], { type: 'audio/midi' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportCardMidi(asciiNotation, tempo, label, songSlug) {
+  const grid = parseAsciiToGrid(asciiNotation);
+  if (!grid) return;
+  const safeName = label.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 40);
+  downloadMidiFromGrid(grid, tempo, `${songSlug}_${safeName}_${tempo}BPM.mid`);
+}
+
+function exportAllSongMidi(songId) {
+  const song = songs.find(s => s.id === songId);
+  if (!song) return;
+  const tempo = song.tempoRangeBPM.min;
+  const allTracks = [];
+  const division = 480;
+
+  song.groove.forEach((g, i) => {
+    if (g.tacet) return;
+    const grid = parseAsciiToGrid(g.asciiNotation);
+    if (!grid) return;
+    const safeName = g.label.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
+    downloadMidiFromGrid(grid, tempo, `${song.slug}_${String(i+1).padStart(2,'0')}_${safeName}_${tempo}BPM.mid`);
+  });
+  song.fills.forEach((f, i) => {
+    const grid = parseAsciiToGrid(f.asciiNotation);
+    if (!grid) return;
+    const safeName = f.label.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
+    downloadMidiFromGrid(grid, tempo, `${song.slug}_fill${String(i+1).padStart(2,'0')}_${safeName}_${tempo}BPM.mid`);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  KIT MAPPING EDITOR
+// ══════════════════════════════════════════════
+const DEFAULT_KIT_MAP = {
+  36: { label: 'Kick', note: 36 },
+  38: { label: 'Snare', note: 38 },
+  37: { label: 'Rimclick', note: 37 },
+  42: { label: 'Closed HH', note: 42 },
+  46: { label: 'Open HH', note: 46 },
+  44: { label: 'Pedal HH', note: 44 },
+  51: { label: 'Ride', note: 51 },
+  53: { label: 'Ride Bell', note: 53 },
+  49: { label: 'Crash L', note: 49 },
+  57: { label: 'Crash R', note: 57 },
+  55: { label: 'Splash', note: 55 },
+  43: { label: 'Floor Tom', note: 43 },
+  47: { label: 'Mid Tom', note: 47 },
+  48: { label: 'Hi-Mid Tom', note: 48 },
+  50: { label: 'High Tom', note: 50 },
+};
+
+function renderKitMapEditor() {
+  const saved = getKitMap();
+  let html = '<div class="logic-workflow-card" id="kitMapCard"><h3>Kit MIDI Mapping</h3>';
+  html += '<p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Customize the MIDI note numbers used when exporting. Change these to match your Superior Drummer kit mapping. Saved automatically to your browser.</p>';
+  html += '<table class="kit-map-table"><thead><tr><th>Articulation</th><th>GM Default</th><th>Your Map</th></tr></thead><tbody>';
+  Object.entries(DEFAULT_KIT_MAP).forEach(([gmNote, info]) => {
+    const currentVal = saved[gmNote] !== undefined ? saved[gmNote] : info.note;
+    html += `<tr><td>${info.label}</td><td style="color:var(--muted-text);">${info.note}</td><td><input type="number" min="0" max="127" value="${currentVal}" data-gm="${gmNote}" class="kit-map-input"></td></tr>`;
+  });
+  html += '</tbody></table>';
+  html += '<div class="kit-map-actions"><button onclick="saveKitMap()">Save Mapping</button><button onclick="resetKitMap()">Reset to GM</button></div>';
+  html += '</div>';
+  return html;
+}
+
+function saveKitMap() {
+  const inputs = document.querySelectorAll('.kit-map-input');
+  const map = {};
+  let hasCustom = false;
+  inputs.forEach(inp => {
+    const gm = parseInt(inp.dataset.gm);
+    const val = parseInt(inp.value);
+    if (!isNaN(val) && val !== gm) {
+      map[gm] = val;
+      hasCustom = true;
+    }
+  });
+  if (hasCustom) {
+    localStorage.setItem('platehead_kit_map', JSON.stringify(map));
+  } else {
+    localStorage.removeItem('platehead_kit_map');
+  }
+  const btn = document.querySelector('.kit-map-actions button');
+  if (btn) { btn.textContent = 'Saved'; setTimeout(() => btn.textContent = 'Save Mapping', 1500); }
+}
+
+function resetKitMap() {
+  localStorage.removeItem('platehead_kit_map');
+  document.querySelectorAll('.kit-map-input').forEach(inp => {
+    inp.value = inp.dataset.gm;
+  });
+  const btns = document.querySelectorAll('.kit-map-actions button');
+  if (btns[1]) { btns[1].textContent = 'Reset'; setTimeout(() => btns[1].textContent = 'Reset to GM', 1500); }
 }
 
 // ══════════════════════════════════════════════
