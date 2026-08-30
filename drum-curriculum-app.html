@@ -281,6 +281,25 @@
         .euclidean-controls select { padding: 4px 8px; }
         .euclidean-result { font-family: 'SF Mono','Fira Code',monospace; font-size: .8rem; color: var(--role-time); margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; }
 
+        /* ── Production (P4) ── */
+        .notation-toggle { background: none; border: 1px solid rgba(255,255,255,0.1); color: var(--muted-text); font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all .2s; font-family: 'SF Mono','Fira Code',monospace; }
+        .notation-toggle.active { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+        .notation-toggle:hover { border-color: var(--teal); }
+        .notation-wrap { overflow-x: auto; margin-top: 8px; }
+        .notation-wrap svg { display: block; }
+        .midi-capture-bar { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; border: 1px solid rgba(255,107,107,0.15); }
+        .midi-capture-bar .capture-status { font-size: .75rem; color: var(--muted-text); flex: 1; }
+        .midi-capture-bar .capture-status.recording { color: var(--playing); }
+        .midi-capture-bar .capture-btn { font-size: .72rem; padding: 4px 10px; border-radius: 4px; border: 1px solid; cursor: pointer; font-weight: 600; transition: all .2s; font-family: 'SF Mono','Fira Code',monospace; }
+        .capture-btn.rec { border-color: var(--playing); color: var(--playing); background: none; }
+        .capture-btn.rec.active { background: var(--playing); color: #fff; }
+        .capture-btn.rec:hover { background: rgba(255,107,107,0.15); }
+        .capture-btn.export-take { border-color: var(--teal); color: var(--teal); background: none; }
+        .capture-btn.export-take:hover { background: var(--teal-dim); }
+        .arrangement-btn { background: none; border: 1px solid rgba(212,165,116,0.3); color: var(--tan); font-size: .76rem; font-weight: 600; padding: 6px 14px; border-radius: 5px; cursor: pointer; transition: all .2s; }
+        .arrangement-btn:hover { background: var(--tan-dim); border-color: var(--tan); }
+        .midi-device-select { font-size: .78rem; padding: 4px 8px; background: var(--card-bg); color: var(--light-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; }
+
         /* ── Fill Viz ── */
         .fill-card { background: var(--panel-bg); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; }
         .fill-card .fill-label { font-size: .85rem; font-weight: 600; color: var(--teal); margin-bottom: 4px; }
@@ -1943,7 +1962,8 @@ function renderDetail() {
       </div>
       <div class="section-block">
         <button class="export-all-btn" onclick="exportAllSongMidi(${s.id})">Export All Sections as MIDI</button>
-        <p style="color:var(--muted-text);font-size:.75rem;margin-top:6px;">Downloads one .mid file per section and fill. Drag into Logic Pro as reference tracks.</p>
+        <button class="arrangement-btn" onclick="exportArrangement(${s.id})">Export Full Arrangement</button>
+        <p style="color:var(--muted-text);font-size:.75rem;margin-top:6px;">All Sections: one .mid per section. Arrangement: single .mid with all sections as regions + form markers for Logic.</p>
       </div>
     </div>
 
@@ -2037,6 +2057,15 @@ function renderDetail() {
         <div class="sections-timeline">
           ${s.sections.map((sec,i) => `<div class="section-chip"><span class="sec-name">Region ${String.fromCharCode(65+i)}</span><span class="sec-bars">${sec.bars} bars</span><span class="sec-desc">${sec.name}: ${sec.description}</span></div>`).join('')}
         </div>
+      </div>
+      <div class="section-block">
+        <h3>MIDI Output (Reference Audio)</h3>
+        <p style="color:var(--muted-text);font-size:.82rem;margin-bottom:10px;">Route playback to Superior Drummer via a virtual MIDI port. Select a MIDI output to hear your actual kit sounds instead of the built-in synthesis.</p>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <select id="midiOutputSelect" class="midi-device-select"><option value="">Built-in synthesis (default)</option></select>
+          <button class="btn btn-outline" onclick="refreshMidiOutputs()" style="font-size:.78rem;padding:4px 10px;">Refresh</button>
+        </div>
+        <p style="color:var(--muted-text);font-size:.72rem;margin-top:6px;">Requires a virtual MIDI port (e.g., IAC Driver on macOS) routed to Superior Drummer in Logic.</p>
       </div>
     </div>
 
@@ -2196,6 +2225,43 @@ function renderDetail() {
       if (groovePlayback[gid]) groovePlayback[gid].humanize = cb.checked;
     });
   });
+
+  el.querySelectorAll('.notation-toggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const gid = btn.dataset.gid;
+      const slot = el.querySelector(`.notation-slot[data-gid="${gid}"]`);
+      if (!slot) return;
+      const showing = slot.style.display !== 'none';
+      slot.style.display = showing ? 'none' : '';
+      btn.classList.toggle('active', !showing);
+    });
+  });
+
+  el.querySelectorAll('.capture-btn.rec').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const gid = btn.dataset.gid;
+      if (midiCapture.recording && midiCapture.gid === gid) {
+        stopMidiCapture(gid);
+        btn.classList.remove('active');
+        btn.textContent = 'REC';
+      } else {
+        const bpm = parseInt(btn.dataset.tempo) || 120;
+        const ascii = btn.dataset.ascii;
+        startMidiCapture(gid, bpm, ascii);
+        btn.classList.add('active');
+        btn.textContent = 'STOP';
+      }
+    });
+  });
+
+  el.querySelectorAll('.capture-btn.export-take').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportCapturedTake(btn.dataset.gid);
+    });
+  });
 }
 
 function renderGrooveCard(g, grooveId, bpm) {
@@ -2221,6 +2287,7 @@ function renderGrooveCard(g, grooveId, bpm) {
       <div class="transport-extras">
         <button class="transport-toggle" data-action="countin" title="Count-in">1234</button>
         <button class="transport-toggle" data-action="loop" title="Loop">&#8635;</button>
+        <button class="notation-toggle" data-gid="${grooveId}" title="Toggle notation view">&#9835;</button>
       </div>
       <button class="export-midi-btn" data-ascii="${encodeURIComponent(g.asciiNotation)}" data-tempo="${bpm}" data-label="${g.label}" title="Export as MIDI file">MIDI</button>
     </div>
@@ -2230,6 +2297,11 @@ function renderGrooveCard(g, grooveId, bpm) {
       <div class="engine-control"><label>Push/Drag</label><input type="range" class="engine-pushdrag" min="-40" max="40" value="0" data-gid="${grooveId}"><span class="engine-val">0</span></div>
       <div class="engine-control"><label>Humanize</label><input type="checkbox" class="humanize-cb engine-humanize" data-gid="${grooveId}"></div>
     </div>
+    <div class="midi-capture-bar" data-gid="${grooveId}">
+      <span class="capture-status" data-gid="${grooveId}">MIDI input: waiting</span>
+      <button class="capture-btn rec" data-gid="${grooveId}" data-ascii="${encodeURIComponent(g.asciiNotation)}" data-tempo="${bpm}" title="Record take">REC</button>
+      <button class="capture-btn export-take" data-gid="${grooveId}" style="display:none" title="Export recorded take">Export Take</button>
+    </div>
   ` : '';
   const cx = !g.tacet ? computeComplexity(g.asciiNotation) : null;
   return `
@@ -2238,7 +2310,7 @@ function renderGrooveCard(g, grooveId, bpm) {
       <div class="groove-label">${g.label}${cx ? ' ' + renderComplexityBadge(cx) : ''}</div>
       <div class="groove-desc">${g.description}</div>
       ${g.meter ? `<div class="groove-meter">${g.meter}</div>` : ''}
-      ${grid ? renderDrumGrid(grid, grooveId) + renderRoleLegend() : `<div class="ascii-block">${g.asciiNotation}</div>`}
+      ${grid ? renderDrumGrid(grid, grooveId) + renderRoleLegend() + `<div class="notation-slot" data-gid="${grooveId}" style="display:none">${renderNotation(grid)}</div>` : `<div class="ascii-block">${g.asciiNotation}</div>`}
       ${transportHtml}
     </div>
   `;
@@ -2259,6 +2331,7 @@ function renderFillCard(f, fillId, bpm) {
       <div class="transport-extras">
         <button class="transport-toggle" data-action="countin" title="Count-in">1234</button>
         <button class="transport-toggle" data-action="loop" title="Loop">&#8635;</button>
+        <button class="notation-toggle" data-gid="${fillId}" title="Toggle notation view">&#9835;</button>
       </div>
       <button class="export-midi-btn" data-ascii="${encodeURIComponent(f.asciiNotation)}" data-tempo="${bpm}" data-label="${f.label}" title="Export as MIDI file">MIDI</button>
     </div>
@@ -2274,7 +2347,7 @@ function renderFillCard(f, fillId, bpm) {
       <div class="groove-section-tag" style="color:var(--tan);">FILL</div>
       <div class="groove-label">${f.label}</div>
       <div class="groove-desc">${f.description}</div>
-      ${grid ? renderDrumGrid(grid, fillId) + renderRoleLegend() : `<div class="ascii-block">${f.asciiNotation}</div>`}
+      ${grid ? renderDrumGrid(grid, fillId) + renderRoleLegend() + `<div class="notation-slot" data-gid="${fillId}" style="display:none">${renderNotation(grid)}</div>` : `<div class="ascii-block">${f.asciiNotation}</div>`}
       ${transportHtml}
     </div>
   `;
@@ -2313,6 +2386,72 @@ function renderRoleLegend() {
     <div class="role-legend-item"><div class="role-legend-swatch" style="background:var(--role-time)"></div>Time</div>
     <div class="role-legend-item"><div class="role-legend-swatch" style="background:var(--role-timeline)"></div>Timeline</div>
   </div>`;
+}
+
+function renderNotation(grid) {
+  const numSteps = grid.rows[0]?.cells.length || 8;
+  const stepsPerBeat = numSteps <= 8 ? 2 : 4;
+  const stepW = 28;
+  const labelW = 60;
+  const staffTop = 10;
+  const lineSpacing = 8;
+  const svgW = labelW + numSteps * stepW + 20;
+  const svgH = staffTop + lineSpacing * 8 + 10;
+
+  const staffY = i => staffTop + lineSpacing * (i + 1);
+
+  const noteY = {
+    'hh': staffTop - 2, 'ride': staffTop - 2, 'pedal': staffTop + lineSpacing * 5 + 10,
+    'crash': staffTop - 10, 'crash2': staffTop - 10, 'splash': staffTop - 10,
+    'snare': staffY(1) + lineSpacing / 2, 'ht': staffY(0) + lineSpacing / 2,
+    'hmt': staffY(1), 'mt': staffY(2), 'ft': staffY(3),
+    'kick': staffY(4) + lineSpacing / 2, 'tom': staffY(2), 'bell': staffTop - 2
+  };
+
+  const roleColors = {
+    'anchor': 'var(--role-anchor)', 'backbeat': 'var(--role-backbeat)',
+    'time': 'var(--role-time)', 'timeline': 'var(--role-timeline)'
+  };
+
+  const useX = label => /^hh$|^hat|^ride$|^crash|^splash$|^bell$|^pedal$/i.test(label.trim());
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}" style="min-width:${svgW}px">`;
+
+  for (let i = 0; i < 5; i++) {
+    svg += `<line x1="${labelW}" y1="${staffY(i)}" x2="${svgW - 10}" y2="${staffY(i)}" stroke="var(--muted-text)" stroke-opacity="0.3" stroke-width="1"/>`;
+  }
+
+  for (let beat = 0; beat < Math.ceil(numSteps / stepsPerBeat); beat++) {
+    const x = labelW + beat * stepsPerBeat * stepW;
+    svg += `<line x1="${x}" y1="${staffY(0)}" x2="${x}" y2="${staffY(4)}" stroke="var(--muted-text)" stroke-opacity="0.25" stroke-width="1"/>`;
+  }
+  svg += `<line x1="${labelW + numSteps * stepW}" y1="${staffY(0)}" x2="${labelW + numSteps * stepW}" y2="${staffY(4)}" stroke="var(--muted-text)" stroke-opacity="0.4" stroke-width="2"/>`;
+
+  grid.rows.forEach(row => {
+    const label = row.label.trim().toLowerCase();
+    const role = getLayerRole(row.label);
+    const color = roleColors[role];
+    const y = noteY[label] ?? staffY(2);
+    const isXHead = useX(row.label);
+
+    row.cells.forEach((cell, ci) => {
+      if (cell === '-') return;
+      const x = labelW + ci * stepW + stepW / 2;
+      const isGhost = cell.toLowerCase() === 'g';
+      const opacity = isGhost ? 0.45 : 1;
+
+      if (isXHead) {
+        const s = 4;
+        svg += `<g opacity="${opacity}"><line x1="${x-s}" y1="${y-s}" x2="${x+s}" y2="${y+s}" stroke="${color}" stroke-width="2"/><line x1="${x+s}" y1="${y-s}" x2="${x-s}" y2="${y+s}" stroke="${color}" stroke-width="2"/></g>`;
+      } else {
+        svg += `<ellipse cx="${x}" cy="${y}" rx="4.5" ry="3.5" fill="${color}" opacity="${opacity}"/>`;
+        svg += `<line x1="${x + 4.5}" y1="${y}" x2="${x + 4.5}" y2="${y - 20}" stroke="${color}" stroke-width="1.2" opacity="${opacity}"/>`;
+      }
+    });
+  });
+
+  svg += '</svg>';
+  return `<div class="notation-wrap">${svg}</div>`;
 }
 
 function getLayerRole(label) {
@@ -2515,6 +2654,7 @@ function renderSequencer(drumNames, numSteps, beats) {
 }
 
 function playDrumHit(midiNote, velocity) {
+  if (sendMidiNoteOut(midiNote, velocity || 100)) return;
   const ctx = getAudioCtx();
   if (ctx.state === 'suspended') ctx.resume();
   const vol = (velocity || 100) / 127;
@@ -2670,6 +2810,156 @@ function applyEuclidean() {
   const resultEl = document.getElementById('eucResult');
   resultEl.style.display = '';
   resultEl.textContent = `E(${k},${n}) = [${pattern.join('')}] → applied to ${target}`;
+}
+
+// ══════════════════════════════════════════════
+//  MIDI OUTPUT (Reference Audio)
+// ══════════════════════════════════════════════
+let selectedMidiOutput = null;
+
+async function refreshMidiOutputs() {
+  const access = await initMidiAccess();
+  const sel = document.getElementById('midiOutputSelect');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">Built-in synthesis (default)</option>';
+  if (!access) return;
+  access.outputs.forEach((output, id) => {
+    sel.innerHTML += `<option value="${id}">${output.name}</option>`;
+  });
+  if (prev) sel.value = prev;
+  sel.addEventListener('change', () => {
+    if (sel.value && access) {
+      selectedMidiOutput = access.outputs.get(sel.value) || null;
+    } else {
+      selectedMidiOutput = null;
+    }
+  });
+}
+
+function sendMidiNoteOut(midiNote, velocity) {
+  if (!selectedMidiOutput) return false;
+  try {
+    selectedMidiOutput.send([0x99, midiNote, velocity]);
+    setTimeout(() => {
+      try { selectedMidiOutput.send([0x89, midiNote, 0]); } catch(e) {}
+    }, 150);
+    return true;
+  } catch(e) { return false; }
+}
+
+// ══════════════════════════════════════════════
+//  MIDI CAPTURE (Web MIDI API)
+// ══════════════════════════════════════════════
+let midiAccess = null;
+let midiCapture = { recording: false, gid: null, startTime: 0, events: [], bpm: 120, numSteps: 8, stepsPerBeat: 2 };
+
+async function initMidiAccess() {
+  if (midiAccess) return midiAccess;
+  if (!navigator.requestMIDIAccess) return null;
+  try {
+    midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+    midiAccess.inputs.forEach(input => {
+      input.onmidimessage = handleMidiInput;
+    });
+    midiAccess.onstatechange = () => {
+      midiAccess.inputs.forEach(input => {
+        input.onmidimessage = handleMidiInput;
+      });
+    };
+    return midiAccess;
+  } catch(e) {
+    return null;
+  }
+}
+
+function handleMidiInput(msg) {
+  if (!midiCapture.recording) return;
+  const [status, note, velocity] = msg.data;
+  if ((status & 0xF0) === 0x90 && velocity > 0) {
+    const elapsed = performance.now() - midiCapture.startTime;
+    midiCapture.events.push({ time: elapsed, note, velocity });
+    const statusEl = document.querySelector(`.capture-status[data-gid="${midiCapture.gid}"]`);
+    if (statusEl) statusEl.textContent = `REC: ${midiCapture.events.length} notes`;
+  }
+}
+
+function startMidiCapture(gid, bpm, ascii) {
+  const grid = parseAsciiToGrid(decodeURIComponent(ascii));
+  if (!grid) return;
+  const numSteps = grid.rows[0]?.cells.length || 8;
+  const stepsPerBeat = numSteps <= 8 ? 2 : 4;
+
+  midiCapture = {
+    recording: true, gid, startTime: performance.now(),
+    events: [], bpm: bpm, numSteps, stepsPerBeat
+  };
+
+  initMidiAccess().then(access => {
+    if (!access) {
+      const statusEl = document.querySelector(`.capture-status[data-gid="${gid}"]`);
+      if (statusEl) statusEl.textContent = 'No MIDI device found';
+      midiCapture.recording = false;
+      return;
+    }
+    const statusEl = document.querySelector(`.capture-status[data-gid="${gid}"]`);
+    if (statusEl) { statusEl.textContent = 'REC: listening...'; statusEl.classList.add('recording'); }
+  });
+
+  if (groovePlayback[gid] && !groovePlayback[gid].playing) {
+    groovePlayback[gid].countIn = true;
+    startGroovePlayback(gid);
+  }
+}
+
+function stopMidiCapture(gid) {
+  midiCapture.recording = false;
+  const statusEl = document.querySelector(`.capture-status[data-gid="${gid}"]`);
+  if (statusEl) {
+    statusEl.textContent = `Captured ${midiCapture.events.length} notes`;
+    statusEl.classList.remove('recording');
+  }
+  const exportBtn = document.querySelector(`.export-take[data-gid="${gid}"]`);
+  if (exportBtn && midiCapture.events.length > 0) exportBtn.style.display = '';
+}
+
+function exportCapturedTake(gid) {
+  if (midiCapture.events.length === 0) return;
+  const division = 480;
+  const bpm = midiCapture.bpm;
+  const msPerTick = 60000 / bpm / division;
+
+  const data = [];
+  push(data, str2b('MThd')); push(data, i32(6)); push(data, i16(0)); push(data, i16(1)); push(data, i16(division));
+  const trk = [];
+  const uspqn = Math.round(60000000 / bpm);
+  push(trk, vlq(0)); push(trk, [0xFF, 0x51, 0x03]); push(trk, [(uspqn>>16)&0xFF,(uspqn>>8)&0xFF,uspqn&0xFF]);
+
+  const events = midiCapture.events.map(e => ({
+    tick: Math.round(e.time / msPerTick),
+    note: e.note, vel: e.velocity,
+    dur: Math.round(division / 4)
+  })).sort((a, b) => a.tick - b.tick);
+
+  let lastTick = 0;
+  events.forEach(ev => {
+    const delta = ev.tick - lastTick;
+    push(trk, vlq(delta));
+    push(trk, [0x99, ev.note, ev.vel]);
+    push(trk, vlq(ev.dur));
+    push(trk, [0x89, ev.note, 0]);
+    lastTick = ev.tick + ev.dur;
+  });
+  push(trk, [0, 0xFF, 0x2F, 0x00]);
+  push(data, str2b('MTrk')); push(data, i32(trk.length)); push(data, trk);
+
+  const blob = new Blob([new Uint8Array(data)], { type: 'audio/midi' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `take_${bpm}BPM_${midiCapture.events.length}notes.mid`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ══════════════════════════════════════════════
@@ -2975,6 +3265,78 @@ function exportAllSongMidi(songId) {
     const safeName = f.label.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
     downloadMidiFromGrid(grid, tempo, `${song.slug}_fill${String(i+1).padStart(2,'0')}_${safeName}_${tempo}BPM.mid`);
   });
+}
+
+function exportArrangement(songId) {
+  const song = songs.find(s => s.id === songId);
+  if (!song) return;
+  const tempo = song.tempoRangeBPM.min;
+  const division = 480;
+  const repeats = 4;
+
+  const data = [];
+  push(data, str2b('MThd')); push(data, i32(6)); push(data, i16(0)); push(data, i16(1)); push(data, i16(division));
+
+  const trk = [];
+  const uspqn = Math.round(60000000 / tempo);
+  push(trk, vlq(0)); push(trk, [0xFF, 0x51, 0x03]); push(trk, [(uspqn>>16)&0xFF,(uspqn>>8)&0xFF,uspqn&0xFF]);
+
+  // Track name
+  const nameBytes = str2b(song.title + ' - Arrangement');
+  push(trk, vlq(0)); push(trk, [0xFF, 0x03, nameBytes.length]); push(trk, nameBytes);
+
+  let currentTick = 0;
+  let lastTick = 0;
+
+  song.groove.forEach((g, gi) => {
+    if (g.tacet) return;
+    const grid = parseAsciiToGrid(g.asciiNotation);
+    if (!grid) return;
+
+    const numSteps = grid.rows[0]?.cells.length || 8;
+    const stepsPerBeat = numSteps <= 8 ? 2 : 4;
+    const ticksPerStep = division / stepsPerBeat;
+    const patternTicks = numSteps * ticksPerStep;
+
+    // Marker meta event for section
+    const markerText = str2b(g.section ? `${g.section}: ${g.label}` : g.label);
+    const markerDelta = currentTick - lastTick;
+    push(trk, vlq(markerDelta)); push(trk, [0xFF, 0x06, markerText.length]); push(trk, markerText);
+    lastTick = currentTick;
+
+    for (let rep = 0; rep < repeats; rep++) {
+      grid.rows.forEach(row => {
+        row.cells.forEach((cell, ci) => {
+          if (cell === '-') return;
+          const hit = resolveHitInfo(row.label, cell);
+          if (!hit) return;
+          const note = resolveExportNote(hit.midiNote);
+          const tick = currentTick + ci * ticksPerStep;
+          const delta = tick - lastTick;
+          push(trk, vlq(delta));
+          push(trk, [0x99, note, hit.velocity]);
+          const dur = Math.round(ticksPerStep * 0.8);
+          push(trk, vlq(dur));
+          push(trk, [0x89, note, 0]);
+          lastTick = tick + dur;
+        });
+      });
+      currentTick += patternTicks;
+    }
+  });
+
+  // End of track
+  const endDelta = currentTick - lastTick;
+  push(trk, vlq(endDelta)); push(trk, [0xFF, 0x2F, 0x00]);
+  push(data, str2b('MTrk')); push(data, i32(trk.length)); push(data, trk);
+
+  const blob = new Blob([new Uint8Array(data)], { type: 'audio/midi' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${song.slug}_arrangement_${tempo}BPM.mid`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ══════════════════════════════════════════════
