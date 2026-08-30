@@ -29,6 +29,10 @@
             --diff3: #d4a574;
             --diff4: #e07a5f;
             --diff5: #e05577;
+            --role-anchor: #e07a5f;
+            --role-backbeat: #4db8a8;
+            --role-time: #5bafda;
+            --role-timeline: #c47dff;
             --radius: 8px;
             --radius-sm: 5px;
         }
@@ -149,6 +153,18 @@
         .drum-cell.off { background: var(--off-color); color: transparent; }
         .drum-cell.accent { background: var(--tan); color: #000; box-shadow: 0 0 6px rgba(212,165,116,0.4); }
         .drum-cell.ghost { background: rgba(77,184,168,0.35); color: rgba(0,0,0,0.5); }
+        .drum-cell.role-anchor.on { background: var(--role-anchor); box-shadow: 0 0 6px rgba(224,122,95,0.4); }
+        .drum-cell.role-anchor.ghost { background: rgba(224,122,95,0.35); }
+        .drum-cell.role-backbeat.on { background: var(--role-backbeat); box-shadow: 0 0 6px rgba(77,184,168,0.4); }
+        .drum-cell.role-backbeat.ghost { background: rgba(77,184,168,0.35); }
+        .drum-cell.role-time.on { background: var(--role-time); box-shadow: 0 0 6px rgba(91,175,218,0.4); }
+        .drum-cell.role-time.ghost { background: rgba(91,175,218,0.35); }
+        .drum-cell.role-timeline.on { background: var(--role-timeline); box-shadow: 0 0 6px rgba(196,125,255,0.4); }
+        .drum-cell.role-timeline.ghost { background: rgba(196,125,255,0.35); }
+        .drum-grid-label.role-anchor { color: var(--role-anchor); }
+        .drum-grid-label.role-backbeat { color: var(--role-backbeat); }
+        .drum-grid-label.role-time { color: var(--role-time); }
+        .drum-grid-label.role-timeline { color: var(--role-timeline); }
         .beat-markers { display: flex; gap: 3px; margin-left: 56px; margin-bottom: 4px; }
         .beat-marker-cell { width: 32px; text-align: center; font-size: .65rem; color: var(--muted-text); flex-shrink: 0; }
         .beat-marker-cell.downbeat { color: var(--tan); font-weight: 700; }
@@ -247,6 +263,23 @@
         .session-time { font-size: .76rem; font-weight: 700; color: var(--teal); min-width: 44px; font-family: 'SF Mono','Fira Code',monospace; }
         .session-activity { font-size: .82rem; color: var(--muted-text); }
         .drum-cell.playhead { background: var(--playing) !important; color: #fff !important; box-shadow: 0 0 8px rgba(255,107,107,0.5); }
+
+        /* ── Groove Engine (P3) ── */
+        .groove-engine { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; padding: 8px 0; align-items: center; }
+        .engine-control { display: flex; align-items: center; gap: 5px; font-size: .75rem; color: var(--muted-text); }
+        .engine-control label { white-space: nowrap; }
+        .engine-control input[type="range"] { width: 80px; height: 4px; accent-color: var(--teal); cursor: pointer; }
+        .engine-control .engine-val { font-size: .72rem; color: var(--teal); font-family: 'SF Mono','Fira Code',monospace; min-width: 32px; text-align: center; }
+        .engine-control .humanize-cb { accent-color: var(--teal); }
+        .role-legend { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+        .role-legend-item { display: flex; align-items: center; gap: 4px; font-size: .7rem; color: var(--muted-text); }
+        .role-legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+        .euclidean-panel { background: var(--card-bg); border-radius: var(--radius-sm); padding: 14px; margin-top: 12px; border: 1px solid rgba(91,175,218,0.15); }
+        .euclidean-panel h4 { font-size: .85rem; color: var(--role-time); margin-bottom: 8px; }
+        .euclidean-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .euclidean-controls input[type="number"] { width: 50px; }
+        .euclidean-controls select { padding: 4px 8px; }
+        .euclidean-result { font-family: 'SF Mono','Fira Code',monospace; font-size: .8rem; color: var(--role-time); margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; }
 
         /* ── Fill Viz ── */
         .fill-card { background: var(--panel-bg); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; }
@@ -356,6 +389,14 @@
         }
         .seq-cell.off { background: var(--off-color); }
         .seq-cell.on { background: var(--on-color); box-shadow: 0 0 8px rgba(77,184,168,0.4); }
+        .seq-cell.role-anchor.on { background: var(--role-anchor); box-shadow: 0 0 8px rgba(224,122,95,0.4); }
+        .seq-cell.role-backbeat.on { background: var(--role-backbeat); box-shadow: 0 0 8px rgba(77,184,168,0.4); }
+        .seq-cell.role-time.on { background: var(--role-time); box-shadow: 0 0 8px rgba(91,175,218,0.4); }
+        .seq-cell.role-timeline.on { background: var(--role-timeline); box-shadow: 0 0 8px rgba(196,125,255,0.4); }
+        .seq-label.role-anchor { color: var(--role-anchor); }
+        .seq-label.role-backbeat { color: var(--role-backbeat); }
+        .seq-label.role-time { color: var(--role-time); }
+        .seq-label.role-timeline { color: var(--role-timeline); }
         .seq-cell:hover { transform: scale(1.08); z-index: 10; }
         .seq-cell.seq-playing { background: var(--playing) !important; box-shadow: 0 0 12px rgba(255,107,107,0.6); }
 
@@ -516,11 +557,30 @@
             </div>
         </div>
         <div id="gbSequencer"></div>
+        <div class="groove-engine" id="gbEngine">
+            <div class="engine-control"><label>Swing</label><input type="range" id="gbSwing" min="50" max="67" value="50"><span class="engine-val" id="gbSwingVal">50%</span></div>
+            <div class="engine-control"><label>Push/Drag</label><input type="range" id="gbPushDrag" min="-40" max="40" value="0"><span class="engine-val" id="gbPushDragVal">0</span></div>
+            <div class="engine-control"><label>Humanize</label><input type="checkbox" id="gbHumanize" class="humanize-cb"></div>
+        </div>
         <div class="gb-actions">
             <button class="btn btn-red" id="gbPlay">Play</button>
             <button class="btn btn-outline" id="gbStop" style="display:none;">Stop</button>
             <button class="btn btn-outline" id="gbClear">Clear</button>
             <button class="btn btn-green" id="gbExport">Export MIDI</button>
+        </div>
+        <div class="euclidean-panel">
+            <h4>Euclidean Rhythm Generator</h4>
+            <p style="font-size:.78rem;color:var(--muted-text);margin-bottom:10px;">Generate evenly-spaced patterns — E(k,n) distributes k hits across n steps.</p>
+            <div class="euclidean-controls">
+                <label style="font-size:.8rem;color:var(--muted-text);">Hits (k)</label>
+                <input type="number" id="eucK" value="3" min="1" max="32">
+                <label style="font-size:.8rem;color:var(--muted-text);">Steps (n)</label>
+                <input type="number" id="eucN" value="8" min="2" max="32">
+                <label style="font-size:.8rem;color:var(--muted-text);">Apply to</label>
+                <select id="eucTarget"></select>
+                <button class="btn btn-outline" id="eucApply" style="font-size:.8rem;padding:4px 12px;">Apply</button>
+            </div>
+            <div id="eucResult" class="euclidean-result" style="display:none;"></div>
         </div>
     </div>
 
@@ -2073,7 +2133,10 @@ function renderDetail() {
       const ascii = decodeURIComponent(btn.dataset.ascii);
       const tempo = parseInt(btn.dataset.tempo) || 120;
       const label = btn.dataset.label || 'pattern';
-      exportCardMidi(ascii, tempo, label, s.slug);
+      const gid = btn.closest('.groove-transport')?.dataset.gid;
+      const state = gid && groovePlayback[gid];
+      const engineOpts = state ? { swing: state.swing, pushDrag: state.pushDrag, humanize: state.humanize } : {};
+      exportCardMidi(ascii, tempo, label, s.slug, engineOpts);
     });
   });
 
@@ -2109,6 +2172,30 @@ function renderDetail() {
       }
     });
   });
+
+  el.querySelectorAll('.engine-swing').forEach(slider => {
+    slider.addEventListener('input', () => {
+      const gid = slider.dataset.gid;
+      const val = parseInt(slider.value);
+      slider.nextElementSibling.textContent = val + '%';
+      if (groovePlayback[gid]) groovePlayback[gid].swing = val;
+    });
+  });
+  el.querySelectorAll('.engine-pushdrag').forEach(slider => {
+    slider.addEventListener('input', () => {
+      const gid = slider.dataset.gid;
+      const val = parseInt(slider.value);
+      const label = val === 0 ? '0' : (val < 0 ? val.toString() : '+' + val);
+      slider.nextElementSibling.textContent = label;
+      if (groovePlayback[gid]) groovePlayback[gid].pushDrag = val;
+    });
+  });
+  el.querySelectorAll('.engine-humanize').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const gid = cb.dataset.gid;
+      if (groovePlayback[gid]) groovePlayback[gid].humanize = cb.checked;
+    });
+  });
 }
 
 function renderGrooveCard(g, grooveId, bpm) {
@@ -2138,6 +2225,11 @@ function renderGrooveCard(g, grooveId, bpm) {
       <button class="export-midi-btn" data-ascii="${encodeURIComponent(g.asciiNotation)}" data-tempo="${bpm}" data-label="${g.label}" title="Export as MIDI file">MIDI</button>
     </div>
     <div class="limb-controls" data-gid="${grooveId}">${limbLabels.map(l => `<button class="limb-btn" data-limb="${l}" data-gid="${grooveId}">${l}</button>`).join('')}</div>
+    <div class="groove-engine" data-gid="${grooveId}">
+      <div class="engine-control"><label>Swing</label><input type="range" class="engine-swing" min="50" max="67" value="50" data-gid="${grooveId}"><span class="engine-val">50%</span></div>
+      <div class="engine-control"><label>Push/Drag</label><input type="range" class="engine-pushdrag" min="-40" max="40" value="0" data-gid="${grooveId}"><span class="engine-val">0</span></div>
+      <div class="engine-control"><label>Humanize</label><input type="checkbox" class="humanize-cb engine-humanize" data-gid="${grooveId}"></div>
+    </div>
   ` : '';
   const cx = !g.tacet ? computeComplexity(g.asciiNotation) : null;
   return `
@@ -2146,7 +2238,7 @@ function renderGrooveCard(g, grooveId, bpm) {
       <div class="groove-label">${g.label}${cx ? ' ' + renderComplexityBadge(cx) : ''}</div>
       <div class="groove-desc">${g.description}</div>
       ${g.meter ? `<div class="groove-meter">${g.meter}</div>` : ''}
-      ${grid ? renderDrumGrid(grid, grooveId) : `<div class="ascii-block">${g.asciiNotation}</div>`}
+      ${grid ? renderDrumGrid(grid, grooveId) + renderRoleLegend() : `<div class="ascii-block">${g.asciiNotation}</div>`}
       ${transportHtml}
     </div>
   `;
@@ -2171,13 +2263,18 @@ function renderFillCard(f, fillId, bpm) {
       <button class="export-midi-btn" data-ascii="${encodeURIComponent(f.asciiNotation)}" data-tempo="${bpm}" data-label="${f.label}" title="Export as MIDI file">MIDI</button>
     </div>
     <div class="limb-controls" data-gid="${fillId}">${limbLabels.map(l => `<button class="limb-btn" data-limb="${l}" data-gid="${fillId}">${l}</button>`).join('')}</div>
+    <div class="groove-engine" data-gid="${fillId}">
+      <div class="engine-control"><label>Swing</label><input type="range" class="engine-swing" min="50" max="67" value="50" data-gid="${fillId}"><span class="engine-val">50%</span></div>
+      <div class="engine-control"><label>Push/Drag</label><input type="range" class="engine-pushdrag" min="-40" max="40" value="0" data-gid="${fillId}"><span class="engine-val">0</span></div>
+      <div class="engine-control"><label>Humanize</label><input type="checkbox" class="humanize-cb engine-humanize" data-gid="${fillId}"></div>
+    </div>
   ` : '';
   return `
     <div class="groove-card">
       <div class="groove-section-tag" style="color:var(--tan);">FILL</div>
       <div class="groove-label">${f.label}</div>
       <div class="groove-desc">${f.description}</div>
-      ${grid ? renderDrumGrid(grid, fillId) : `<div class="ascii-block">${f.asciiNotation}</div>`}
+      ${grid ? renderDrumGrid(grid, fillId) + renderRoleLegend() : `<div class="ascii-block">${f.asciiNotation}</div>`}
       ${transportHtml}
     </div>
   `;
@@ -2209,12 +2306,28 @@ function parseAsciiToGrid(ascii) {
   return { beats, rows };
 }
 
+function renderRoleLegend() {
+  return `<div class="role-legend">
+    <div class="role-legend-item"><div class="role-legend-swatch" style="background:var(--role-anchor)"></div>Anchor</div>
+    <div class="role-legend-item"><div class="role-legend-swatch" style="background:var(--role-backbeat)"></div>Backbeat</div>
+    <div class="role-legend-item"><div class="role-legend-swatch" style="background:var(--role-time)"></div>Time</div>
+    <div class="role-legend-item"><div class="role-legend-swatch" style="background:var(--role-timeline)"></div>Timeline</div>
+  </div>`;
+}
+
+function getLayerRole(label) {
+  const l = label.trim().toLowerCase();
+  if (/^kick$|^bd$/.test(l)) return 'anchor';
+  if (/^snare$|^sd$|^rim/.test(l)) return 'backbeat';
+  if (/^hh$|^hat|^ride$|^pedal$/.test(l)) return 'time';
+  return 'timeline';
+}
+
 function renderDrumGrid(grid, gridId) {
   const numCells = grid.rows[0]?.cells.length || 8;
   const idAttr = gridId ? ` id="gg-${gridId}"` : '';
   let html = `<div class="grid-container"><div class="drum-grid"${idAttr}>`;
 
-  // Beat markers
   if (grid.beats.length) {
     html += '<div class="beat-markers">';
     grid.beats.forEach(b => {
@@ -2225,14 +2338,15 @@ function renderDrumGrid(grid, gridId) {
   }
 
   grid.rows.forEach((row, ri) => {
+    const role = getLayerRole(row.label);
     html += '<div class="drum-grid-row">';
-    html += `<div class="drum-grid-label">${row.label}</div>`;
+    html += `<div class="drum-grid-label role-${role}">${row.label}</div>`;
     html += '<div class="drum-grid-cells">';
     row.cells.forEach((cell, ci) => {
       const isOn = cell !== '-';
       const isGhost = cell.toLowerCase() === 'g';
       const cls = isGhost ? 'ghost' : (isOn ? 'on' : 'off');
-      html += `<div class="drum-cell ${cls}" data-ri="${ri}" data-ci="${ci}">${isOn ? cell : ''}</div>`;
+      html += `<div class="drum-cell role-${role} ${cls}" data-ri="${ri}" data-ci="${ci}">${isOn ? cell : ''}</div>`;
     });
     html += '</div></div>';
   });
@@ -2306,6 +2420,16 @@ function initGrooveBuilder() {
   document.getElementById('gbStop').addEventListener('click', stopGBPlayback);
   document.getElementById('gbClear').addEventListener('click', clearGB);
   document.getElementById('gbExport').addEventListener('click', exportGBMidi);
+
+  document.getElementById('gbSwing').addEventListener('input', function() {
+    document.getElementById('gbSwingVal').textContent = this.value + '%';
+  });
+  document.getElementById('gbPushDrag').addEventListener('input', function() {
+    const v = parseInt(this.value);
+    document.getElementById('gbPushDragVal').textContent = v === 0 ? '0' : (v < 0 ? v : '+' + v);
+  });
+
+  document.getElementById('eucApply').addEventListener('click', applyEuclidean);
   updateGrooveSelect();
 }
 
@@ -2339,6 +2463,13 @@ function loadGrooveIntoSequencer() {
   });
 
   renderSequencer(drumNames, numSteps, grid.beats);
+
+  const eucTarget = document.getElementById('eucTarget');
+  if (eucTarget) {
+    eucTarget.innerHTML = drumNames.map(n => `<option value="${n}">${n}</option>`).join('');
+    const timeRows = drumNames.filter(n => getLayerRole(n) === 'time');
+    if (timeRows.length) eucTarget.value = timeRows[0];
+  }
 }
 
 function renderSequencer(drumNames, numSteps, beats) {
@@ -2360,10 +2491,11 @@ function renderSequencer(drumNames, numSteps, beats) {
   html += '</div>';
 
   drumNames.forEach(name => {
-    html += `<div class="seq-row"><div class="seq-label">${name}</div><div class="seq-cells">`;
+    const role = getLayerRole(name);
+    html += `<div class="seq-row"><div class="seq-label role-${role}">${name}</div><div class="seq-cells">`;
     for (let i = 0; i < numSteps; i++) {
       const isOn = gbPattern[name]?.[i] ? 'on' : 'off';
-      html += `<button class="seq-cell ${isOn}" data-drum="${name}" data-step="${i}" id="seq-${name}-${i}"></button>`;
+      html += `<button class="seq-cell role-${role} ${isOn}" data-drum="${name}" data-step="${i}" id="seq-${name}-${i}"></button>`;
     }
     html += '</div></div>';
   });
@@ -2456,7 +2588,14 @@ function startGBPlayback() {
       }
     });
     gbStep = (gbStep + 1) % numSteps;
-    gbInterval = setTimeout(tick, stepDur);
+    let delay = stepDur;
+    const gbSwingVal = parseInt(document.getElementById('gbSwing')?.value) || 50;
+    if (gbSwingVal > 50) {
+      const swingRatio = gbSwingVal / 100;
+      const beatDur = stepDur * 2;
+      delay = (gbStep % 2 === 1) ? beatDur * swingRatio : beatDur * (1 - swingRatio);
+    }
+    gbInterval = setTimeout(tick, delay);
   }
   tick();
 }
@@ -2475,6 +2614,62 @@ function clearGB() {
     gbPattern[drum] = gbPattern[drum].map(() => 0);
   });
   document.querySelectorAll('.seq-cell').forEach(c => { c.classList.remove('on'); c.classList.add('off'); });
+}
+
+function euclidean(k, n) {
+  if (k >= n) return new Array(n).fill(1);
+  if (k <= 0) return new Array(n).fill(0);
+  let pattern = [];
+  for (let i = 0; i < n; i++) pattern.push(i < k ? [1] : [0]);
+  let level = 0;
+  while (true) {
+    const counts = [0, 0];
+    for (let i = 0; i < pattern.length; i++) {
+      if (i < k) counts[0]++;
+      else counts[1]++;
+    }
+    if (counts[1] <= 1) break;
+    const minLen = Math.min(counts[0], counts[1]);
+    const newPattern = [];
+    for (let i = 0; i < minLen; i++) {
+      newPattern.push([...pattern[i], ...pattern[pattern.length - 1 - i]]);
+    }
+    for (let i = minLen; i < pattern.length - minLen; i++) {
+      newPattern.push(pattern[i]);
+    }
+    pattern = newPattern;
+    k = minLen;
+    level++;
+    if (level > 32) break;
+  }
+  return pattern.flat();
+}
+
+function applyEuclidean() {
+  const k = parseInt(document.getElementById('eucK').value) || 3;
+  const n = parseInt(document.getElementById('eucN').value) || 8;
+  const target = document.getElementById('eucTarget').value;
+  if (!target || !gbPattern[target]) return;
+
+  const pattern = euclidean(k, n);
+  const numSteps = gbPattern[target].length;
+  const result = [];
+  for (let i = 0; i < numSteps; i++) {
+    result.push(pattern[i % pattern.length]);
+  }
+  gbPattern[target] = result;
+
+  result.forEach((v, i) => {
+    const cell = document.getElementById(`seq-${target}-${i}`);
+    if (cell) {
+      cell.classList.toggle('on', v === 1);
+      cell.classList.toggle('off', v === 0);
+    }
+  });
+
+  const resultEl = document.getElementById('eucResult');
+  resultEl.style.display = '';
+  resultEl.textContent = `E(${k},${n}) = [${pattern.join('')}] → applied to ${target}`;
 }
 
 // ══════════════════════════════════════════════
@@ -2580,7 +2775,14 @@ function grooveTick(grooveId) {
     return;
   }
   state.step = nextStep % state.numSteps;
-  state.intervalId = setTimeout(() => grooveTick(grooveId), state.stepDurMs);
+  let delay = state.stepDurMs;
+  if (state.swing > 50) {
+    const swingRatio = state.swing / 100;
+    const isOddStep = state.step % 2 === 1;
+    const beatDurMs = state.stepDurMs * 2;
+    delay = isOddStep ? beatDurMs * swingRatio : beatDurMs * (1 - swingRatio);
+  }
+  state.intervalId = setTimeout(() => grooveTick(grooveId), delay);
 }
 
 function updateTransportUI(grooveId) {
@@ -2605,7 +2807,8 @@ function initGrooveTransport(grooveId, grid, bpm) {
   groovePlayback[grooveId] = {
     playing: false, paused: false, step: 0,
     intervalId: null, grid, numSteps, stepsPerBeat, stepDurMs,
-    bpm: bpm, countIn: false, loop: true
+    bpm: bpm, countIn: false, loop: true,
+    swing: 50, pushDrag: 0, humanize: false
   };
   mutedLimbs[grooveId] = new Set();
 }
@@ -2617,52 +2820,19 @@ function exportGBMidi() {
   const tempo = parseInt(document.getElementById('gbTempo').value) || 120;
   const drums = Object.keys(gbPattern);
   const numSteps = gbPattern[drums[0]]?.length || 8;
-  const division = 480;
-  const stepsPerBeat = numSteps <= 8 ? 2 : 4;
-  const ticksPerStep = division / stepsPerBeat;
 
-  // Build MIDI bytes
-  const data = [];
-  // Header
-  push(data, str2b('MThd')); push(data, i32(6)); push(data, i16(0)); push(data, i16(1)); push(data, i16(division));
-  // Track
-  const trk = [];
-  // Tempo
-  const uspqn = Math.round(60000000 / tempo);
-  push(trk, vlq(0)); push(trk, [0xFF, 0x51, 0x03]); push(trk, [(uspqn>>16)&0xFF,(uspqn>>8)&0xFF,uspqn&0xFF]);
-  // Notes
-  let events = [];
-  for (let step = 0; step < numSteps; step++) {
-    drums.forEach(drum => {
-      if (gbPattern[drum][step]) {
-        const note = GM_DRUMS[drum] || 42;
-        const tick = step * ticksPerStep;
-        events.push({ tick, note, vel: 100, dur: Math.round(ticksPerStep * 0.8) });
-      }
-    });
-  }
-  events.sort((a, b) => a.tick - b.tick || a.note - b.note);
-  let lastTick = 0;
-  events.forEach(ev => {
-    const delta = ev.tick - lastTick;
-    push(trk, vlq(delta));
-    push(trk, [0x99, ev.note, ev.vel]); // ch 10
-    push(trk, vlq(ev.dur));
-    push(trk, [0x89, ev.note, 0]);
-    lastTick = ev.tick + ev.dur;
-  });
-  push(trk, [0, 0xFF, 0x2F, 0x00]);
-  push(data, str2b('MTrk')); push(data, i32(trk.length)); push(data, trk);
+  const grid = { beats: [], rows: drums.map(name => ({
+    label: name,
+    cells: gbPattern[name].map(v => v ? 'x' : '-')
+  })) };
 
-  const blob = new Blob([new Uint8Array(data)], { type: 'audio/midi' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const swing = parseInt(document.getElementById('gbSwing')?.value) || 50;
+  const pushDrag = parseInt(document.getElementById('gbPushDrag')?.value) || 0;
+  const humanize = document.getElementById('gbHumanize')?.checked || false;
+
   const songId = document.getElementById('gbSongSelect').value;
   const song = songs.find(s => s.id === parseInt(songId));
-  a.href = url;
-  a.download = `${song.slug}_${tempo}BPM.mid`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  downloadMidiFromGrid(grid, tempo, `${song.slug}_${tempo}BPM.mid`, { swing, pushDrag, humanize });
 }
 
 function push(arr, items) { items.forEach(b => arr.push(b)); }
@@ -2692,11 +2862,13 @@ function resolveExportNote(midiNote) {
   return map[midiNote] !== undefined ? map[midiNote] : midiNote;
 }
 
-function gridToMidiBytes(grid, tempo) {
+function gridToMidiBytes(grid, tempo, opts) {
+  const { swing = 50, pushDrag = 0, humanize = false } = opts || {};
   const division = 480;
   const numSteps = grid.rows[0]?.cells.length || 8;
   const stepsPerBeat = numSteps <= 8 ? 2 : 4;
   const ticksPerStep = division / stepsPerBeat;
+  const ticksPerBeat = division;
 
   const data = [];
   push(data, str2b('MThd')); push(data, i32(6)); push(data, i16(0)); push(data, i16(1)); push(data, i16(division));
@@ -2705,6 +2877,7 @@ function gridToMidiBytes(grid, tempo) {
   const uspqn = Math.round(60000000 / tempo);
   push(trk, vlq(0)); push(trk, [0xFF, 0x51, 0x03]); push(trk, [(uspqn>>16)&0xFF,(uspqn>>8)&0xFF,uspqn&0xFF]);
 
+  const rng = mulberry32(42);
   let events = [];
   for (let step = 0; step < numSteps; step++) {
     grid.rows.forEach(row => {
@@ -2713,8 +2886,29 @@ function gridToMidiBytes(grid, tempo) {
       const hit = resolveHitInfo(row.label, ch);
       if (!hit) return;
       const note = resolveExportNote(hit.midiNote);
-      const tick = step * ticksPerStep;
-      events.push({ tick, note, vel: hit.velocity, dur: Math.round(ticksPerStep * 0.8) });
+      const role = getLayerRole(row.label);
+      let tick = step * ticksPerStep;
+
+      if (swing > 50 && role === 'time' && step % 2 === 1) {
+        const swingRatio = swing / 100;
+        const beatStart = Math.floor(step / 2) * ticksPerBeat;
+        tick = beatStart + Math.round(ticksPerBeat * swingRatio);
+      }
+
+      if (pushDrag !== 0) {
+        tick += Math.round(pushDrag / 1000 * ticksPerBeat);
+      }
+
+      let vel = hit.velocity;
+      if (humanize) {
+        const jitterTicks = Math.round((rng() - 0.5) * 0.06 * ticksPerBeat);
+        tick = Math.max(0, tick + jitterTicks);
+        const velJitter = Math.round((rng() - 0.5) * 16);
+        vel = Math.max(1, Math.min(127, vel + velJitter));
+      }
+
+      tick = Math.max(0, tick);
+      events.push({ tick, note, vel, dur: Math.round(ticksPerStep * 0.8) });
     });
   }
   events.sort((a, b) => a.tick - b.tick || a.note - b.note);
@@ -2733,8 +2927,18 @@ function gridToMidiBytes(grid, tempo) {
   return new Uint8Array(data);
 }
 
-function downloadMidiFromGrid(grid, tempo, filename) {
-  const bytes = gridToMidiBytes(grid, tempo);
+function mulberry32(seed) {
+  let t = seed | 0;
+  return function() {
+    t = (t + 0x6D2B79F5) | 0;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function downloadMidiFromGrid(grid, tempo, filename, opts) {
+  const bytes = gridToMidiBytes(grid, tempo, opts);
   const blob = new Blob([bytes], { type: 'audio/midi' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2744,11 +2948,11 @@ function downloadMidiFromGrid(grid, tempo, filename) {
   URL.revokeObjectURL(url);
 }
 
-function exportCardMidi(asciiNotation, tempo, label, songSlug) {
+function exportCardMidi(asciiNotation, tempo, label, songSlug, engineOpts) {
   const grid = parseAsciiToGrid(asciiNotation);
   if (!grid) return;
   const safeName = label.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 40);
-  downloadMidiFromGrid(grid, tempo, `${songSlug}_${safeName}_${tempo}BPM.mid`);
+  downloadMidiFromGrid(grid, tempo, `${songSlug}_${safeName}_${tempo}BPM.mid`, engineOpts);
 }
 
 function exportAllSongMidi(songId) {
