@@ -552,7 +552,8 @@
         .arr-summary .arr-stat strong { color: var(--teal); }
 
         /* ── Fill Library ── */
-        .fill-lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+        .fill-lib-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .fill-lib-grid .groove-card { margin-bottom: 0; }
         .fill-lib-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; border: 1px solid rgba(77,184,168,0.08); }
         .fill-lib-card h4 { font-size: .88rem; color: var(--light-text); margin-bottom: 4px; }
         .fill-lib-card .fill-desc { font-size: .78rem; color: var(--muted-text); margin-bottom: 8px; line-height: 1.4; }
@@ -4329,6 +4330,76 @@ function generateBolFill(bolIdx) {
   return ascii;
 }
 
+function wireUpFillLibTransport(container) {
+  container.querySelectorAll('.groove-transport').forEach(transport => {
+    const gid = transport.dataset.gid;
+    if (groovePlayback[gid]) return;
+    const gridEl = container.querySelector(`.drum-grid[data-gid="${gid}"]`);
+    if (!gridEl) return;
+    const ascii = transport.querySelector('.export-midi-btn')?.dataset.ascii;
+    if (!ascii) return;
+    const grid = parseAsciiToGrid(decodeURIComponent(ascii));
+    if (!grid) return;
+    const bpm = parseInt(transport.querySelector('.transport-bpm')?.textContent) || 100;
+    initGrooveTransport(gid, grid, bpm);
+
+    transport.querySelectorAll('.transport-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        if (action === 'play') startGroovePlayback(gid);
+        else if (action === 'pause') pauseGroovePlayback(gid);
+        else if (action === 'stop') stopGroovePlayback(gid);
+        else if (action === 'rewind') rewindGroove(gid);
+        else if (action === 'forward') forwardGroove(gid);
+      });
+    });
+
+    transport.querySelectorAll('.transport-toggle').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.action;
+        const state = groovePlayback[gid];
+        if (!state) return;
+        if (action === 'countin') {
+          state.countIn = !state.countIn;
+          btn.classList.toggle('active', state.countIn);
+        } else if (action === 'loop') {
+          state.loop = !state.loop;
+          btn.classList.toggle('active', state.loop);
+        }
+      });
+    });
+    transport.querySelectorAll('.transport-toggle[data-action="loop"]').forEach(btn => btn.classList.add('active'));
+
+    transport.querySelectorAll('.export-midi-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const asciiData = decodeURIComponent(btn.dataset.ascii);
+        const tempo = parseInt(btn.dataset.tempo) || 120;
+        const label = btn.dataset.label || 'fill';
+        const state = groovePlayback[gid];
+        const engineOpts = state ? { swing: state.swing, pushDrag: state.pushDrag, humanize: state.humanize } : {};
+        exportCardMidi(asciiData, tempo, label, 'fill-library', engineOpts);
+      });
+    });
+  });
+
+  container.querySelectorAll('.limb-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gid = btn.dataset.gid;
+      const limb = btn.dataset.limb;
+      if (!mutedLimbs[gid]) mutedLimbs[gid] = new Set();
+      if (mutedLimbs[gid].has(limb)) {
+        mutedLimbs[gid].delete(limb);
+        btn.classList.remove('muted');
+      } else {
+        mutedLimbs[gid].add(limb);
+        btn.classList.add('muted');
+      }
+    });
+  });
+}
+
 function renderFillLibrary() {
   const el = document.getElementById('fillLibraryContent');
   let html = '';
@@ -4365,11 +4436,32 @@ function renderFillLibrary() {
 
   TABLA_BOLS.forEach((bol, i) => {
     const ascii = generateBolFill(i);
-    html += `<div class="fill-lib-card">
-      <h4>${bol.name}</h4>
+    const bolFillId = `flib-bol-${i}`;
+    const grid = parseAsciiToGrid(ascii);
+    const limbLabels = grid ? grid.rows.map(r => r.label) : [];
+    const transportHtml = grid ? `
+      <div class="groove-transport" data-gid="${bolFillId}">
+        <button class="transport-btn" data-action="rewind" title="Rewind">&#9664;&#9664;</button>
+        <button class="transport-btn" data-action="play" title="Play">&#9654;</button>
+        <button class="transport-btn" data-action="pause" title="Pause" style="display:none">&#10074;&#10074;</button>
+        <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
+        <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
+        <span class="transport-bpm">100 BPM</span>
+        <div class="transport-extras">
+          <button class="transport-toggle" data-action="countin" title="Count-in">1234</button>
+          <button class="transport-toggle" data-action="loop" title="Loop">&#8635;</button>
+        </div>
+        <button class="export-midi-btn" data-ascii="${encodeURIComponent(ascii)}" data-tempo="100" data-label="${bol.name}" title="Export as MIDI file">MIDI</button>
+      </div>
+      <div class="limb-controls" data-gid="${bolFillId}">${limbLabels.map(l => `<button class="limb-btn" data-limb="${l}" data-gid="${bolFillId}">${l}</button>`).join('')}</div>
+    ` : '';
+    html += `<div class="groove-card">
+      <div class="groove-section-tag" style="color:var(--stage5);">Tabla Bol</div>
+      <div class="groove-label">${bol.name}</div>
       <div style="font-size:.78rem;color:var(--stage5);margin-bottom:4px;font-style:italic;">${bol.bol}</div>
-      <div class="fill-desc">${bol.desc}</div>
-      <div class="fill-grid-mini">${ascii}</div>
+      <div class="groove-desc">${bol.desc}</div>
+      ${grid ? renderDrumGrid(grid, bolFillId) + renderRoleLegend() : `<div class="ascii-block">${ascii}</div>`}
+      ${transportHtml}
       <div class="fill-meta">
         <span class="fill-tag fill-tag-bol">Tabla</span>
         <span class="fill-tag fill-tag-diff">Diff ${bol.difficulty}</span>
@@ -4391,6 +4483,7 @@ function renderFillLibrary() {
 
   el.innerHTML = html;
 
+  wireUpFillLibTransport(el);
   renderCurriculumFills(0);
 
   document.getElementById('fillFilterStage').addEventListener('change', function() {
@@ -4404,46 +4497,89 @@ function renderFillLibrary() {
     const result = generateAlgorithmicFill(rudiment, beats, voicing);
     const diff = rateFillDifficulty(result.ascii);
 
-    document.getElementById('fillGenResult').innerHTML = `
-      <div class="fill-lib-card">
-        <h4>Generated: ${result.rudiment} (${beats} beat${beats > 1 ? 's' : ''})</h4>
-        <div class="fill-grid-mini">${result.ascii}</div>
+    const genId = `flib-gen-${Date.now()}`;
+    const genGrid = parseAsciiToGrid(result.ascii);
+    const genLimbs = genGrid ? genGrid.rows.map(r => r.label) : [];
+    const genTransport = genGrid ? `
+      <div class="groove-transport" data-gid="${genId}">
+        <button class="transport-btn" data-action="rewind" title="Rewind">&#9664;&#9664;</button>
+        <button class="transport-btn" data-action="play" title="Play">&#9654;</button>
+        <button class="transport-btn" data-action="pause" title="Pause" style="display:none">&#10074;&#10074;</button>
+        <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
+        <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
+        <span class="transport-bpm">120 BPM</span>
+        <div class="transport-extras">
+          <button class="transport-toggle" data-action="countin" title="Count-in">1234</button>
+          <button class="transport-toggle" data-action="loop" title="Loop">&#8635;</button>
+        </div>
+        <button class="export-midi-btn" data-ascii="${encodeURIComponent(result.ascii)}" data-tempo="120" data-label="generated_fill" title="Export as MIDI file">MIDI</button>
+      </div>
+      <div class="limb-controls" data-gid="${genId}">${genLimbs.map(l => `<button class="limb-btn" data-limb="${l}" data-gid="${genId}">${l}</button>`).join('')}</div>
+    ` : '';
+    const resultEl = document.getElementById('fillGenResult');
+    resultEl.innerHTML = `
+      <div class="groove-card">
+        <div class="groove-section-tag" style="color:var(--tan);">Generated</div>
+        <div class="groove-label">${result.rudiment} (${beats} beat${beats > 1 ? 's' : ''})</div>
+        ${genGrid ? renderDrumGrid(genGrid, genId) + renderRoleLegend() : `<div class="ascii-block">${result.ascii}</div>`}
+        ${genTransport}
         <div class="fill-meta">
           <span class="fill-tag fill-tag-rudiment">${result.rudiment}</span>
           <span class="fill-tag fill-tag-diff">Diff ${diff}</span>
         </div>
-        <div style="margin-top:8px;">
-          <button class="btn btn-outline" style="font-size:.78rem;padding:4px 12px;" onclick="exportCardMidi(\`${encodeURIComponent(result.ascii)}\`, 120, 'generated_fill', 'generated')">Export MIDI</button>
-        </div>
       </div>`;
+    wireUpFillLibTransport(resultEl);
   });
 }
 
 function renderCurriculumFills(stageFilter) {
-  const grid = document.getElementById('fillCurriculumGrid');
-  if (!grid) return;
+  const container = document.getElementById('fillCurriculumGrid');
+  if (!container) return;
   let html = '';
 
   songs.forEach(song => {
     if (stageFilter && song.stage !== stageFilter) return;
     if (!song.fills || song.fills.length === 0) return;
 
-    song.fills.forEach(f => {
-      const diff = rateFillDifficulty(f.asciiNotation);
-      html += `<div class="fill-lib-card">
-        <h4>${f.label}</h4>
-        <div style="font-size:.72rem;color:var(--stage${song.stage});margin-bottom:4px;">${song.title}</div>
-        <div class="fill-desc">${f.description}</div>
-        <div class="fill-grid-mini">${f.asciiNotation}</div>
-        <div class="fill-meta">
-          <span class="fill-tag fill-tag-diff">Diff ${diff}</span>
-          <span class="fill-tag" style="background:rgba(77,184,168,0.12);color:var(--stage${song.stage});">Stage ${song.stage}</span>
-        </div>
-      </div>`;
+    song.fills.forEach((f, fi) => {
+      const fillId = `flib-s${song.id}-f${fi}`;
+      html += renderFillCardWithSource(f, fillId, song.tempoRangeBPM.min, song.title, song.stage);
     });
   });
 
-  grid.innerHTML = html || '<p style="color:var(--muted-text);font-size:.85rem;">No fills match this filter.</p>';
+  container.innerHTML = html || '<p style="color:var(--muted-text);font-size:.85rem;">No fills match this filter.</p>';
+  wireUpFillLibTransport(container);
+}
+
+function renderFillCardWithSource(f, fillId, bpm, songTitle, stage) {
+  const grid = parseAsciiToGrid(f.asciiNotation);
+  const hasGrid = grid && fillId;
+  const limbLabels = hasGrid ? grid.rows.map(r => r.label) : [];
+  const transportHtml = hasGrid ? `
+    <div class="groove-transport" data-gid="${fillId}">
+      <button class="transport-btn" data-action="rewind" title="Rewind">&#9664;&#9664;</button>
+      <button class="transport-btn" data-action="play" title="Play">&#9654;</button>
+      <button class="transport-btn" data-action="pause" title="Pause" style="display:none">&#10074;&#10074;</button>
+      <button class="transport-btn" data-action="stop" title="Stop">&#9632;</button>
+      <button class="transport-btn" data-action="forward" title="Forward">&#9654;&#9654;</button>
+      <span class="transport-bpm">${bpm || '?'} BPM</span>
+      <div class="transport-extras">
+        <button class="transport-toggle" data-action="countin" title="Count-in">1234</button>
+        <button class="transport-toggle" data-action="loop" title="Loop">&#8635;</button>
+      </div>
+      <button class="export-midi-btn" data-ascii="${encodeURIComponent(f.asciiNotation)}" data-tempo="${bpm}" data-label="${f.label}" title="Export as MIDI file">MIDI</button>
+    </div>
+    <div class="limb-controls" data-gid="${fillId}">${limbLabels.map(l => `<button class="limb-btn" data-limb="${l}" data-gid="${fillId}">${l}</button>`).join('')}</div>
+  ` : '';
+  return `
+    <div class="groove-card">
+      <div class="groove-section-tag"><span style="color:var(--stage${stage});">${songTitle}</span> &middot; Stage ${stage}</div>
+      <div class="groove-label">${f.label}</div>
+      <div class="groove-desc">${f.description}</div>
+      ${grid ? renderDrumGrid(grid, fillId) + renderRoleLegend() : `<div class="ascii-block">${f.asciiNotation}</div>`}
+      ${transportHtml}
+    </div>
+  `;
 }
 
 // ══════════════════════════════════════════════
