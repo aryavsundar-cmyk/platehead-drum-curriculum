@@ -4334,7 +4334,7 @@ function wireUpFillLibTransport(container) {
   container.querySelectorAll('.groove-transport').forEach(transport => {
     const gid = transport.dataset.gid;
     if (groovePlayback[gid]) return;
-    const gridEl = container.querySelector(`.drum-grid[data-gid="${gid}"]`);
+    const gridEl = document.getElementById('gg-' + gid);
     if (!gridEl) return;
     const ascii = transport.querySelector('.export-midi-btn')?.dataset.ascii;
     if (!ascii) return;
